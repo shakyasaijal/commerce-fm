@@ -5,6 +5,7 @@
 - [Django Setup](#django-setup)
 - [Configuration](#configuration)
 - [Edit Config File](#edit-config-file)
+- [React Setup](https://github.com/shakyasaijal/commerce-fm/tree/dev#prerequisites)
 
 ## Django Setup
 
