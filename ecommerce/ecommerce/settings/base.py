@@ -20,7 +20,9 @@ INSTALLED_APPS = [
 ]
 
 THIRD_PARTY_APPS = []
-OWN_APPS = []
+OWN_APPS = [
+    'frontend'
+]
 
 INSTALLED_APPS += THIRD_PARTY_APPS + OWN_APPS
 
@@ -88,7 +90,11 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-
+MEDIA_URL = '/media'
+STATICFILES_DIRS = [BASE_DIR+"/assets", ]
+STATIC_ROOT = BASE_DIR+'/static'
+MEDIA_ROOT = BASE_DIR+'/media'
+MEDIA_URL = '/media/'
 
 try:
     # System

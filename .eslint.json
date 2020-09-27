@@ -1,0 +1,58 @@
+{
+	"env": {
+		"browser": true,
+		"es6": true,
+		"node": true
+	},
+	"extends": [
+		"eslint:recommended",
+		"plugin:react/recommended",
+		"prettier"
+	],
+	"parser": "babel-eslint",
+	"parserOptions": {
+		"ecmaVersion": 2018,
+		"sourceType": "module"
+	},
+	"plugins": ["react", "prettier"],
+	"rules": {
+		"react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+		"no-unused-vars": "warn",
+		"no-console": "off",
+		"spaced-comment": "off",
+		"prettier/prettier": "error",
+		"func-names": "off",
+		"import/prefer-default-export": "off",
+		"react/prop-types": 0,
+		"class-methods-use-this": "warn",
+		"react/destructuring-assignment": "warn",
+		"react/jsx-props-no-spreading": "warn",
+		"indent": [2, "tab", { "SwitchCase": 1, "VariableDeclarator": 1 }],
+		"no-tabs": 0,
+		"react/jsx-indent": [2, "tab"],
+		"react/jsx-indent-props": [2, "tab"],
+		"require-jsdoc": [
+			"error",
+			{
+				"require": {
+					"FunctionDeclaration": false,
+					"MethodDefinition": false,
+					"ClassDeclaration": false,
+					"ArrowFunctionExpression": false,
+					"FunctionExpression": true
+				}
+			}
+		]
+	},
+	"settings": {
+		"react": {
+			"pragma": "React",
+			"version": "detect"
+		},
+		"import/resolver": {
+			"node": {
+				"moduleDirectory": ["node_modules", "src/"]
+			}
+		}
+	}
+}
