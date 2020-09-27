@@ -1,0 +1,39 @@
+# System
+
+DEBUG: True #False
+MULTI_VENDOR: True #False
+ADD_TO_CART_WITHOUT_LOGIN: False #True
+
+
+# If you have additional data for user
+HAS_ADDITIONAL_USER_DATA: True #False
+# Without additional data, user cannot go to other routes.
+# If True, multi step sign up case.
+MUST_HAVE_ADDITIONAL_DATA: True #False
+
+# Database
+DB_ENGINE: 'mysql' # sqlite3
+DB_NAME: ''
+DB_USER: ''
+DB_PASSWORD: ''
+DB_PORT: ''
+
+# Django
+SECRET_KEY: ''
+ALLOWED_HOSTS: ["*"]
+
+# Email
+sys_email: ""
+sys_password: ""
+smtp_server: "smtp.smtp.com"
+smtp_port: 587
+
+EMAIL_USE_TLS: True
+EMAIL_USE_SSL: False
+smtp_ssl_port: 465
+
+# Template
+TEMPLATE_VERSION: ''
+
+# Company Info
+COMPANY_NAME: 'Commerce'
