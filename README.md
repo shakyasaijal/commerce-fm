@@ -8,6 +8,7 @@ React Implementation of **E-Commerce: Single and Multi Vendor** web app.
 - [Running it locally](#running-it-locally)
 - [Eslint and Prettier](#eslint-and-prettier)
 - [Errors](#errors)
+- [Backend Setup](https://github.com/shakyasaijal/commerce-fm/tree/dev/ecommerce)
 
 ## Pre-requisites
 
