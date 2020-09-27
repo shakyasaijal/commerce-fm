@@ -19,13 +19,23 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
-THIRD_PARTY_APPS = []
+THIRD_PARTY_APPS = [
+    'ckeditor',
+    'ckeditor_uploader',
+]
 OWN_APPS = [
     'Api',
-    'frontend'
+    'User',
+    'Vendor',
+    'Products',
+    'frontend',
+    'Analytics',
+    'CartSystem'
 ]
 
 INSTALLED_APPS += THIRD_PARTY_APPS + OWN_APPS
+CKEDITOR_UPLOAD_PATH = "uploads/"
+AUTH_USER_MODEL = 'User.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -113,7 +123,7 @@ try:
     EMAIL_HOST_PASSWORD = credentials['sys_password']
     EMAIL_PORT = credentials['smtp_port']
     EMAIL_USE_SSL = credentials['EMAIL_USE_SSL']
-except Exception as e:
+except (Exception, KeyError) as e:
     raise ImproperlyConfigured("Config.yaml is not properly set.", e)
 
 TIME_INPUT_FORMATS = ['%I:%M %p',]
