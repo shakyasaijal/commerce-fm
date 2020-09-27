@@ -28,12 +28,14 @@ const App = () => {
 	if (isLoading) return <div className="App">Loading...</div>;
 	const reduxStore = getStore();
 	return (
-		<Router>
-			<Switch>
-				<EcommerceRouter exact path={PATHS.HOME} component={Home} />
-				<EcommerceRouter exact path={PATHS.NOT_FOUND} component={Home} />
-			</Switch>
-		</Router>
+		<Provider store={reduxStore}>
+			<Router>
+				<Switch>
+					<EcommerceRouter exact path={PATHS.HOME} component={Home} />
+					<EcommerceRouter exact path={PATHS.NOT_FOUND} component={Home} />
+				</Switch>
+			</Router>
+		</Provider>
 	);
 };
 
