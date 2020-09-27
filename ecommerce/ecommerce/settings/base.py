@@ -21,6 +21,7 @@ INSTALLED_APPS = [
 
 THIRD_PARTY_APPS = []
 OWN_APPS = [
+    'Api',
     'frontend'
 ]
 
