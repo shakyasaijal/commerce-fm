@@ -15,8 +15,8 @@
     "lint:fix": "yarn prettier:fix && yarn eslint:fix"
   },
   "eslintConfig": {
-		"extends": "react-app"
-	},
+    "extends": "react-app"
+  },
   "dependencies": {
     "axios": "^0.20.0",
     "i": "^0.3.6",
@@ -29,10 +29,12 @@
     "@babel/core": "^7.11.6",
     "@babel/preset-env": "^7.11.5",
     "@babel/preset-react": "^7.10.4",
+    "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-polyfill": "^6.26.0",
     "css-loader": "^4.3.0",
+    "eslint": "^7.10.0",
     "eslint-config-prettier": "^6.12.0",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-jsx-a11y": "^6.3.1",
