@@ -44,7 +44,6 @@ For the default eslint config we are using:
 
 - eslint
 - prettier
-- [eslint-config-airbnb](https://github.com/airbnb/javascript)
 
 For viewing the lint related issues, run the following command.
 
