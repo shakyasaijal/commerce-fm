@@ -1,0 +1,163 @@
+{% extends 'DashboardManagement/v1/Partials/base.html' %}
+
+{% block css %}
+{% endblock css %}
+
+
+{% block content %}
+<h1 class="h4 mb-4 text-gray-800">Create New User</h1>
+{% if messages %}
+{% include "DashboardManagement/v1/Partials/notification.html" %}
+{% endif %}
+
+<form method="POST">
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4 py-3 border-bottom-success">
+            <div class="col-md-12">
+                <h6 class="m-0 font-weight-bold font-black pl10">Credentials</h6>
+            </div>
+            <div class="card-body">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">First Name <span class="red">*</span></label>
+                            <input type="text" class="form-control" autocomplete="off" autofocus id="formGroupExampleInput" placeholder="Require" required value="{{old.first_name}}" name="first_name">
+                            {% if error %}
+                                {% for data in error %}
+                                    <span class="form-error">{{data.fn}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Last Name <span class="red">*</span></label>
+                            <input type="text" class="form-control" autocomplete="off" id="formGroupExampleInput" placeholder="Require" required value="{{old.last_name}}" name="last_name">
+                            {% if error %}
+                                {% for data in error %}
+                                    <span class="form-error">{{data.ln}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Email <span class="red">*</span></label>
+                            <input type="email" class="form-control" autocomplete="off" id="formGroupExampleInput" placeholder="Require" value="{{old.email}}" name="email" required>
+                            {% if error %}
+                                {% for data in error %}
+                                    <span class="form-error">{{data.email}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Password <span class="red">*</span></label>
+                            <input type="password" pattern=".{6,}" class="form-control" autocomplete="off" autofocus id="formGroupExampleInput" placeholder="Require" required name="password">
+                            {% if error %}
+                                {% for data in error %}
+                                    <span class="form-error">{{data.password}}</span>
+                                {% endfor %}
+                            {% endif %}
+                            <small>
+                                <ul class="password-suggestion mt10">
+                                    <b class="red">Rules:</b>
+                                    <li>1. Atleast 6 characters long.</li>
+                                    <li>2. Atleast 1 uppercase and 1 lowercase</li>
+                                    <li>3. Atleast 1 special character</li>
+                                </ul>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+     <div class="col-md-6">
+        <div class="card mb-4 py-3 border-bottom-success">
+            <div class="col-md-12">
+                <h6 class="m-0 font-weight-bold font-black pl10">Personal Information</h6>
+            </div>
+            <div class="card-body">
+                    {% if has_additional_data %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="formGroupExampleInput">Phone Number</label>
+                                    <input type="text" class="form-control" autocomplete="off" id="formGroupExampleInput" value="{{old.phone}}" name="phone">
+                                    {% if error %}
+                                        {% for data in error %}
+                                            <span class="form-error">{{data.phone}}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="formGroupExampleInput">Address</label>
+                                    <input type="text" class="form-control" autocomplete="off" id="formGroupExampleInput" value="{{old.address}}" name="address">
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="row">
+                        {% if has_additional_data %}
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="formGroupExampleInput">District</label>
+                                    <select name="district" class="form-control">
+                                        <option value="0" selected disabled>Select District</option>
+                                        {% for data in districts %}
+                                            <option value="{{data.id}}" {% if old.district and old.district == data.id|stringformat:'i' %} selected {% endif %}>{{data}}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if error %}
+                                        {% for data in error %}
+                                            <span class="form-error">{{data.location}}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if 'view_group' in user_permissions and 'add_group' in user_permissions or is_vendor_admin %}
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="formGroupExampleInput">Groups {{old.groups}}</label>
+                                    <select multiple class="form-control" name="groups">
+                                        {% for data in all_groups %}
+                                            <option value={{data.id}} {% if old.groups and old.groups == data.id|stringformat:'i' %} selected {% endif %}>{{data}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+
+<div class="col-md-4">
+    <div class="form-group">
+        <button type="submit" class="btn btn-success btn-sm btn-icon-split">
+            <span class="icon text-white-50">
+                <i class="fas fa-check"></i>
+            </span>
+            <span class="text">Create</span>
+        </button>
+    </div>
+</div>
+</div>
+</form>
+  
+{% endblock content %}
+
+{% block js %}
+{% endblock js %}

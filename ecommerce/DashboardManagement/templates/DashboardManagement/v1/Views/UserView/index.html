@@ -1,0 +1,96 @@
+{% extends 'DashboardManagement/v1/Partials/base.html' %} {% block content %}
+{% load static %}
+
+{% block css %}
+<link href="{% static 'DashboardManagement/v1/vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+
+{% endblock css %}
+{% if messages %} {% include 'DashboardManagement/v1/Partials/notification.html' %}
+{% endif %}
+<div class="card shadow mb-4">
+  <div class="card-header py-3">
+    <div class="row">
+        <div class="col-md-2">
+            <h6 class="m-0 font-weight-bold">Users</h6>
+        </div>
+        {% if 'add_user' in user_permissions or is_vendor_admin %}
+            <div class="col-md-10">
+                <a href="{% url 'vendor-create-users' %}" class="btn btn-primary btn-sm btn-icon-split float-right">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-plus"></i>
+                    </span>
+                    <span class="text">Create New User</span>
+                </a>
+            </div>
+        {% endif %}
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table
+        class="table table-bordered user-table"
+        id="dataTable"
+        width="100%"
+        cellspacing="0"
+      >
+        <thead>
+          <tr>
+            <th>Name</th>
+            {% if 'view_group' in user_permissions or is_vendor_admin %}
+                <th>Groups</th>
+            {% endif %}
+            {% if has_additional_data %}
+                <th>Address</th>
+                <th>Phone</th>
+            {% endif %}
+            {% if 'view_user' in user_permissions or 'delete_user' in user_permissions or 'change_user' in user_permissions or is_vendor_admin%}
+                <th>Actions</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+            {% for data in vendor_user %}
+                <tr>
+                    <td>{{data.get_full_name}}</td>
+                    {% if 'view_group' in user_permissions or is_vendor_admin %}
+                        <td>
+                            {% if data.groups.all %}
+                                {% for group in data.groups.all %} 
+                                    <span class="badge badge-secondary">{{group}}</span></h6>
+                                {% endfor %}
+                            {% else %}
+                                Not in a group
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                    {% if has_additional_data %}
+                        <td>{% if data.user_profile.address %} {{ data.user_profile.address }} {% else %} Not Set {% endif %}</td>
+                        <td>{% if data.user_profile.phone %} {{data.user_profile.phone}} {% else %} Not Set  {% endif %}</td>
+                    {% endif %}
+                    {% if 'view_user' in user_permissions or 'delete_user' in user_permissions or 'change_user' in user_permissions or is_vendor_admin %}
+                        <td class="flex-row">
+                            {% if 'change_user' in user_permissions or 'view_user' in user_permissions or is_vendor_admin%}
+                                <a class="btn btn-sm btn-primary" href="{% url 'vendor-edit-users' data.id  %}"><i class="fas fa-fw fa-pencil-alt"></i></a>
+                            {% endif %}
+                            {% if 'delete_user' in user_permissions or is_vendor_admin %}
+                                <form method="POST" action="{% url 'vendor-delete-users' data.id %}">
+                                {% csrf_token %}
+                                    <button class="btn btn-danger btn-sm" onClick='return confirm("Are you sure you want to delete {{data.get_full_name}} ?")' type="submit"><i class="fas fa-fw fa-trash-alt"></i></button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block js %}
+<script src="{% static 'DashboardManagement/v1/vendor/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'DashboardManagement/v1/vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'DashboardManagement/v1/js/demo/datatables-demo.js' %}"></script>
+{% endblock js %}

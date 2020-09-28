@@ -1,0 +1,46 @@
+{% extends 'DashboardManagement/v1/Partials/base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h1 class="h3 mb-4 text-gray-800">Groups And Permissions</h1>
+    </div>
+    {% if 'add_group' in user_permissions or is_vendor_admin %}
+    <div class="col-md-4">
+        <a href="{% url 'vendor-create-group' %}" class="btn btn-primary btn-sm btn-icon-split float-right">
+            <span class="icon text-white-50">
+                <i class="fas fa-plus"></i>
+            </span>
+            <span class="text">Create New Group and Permissions</span>
+        </a>
+    </div>  
+    {% endif %}
+</div>
+
+{% if messages %}
+{% include 'DashboardManagement/v1/Partials/notification.html' %}
+{% endif %}
+<div class="card mb-4 py-3 border-bottom-success">
+    <div class="card-body">
+       
+        <div class="row mt10">
+            <div class="col-md-12">
+                {% if groups %}
+                    <ul class="list-group">
+                        {% for group in groups %}
+                            <a href="{% url 'vendor-group-detail' group.id %}">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{forloop.counter}}.  {{group}}
+                                </li>
+                            </a>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <h3>No Groups Created</h3>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

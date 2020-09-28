@@ -30,7 +30,8 @@ OWN_APPS = [
     'Products',
     'frontend',
     'Analytics',
-    'CartSystem'
+    'CartSystem',
+    'DashboardManagement'
 ]
 
 INSTALLED_APPS += THIRD_PARTY_APPS + OWN_APPS
@@ -60,6 +61,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'DashboardManagement.context_processor.context_processor'
             ],
         },
     },
@@ -100,6 +102,8 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+LOGIN_URL = '/dashboard/login'
+
 STATIC_URL = '/static/'
 MEDIA_URL = '/media'
 STATICFILES_DIRS = [BASE_DIR+"/assets", ]
@@ -126,4 +130,4 @@ try:
 except (Exception, KeyError) as e:
     raise ImproperlyConfigured("Config.yaml is not properly set.", e)
 
-TIME_INPUT_FORMATS = ['%I:%M %p',]
+TIME_INPUT_FORMATS = ['%I:%M %p', ]

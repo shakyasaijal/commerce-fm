@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="Special Group">
+  <title>E-Commerce {% if title %}| {{title}} {% endif %}</title>
+  <link href="{% static 'DashboardManagement/v1/vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
+  <link href="{% static 'DashboardManagement/v1/css/sb-admin-2.min.css' %}" rel="stylesheet">
+  <link href="{% static 'DashboardManagement/v1/css/style.css' %}" rel="stylesheet">
+  <link href="{% static 'DashboardManagement/v1/css/select2.min.css' %}" rel="stylesheet" />
+  {% block css %}
+  {% endblock css %}
+</head>
+<body id="page-top">
+    <div id="wrapper">
+        {% include 'DashboardManagement/v1/Partials/sidebar.html' %}
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                {% include 'DashboardManagement/v1/Partials/navbar.html' %}
+                <div class="container-fluid">
+                    {% block content %}
+                    {% endblock content %}
+                </div>
+            </div>
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                <div class="copyright text-center my-auto">
+                    <span>Copyright &copy; Special Group 2020</span>
+                </div>
+                </div>
+            </footer>
+            <!-- End of Footer -->
+        </div>
+    </div>
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+            </div>
+            <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+            <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+            <form action="{% url 'vendor-logout' %}" method="post">
+                {% csrf_token %}
+                <input  class="btn btn-primary"  type="submit" value="Logout">
+            </form>
+            </div>
+        </div>
+        </div>
+    </div>
+
+  <script src="{% static 'DashboardManagement/v1/vendor/jquery/jquery.min.js' %}"></script>
+  <script src="{% static 'DashboardManagement/v1/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'DashboardManagement/v1/vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+  <script src="{% static 'DashboardManagement/v1/js/sb-admin-2.min.js' %}"></script>
+  <script src="{% static 'DashboardManagement/v1/js/select2.min.js' %}"></script>
+    {% block js %}
+  {% endblock js %}
+</body>
+</html>

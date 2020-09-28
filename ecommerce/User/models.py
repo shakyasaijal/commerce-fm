@@ -98,10 +98,11 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-if settings.MULTI_VENDOR:
+if settings.HAS_ADDITIONAL_USER_DATA:
     class UserProfile(models.Model):
         user = models.OneToOneField(
-            User, verbose_name="User", on_delete=models.CASCADE)
+            User, verbose_name="User", on_delete=models.CASCADE, related_name="user_profile")
+        district = models.ForeignKey("CartSystem.Location", null=True, blank=True, on_delete=models.CASCADE)
         phone = models.CharField(max_length=255, null=False, blank=False)
         address = models.CharField(max_length=255, null=False, blank=False)
 

@@ -27,5 +27,6 @@ if settings.MULTI_VENDOR:
 
     Group.add_to_class('vendor', models.ForeignKey(
         Vendor, on_delete=models.CASCADE, null=False, blank=False))
-    Group.add_to_class('description', models.TextField(
-        null=True, blank=True, help_text="Help others to understand about this group."))
+
+Group.add_to_class('description', models.TextField(
+    null=True, blank=True, help_text="Help others to understand about this group."))

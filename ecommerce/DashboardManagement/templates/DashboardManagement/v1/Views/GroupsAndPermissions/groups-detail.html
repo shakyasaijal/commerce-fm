@@ -1,0 +1,105 @@
+{% extends 'DashboardManagement/v1/Partials/base.html' %}
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'DashboardManagement/v1/css/multiselect.css' %}"/>
+{% endblock css %}
+
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h1 class="h3 mb-4 text-gray-800">Groups And Permissions</h1>
+    </div>
+    {% if 'delete_group' in user_permissions or is_vendor_admin %}
+        <div class="col-md-4">
+            <form method="POST" action="{% url 'vendor-delete-group' group.id %}">
+            {% csrf_token %}
+                <button type="submit" onClick='return confirm("Are you sure you want to delete {{group.name}}?")' class="btn btn-danger btn-sm btn-icon-split float-right">
+                    <span class="icon text-white-50">
+                    <i class="fas fa-trash"></i>
+                    </span>
+                    <span class="text">Delete</span>
+                </button>
+            </form>
+        </div>
+    {% endif %}
+</div>
+{% if messages %}
+    {% include 'DashboardManagement/v1/Partials/notification.html' %}
+{% endif %}
+<div class="card mb-4 py-3 border-bottom-success">
+    <div class="card-body">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="formGroupExampleInput">Group Name</label>
+                <input type="text" class="form-control" id="formGroupExampleInput" value="{{group.name}}" name="name">
+            </div>
+            <div class="form-group">
+                <label for="formGroupExampleInput">Group Desciption</label>
+                <textarea class="form-control" name="description">{{group.description}}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="formGroupExampleInput">Group Permissions</label>
+                <div class="row">
+                    <div class="col-md-5">
+                        <label class="permissions">Available Permissions</label>
+                        <select name="from[]" id="search" class="form-control" size="8" multiple="multiple">
+                            {% for data in available_permissions %}
+                                <option value="{{data.id}}">{{data.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <button type="button" id="search_rightAll" class="btn btn-block"><i class="fas fa-arrow-right"></i> </button>
+                        <button type="button" id="search_rightSelected" class="btn btn-block"><i class="fas fa-arrow-circle-right"></i></button>
+                        <button type="button" id="search_leftSelected" class="btn btn-block"><i class="fas fa-arrow-circle-left"></i></button>
+                        <button type="button" id="search_leftAll" class="btn btn-block"><i class="fas fa-arrow-left"></i></button>
+                    </div>
+                    
+                    <div class="col-md-5">
+                        <label class="permissions">Chosen Permissions</label>
+                        <select name="to[]" id="search_to" class="form-control" size="8" multiple="multiple">
+                        {% for data in permissions %}
+                            <option value="{{data.id}}">{{data.name}}</option>
+                        {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            {% if 'change_group' in user_permissions or is_vendor_admin %}
+            <div class="form-group">
+                <button type="submit" class="btn btn-success btn-sm btn-icon-split">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-check"></i>
+                    </span>
+                    <span class="text">Edit & Save</span>
+                </button>
+            </div>
+            {% endif %}
+        </form>
+        
+    </div>
+  </div>
+  
+{% endblock content %}
+
+{% block js %}
+<script src="{% static 'DashboardManagement/v1/js/multiselect.min.js' %}"> </script>
+<script type="text/javascript">
+$(document).ready(function() {
+    // make code pretty
+
+    $('#search').multiselect({
+        search: {
+            left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+            right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+        },
+        fireSearch: function(value) {
+            return value.length > 3;
+        }
+    });
+});
+</script>
+{% endblock js %}
