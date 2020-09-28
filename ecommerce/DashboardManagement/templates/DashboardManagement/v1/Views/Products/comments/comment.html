@@ -1,0 +1,56 @@
+{% extends 'dashboardManagement/Partials/base.html' %}
+{% load static %}
+
+{% block css %}
+<link href="{% static 'dashboardManagement/vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+{% endblock css %}
+
+{% block content %}
+{% if messages %}
+{% include "dashboardManagement/Partials/notification.html" %}
+{% endif %}
+<div class="card mb-4 py-3 border-bottom-success">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table
+              class="table table-bordered user-table"
+              id="dataTable"
+              width="100%"
+              cellspacing="0"
+            >
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th> No. of Comment</th>
+                        {% if 'view_comment' in user_permissions or is_vendor_admin %}
+                        <th>Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <td>{{product.name}}</td>
+                            <td>
+                                {{product.comment}}
+                            </td>
+                            <td>{% if 'view_comment' in user_permissions or is_vendor_admin %}
+                                <a class="btn btn-sm btn-primary" href="{% url 'comment-detail' product.id %}"><i class="fas fa-fw fa-pencil-alt"></i></a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'dashboardManagement/vendor/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'dashboardManagement/vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'dashboardManagement/js/demo/datatables-demo.js' %}"></script>
+{% endblock js %}

@@ -1,0 +1,171 @@
+{% extends 'dashboardManagement/Partials/base.html' %}
+{% load static %}
+
+
+{% block css %}
+<link href="{% static 'dashboardManagement/vendor/ordertables/orderTables.bootstrap4.min.css' %}" rel="stylesheet">
+{% endblock css %}
+
+{% block content %}
+{% load addcss %}
+<div id="msg"></div>
+{% if messages %}
+{% include "dashboardManagement/Partials/notification.html" %}
+{% endif %}
+<div class="card shadow mb-4 border-bottom-success">
+    <div class="card-header py-3">
+        <div class="row">
+            <div class="col-md-2">
+                <h6 class="m-0 font-weight-bold">Order</h6>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- Main content -->
+                    <div class="invoice p-3 mb-3">
+                        <!-- title row -->
+                        <div class="row">
+                            <div class="col-12">
+                                <h4>
+                                    <small class="float-right">Order Date: {{order.datetime|date:"d M Y, D"}} | Time:
+                                        {{ order.datetime|date:"P" }} </small><br />
+                                </h4>
+                            </div>
+                            <!-- /.col -->
+                        </div>
+                        <!-- info row -->
+                        <div class="row invoice-info">
+                            <div class="col-sm-4 invoice-col">
+                                <strong>From</strong>
+                                <address>
+                                    {{ order.user.get_full_name|title }},<br>
+                                    Phone: {{order.phone}}<br>
+                                    Email: {{order.user.email}}
+                                </address>
+                            </div>
+
+                            <!-- /.col -->
+                            <div class="col-sm-4 invoice-col">
+                                <b>Order Id:</b> {{order.unique_order}}<br>
+                                <strong>Address</strong>: {{order.address | linebreaksbr}},
+                                {{order.location.district}}<br>
+                            </div>
+                            <div class="col-sm-4 invoice-col">
+                                <strong>Status</strong>:<span id="status1"></span> {% if order.status == 1 %} <b><span
+                                        id="status_res" style="color:red">Pending</span></b>
+                                {% elif order.status == 2 %} <b><span id="status_res" style="color:gold">In
+                                        Progress</span></b>{% elif order.status == 3 %} <b><span id="status_res"
+                                        style="color:darkgreen">Delivered</span></b> {% endif %}<br>
+                                <strong>Update Status</strong>:
+                                <select id="status" class="form-control">
+                                    <option value=1 {% if order.status == 1 %}selected{% endif %}>Pending
+                                    </option>
+                                    <option value=2 {% if order.status == 2 %}selected{% endif %}>In Progress
+                                    </option>
+                                    <option value=3 {% if order.status == 3 %}selected{% endif %}>Delivered
+                                    </option>
+                                </select>
+
+                            </div>
+                            <!-- /.col -->
+                        </div>
+                        <!-- /.row -->
+
+                        <!-- Table row -->
+                        <div class="row">
+                            <div class="col-12 table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                            <th>Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>{{ order.product.name }}</td>
+                                            <td>{{ order.quantity }}</td>
+                                            <td>{{ order.product.price }}</td>
+                                            <td>{{ order.sub_total }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- /.col -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'dashboardManagement/vendor/ordertables/jquery.orderTables.min.js' %}"></script>
+<script src="{% static 'dashboardManagement/vendor/ordertables/orderTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'dashboardManagement/js/demo/ordertables-demo.js' %}"></script>
+<script>
+    var token = '{{csrf_token}}';
+    var unique_order = '/{{order.unique_order}}'
+    $(document).on('change', '#status', function () {
+        id = $(this).children("option:selected").val();
+        $.ajax({
+            type: 'GET',
+            headers: { "X-CSRFToken": token },
+            url: '/order/update/'+id+unique_order,
+            success: function (data) {
+                console.log(data)
+                if (data.status) {
+                    document.getElementById("msg").innerHTML = `
+                        <div class="alert alert-success alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                            <h5><i class="icon fa fa-check"></i> Alert!</h5>
+                           Status Changed
+                        </div>
+                        `
+                    document.getElementById("status_res").style.display = "none";
+
+                    if (data.data == 1) {
+                        document.getElementById("status1").innerHTML = ' <b><span id="status_res" style="color:red">Pending</span></b>';
+                    }
+                    else if (data.data == 2) {
+                        document.getElementById("status1").innerHTML = ' <b><span id="status_res" style="color:gold">In Progress</span></b>';
+                    }
+                    else if (data.data == 3) {
+                        document.getElementById("status1").innerHTML = ' <b><span id="status_res" style="color:darkgreen">Delivered</span></b>';
+                    }
+                }
+                else {
+                    document.getElementById("msg").innerHTML = `
+                         <div class="alert alert-danger alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                            <p> Unable to change status</p>
+                        </div>
+                        `
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                document.getElementById("msg").innerHTML = `
+                        <div class="alert alert-danger alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        <p> Unable to change status</p>
+                    </div>
+                    `
+                document.getElementById("updated").innerHTML = "Not Updated. Please try again."
+            },
+            contentType: "application/json",
+            dataType: 'json'
+        });
+    })      
+</script>
+
+{% endblock js %}

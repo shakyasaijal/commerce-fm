@@ -1,0 +1,69 @@
+{% extends 'DashboardManagement/v1/Partials/base.html' %}
+{% load static %}
+{% block content %}
+{% load addcss %}
+<div class="row">
+    <div class="col-md-8">
+        <h1 class="h3 mb-4 text-gray-800">Category</h1>
+        <small>Fields with * are required</small>
+    </div>
+</div>
+{% if messages %}
+    {% include "DashboardManagement/v1/Partials/notification.html" %}
+{% endif %}
+<div class="card mb-4 py-3 border-bottom-success">
+    <div class="card-body">
+        <form class="user" enctype="multipart/form-data" method="POST">
+            {% csrf_token %}
+            <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label for="status">{{form.english_name.label|title}}:<span class="red"> *</span></label>
+                    {{form.english_name|addcss:'form-control'}}
+                    {% if form.errors %}
+                        {% for data, i in form.errors.items %}
+                            <span class="form-error">{% if data == "english_name" %}{{i}}{% endif %}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="col-sm-6">
+                    <label for="isFeatured">{{form.nepali_name.label|title}}: <span class="red"> *</span></label>
+                    {{form.nepali_name|addcss:'form-control'}}
+                    {% if form.errors %}
+                        {% for data, i in form.errors.items %}
+                            <span class="form-error">{% if data == "nepali_name" %}{{i}}{% endif %}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label for="categoryImage">{{form.categoryImage.label}}: <span class="red"> *</span></label>
+                    {{form.categoryImage|addcss:'form-control'}}
+                    {% if form.errors %}
+                        {% for data, i in form.errors.items %}
+                            <span class="form-error">{% if data == "categoryImage" %}{{i}}{% endif %}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="col-sm-6">
+                    <label for="bannerImage">{{form.isFeatured.label}}: <span class="red"> *</span></label>
+                    {{form.isFeatured|addcss:'form-control'}}
+                    {% if form.errors %}
+                        {% for data, i in form.errors.items %}
+                            <span class="form-error">{% if data == "isFeatured" %}{{i}}{% endif %}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <input type="submit" name="update-profile" id="update-profile" class="btn btn-primary btn-user btn-block"
+                    value="Add Category" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+{% endblock %}

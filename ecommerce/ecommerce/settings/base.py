@@ -31,7 +31,8 @@ OWN_APPS = [
     'frontend',
     'Analytics',
     'CartSystem',
-    'DashboardManagement'
+    'DashboardManagement',
+    'OrderAndDelivery'
 ]
 
 INSTALLED_APPS += THIRD_PARTY_APPS + OWN_APPS

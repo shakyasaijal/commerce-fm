@@ -44,9 +44,9 @@ class Category(user_models.AbstractTimeStamp):
     nepali_name = models.CharField(max_length=250, null=False,
                             blank=False, unique=True)                            
     categoryImage = models.ImageField(
-        upload_to=category_image_name_change, null=False, blank=False)
+        upload_to=category_image_name_change, null=False, blank=False, verbose_name="Category Image")
     isFeatured = models.BooleanField(
-        null=False, blank=False, default=False, choices=modelHelper.is_featured)
+        null=False, blank=False, default=False, choices=modelHelper.is_featured, verbose_name="Is a featured product?")
 
     def __str__(self):
         return self.english_name

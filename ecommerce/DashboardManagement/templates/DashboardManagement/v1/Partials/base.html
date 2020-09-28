@@ -21,7 +21,7 @@
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
                 {% include 'DashboardManagement/v1/Partials/navbar.html' %}
-                <div class="container-fluid">
+                <div {% if not order_page %} class="container-fluid" {% endif %}>
                     {% block content %}
                     {% endblock content %}
                 </div>

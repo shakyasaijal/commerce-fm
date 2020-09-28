@@ -1,0 +1,62 @@
+{% extends 'DashboardManagement/v1/Partials/base.html' %}
+{% load static %}
+{% block content %}
+{% load addcss %}
+{% if messages %}
+    {% include "DashboardManagement/v1/Partials/notification.html" %}
+{% endif %}
+<div class="card mb-4 py-3 border-bottom-success">
+    <div class="card-body">
+        <form class="user" enctype="multipart/form-data" method="POST">
+            {% csrf_token %}
+            <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label for="status">{{form.english_name.label}}</label>
+                    {{form.english_name|addcss:'form-control'}}
+                </div>
+                <div class="col-sm-6">
+                    <label for="isFeatured">{{form.nepali_name.label}}</label>
+                    {{form.nepali_name|addcss:'form-control'}}
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label for="categoryImage">{{form.categoryImage.label}} :</label>
+                    {{form.categoryImage|addcss:'form-control'}}
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-6">
+                    <label for="isFeatured">{{form.isFeatured.label}}</label>
+                    {{form.isFeatured|addcss:'form-control'}}
+                </div>
+            </div>
+            {% if 'change_category' in user_permissions or is_vendor_admin %}
+            <div class="form-group">
+                <button type="submit" class="btn btn-success btn-sm btn-icon-split">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-check"></i>
+                    </span>
+                    <span class="text">Edit & Save</span>
+                </button>
+            </div>
+            {% endif%}
+        </form>
+
+        {% if 'delete_category' in user_permissions or is_vendor_admin %}
+        <form action="{% url 'category-delete' category.id %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm btn-icon-split float-right"
+                onClick='return confirm("Are you sure you want to delete {{product.name}}? ")'>
+                <span class="icon text-white-50">
+                    <i class="fas fa-trash"></i>
+                </span>
+                <span class="text">Delete</span>
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+
+{% endblock %}

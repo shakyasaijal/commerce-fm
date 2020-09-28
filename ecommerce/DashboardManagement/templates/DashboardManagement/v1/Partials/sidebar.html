@@ -11,14 +11,14 @@
     {% for route in routes %}
         {% if route.group %}
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse{{forloop.counter}}" aria-expanded="true" aria-controls="collapse{{forloop.counter}}">
+                <a {% if route.active %} class="nav-link collapsed"{% else %}class="nav-link"{% endif %} href="#" data-toggle="collapse" data-target="#collapse{{forloop.counter}}" aria-expanded="true" aria-controls="collapse{{forloop.counter}}">
                     <i class="{{ route.icon }}"></i>
                     <span class="capitalize">{{ route.title }}</span>
                 </a>
-                <div id="collapse{{forloop.counter}}" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapse{{forloop.counter}}" {% if route.active %}class="collapse show" {% else %}class="collapse"{% endif %} aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                     {% for data in route.links %}
-                        <a class="collapse-item capitalize" href="{{ data.url }}">{{ data.title }}</a>
+                        <a class="collapse-item capitalize {% if sub_navbar == data.title %}selected-sub-nav{% endif %}" href="{{ data.url }}">{{ data.title }}</a>
                     {% endfor %}
                     </div>
                 </div>

@@ -346,6 +346,26 @@ h5{
   width: 100%;
   object-fit: scale-down;
 }
+.selected-sub-nav{
+  background: #1b3d7724;
+}
+form.user .btn-user{
+  font-size: 1rem !important;
+}
+form ul{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dj-helptext ul{
+  background: #1b3d7724;
+  color: black;
+  /* padding: 5px 10px; */
+  font-size: 15px;
+  margin: 10px auto;
+  list-style: devanagari;
+  padding-left: 25px;
+}
 @media only screen and (max-width: 600px) {
   .reply-form {
     margin-top: -13px;
