@@ -351,8 +351,11 @@ class UsersView(LoginRequiredMixin, View):
         context.update({'title': 'Users'})
 
         if settings.MULTI_VENDOR:
-            vendor = app_helper.current_user_vendor(request.user)
-            vendor_user = vendor.vendorUsers.all()
+            if request.user.is_superuser:
+                vendor_user = user_models.User.objects.filter(is_superuser=True)
+            else:
+                vendor = app_helper.current_user_vendor(request.user)
+                vendor_user = vendor.vendorUsers.all()
         else:
             vendor_user = user_models.User.objects.filter(is_superuser=True)
         context.update({'vendor_user': vendor_user})

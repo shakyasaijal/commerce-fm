@@ -233,6 +233,75 @@ class RegisterAsVendor(View):
             return HttpResponseRedirect(reverse('vendor-join'))
 
 
+class DeleteVendorRequest(LoginRequiredMixin, View):
+    def post(self, request):
+        if not request.user.is_superuser:
+            messages.error(request, "You do not have permission.")
+            return HttpResponseRedirect(reverse('vendor-home'))
+
+        try:
+            vendor = vendor_models.VendorRequest.objects.get(
+                id=request.POST['vr-id'])
+            vendor.delete()
+            messages.success(request, "Vendor has been successfully delete.")
+        except (Exception, vendor_models.VendorRequest.DoesNotExist) as e:
+            messages.error(request, "Data not found.")
+
+        return HttpResponseRedirect(reverse('vendor-vendors'))
+
+
+class EditVendorRequest(LoginRequiredMixin, View):
+    def post(self, request):
+        if not request.user.is_superuser:
+            messages.error(request, "You do not have permission.")
+            return HttpResponseRedirect(reverse('vendor-home'))
+
+        try:
+            vendor = vendor_models.VendorRequest.objects.get(
+                id=request.POST['vr-id'])
+            if vendor.email != request.POST['email']:
+                try:
+                    vendor_models.VendorRequest.objects.get(
+                        email=request.POST['email'])
+                    user_models.User.objects.get(email=request.POST['email'])
+                    messages.warning(
+                        request, "User with this email already exists.")
+                    return HttpResponseRedirect(reverse('vendor-vendors'))
+                except (Exception, vendor_models.VendorRequest.DoesNotExist, user_models.User.DoesNotExist):
+                    vendor.email = request.POST['email']
+
+            vendor.organizationName = request.POST['organizationName']
+            vendor.first_name = request.POST['first_name']
+            vendor.last_name = request.POST['last_name']
+            vendor.save()
+            if request.POST.getlist('send_email_again'):
+                email_data = {
+                    "current_site": get_current_site(request).domain,
+                    "secure": request.is_secure() and "https" or "http",
+                    "email": vendor.email,
+                    "from": request.user.get_full_name(),
+                    "full_name": "{} {}".format(vendor.first_name, vendor.last_name)
+                }
+                flag = False
+                if settings.CELERY_FOR_EMAIL:
+                    if send_email.send_email_with_delay.delay("Vendor Registration", email_data):
+                        flag = True
+                else:
+                    if send_email.send_email_without_delay("Vendor Registration", email_data):
+                        flag = True
+                if not flag:
+                    messages.error(
+                        request, "Vendor email is not valid. Please try again.")
+                else:
+                    messages.success(request, "Vendor Successfully Updated.")
+            else:
+                messages.success(request, "Vendor Successfully Updated.")
+        except (Exception, vendor_models.VendorRequest.DoesNotExist) as e:
+            messages.error(request, "Data not found.")
+
+        return HttpResponseRedirect(reverse('vendor-vendors'))
+
+
 class ResendRegistrationEmail(LoginRequiredMixin, View):
     def get(self, request, id):
         if not request.user.is_superuser:
