@@ -6,7 +6,7 @@
 - [Configuration](#configuration)
 - [Edit Config File](#edit-config-file)
 - [Celery](#celery)
-- [React Setup](https://github.com/shakyasaijal/commerce-fm/tree/dev#prerequisites)
+- [React Setup](https://github.com/shakyasaijal/commerce-fm)
 
 ## Django Setup
 
