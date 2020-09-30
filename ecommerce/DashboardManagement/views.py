@@ -25,6 +25,7 @@ from DashboardManagement.common import create as create_helper
 from Products import models as product_models
 from Products import forms as product_forms
 from DashboardManagement.common import validation as validations
+from Analytics import views as analytics_views
 
 
 template_version = "DashboardManagement/v1"
@@ -39,13 +40,16 @@ def vendor_only(function):
     @wraps(function)
     def _wrapped_view(request, *args, **kwargs):
         if settings.MULTI_VENDOR:
-            vendors = vendor_models.Vendor.objects.all()
-            if request.user.is_authenticated:
-                for vendor in vendors:
-                    if request.user in vendor.vendorUsers.all() or request.user == vendor.vendorAdmin:
-                        return function(request, *args, **kwargs)
-                messages.warning(request, 'Only vendors are allowed to login.')
-                return render(request, template_version+"/Views/LoginView/login.html")
+            if request.user.is_superuser:
+                return function(request, *args, **kwargs)
+            else:
+                vendors = vendor_models.Vendor.objects.all()
+                if request.user.is_authenticated:
+                    for vendor in vendors:
+                        if request.user in vendor.vendorUsers.all() or request.user == vendor.vendorAdmin:
+                            return function(request, *args, **kwargs)
+                    messages.warning(request, 'Only vendors are allowed to login.')
+                    return render(request, template_version+"/Views/LoginView/login.html")
         else:
             if not request.user.is_superuser:
                 messages.warning(request, 'Only vendors are allowed to login.')
@@ -59,7 +63,24 @@ class IndexView(LoginRequiredMixin, View):
     def get(self, request):
         routes = navbar.get_formatted_routes(
             navbar.get_routes(request.user), active_page='dashboard')
-        return render(request, template_version+"/index.html", context={'routes': routes, 'title': 'Dashboard'})
+        context = {}
+        context.update({"routes": routes})
+        context.update({"title": "Dashboard"})
+
+        orders = analytics_views.new_orders(request.user)
+        context.update({"orders_count": orders})
+
+        users = analytics_views.users(request.user)
+        context.update({"users": users})
+
+        new_customer = analytics_views.new_customer_registered_in_week()
+        context.update({"new_customers": new_customer})
+
+        total_products = analytics_views.total_products(request.user)
+        context.update({"total_products": total_products})
+
+
+        return render(request, template_version+"/index.html", context=context)
 
 
 # Authentication
@@ -76,14 +97,17 @@ class LoginView(View):
             if user is not None:
                 login_user = False
                 if settings.MULTI_VENDOR:
-                    vendors = vendor_models.Vendor.objects.all()
-                    for vendor in vendors:
-                        if user in vendor.vendorUsers.all() or user == vendor.vendorAdmin:
-                            login_user = True
-                else:
-                    if request.user.is_superuser:
+                    if user.is_superuser:
                         login_user = True
-
+                    else:
+                        vendors = vendor_models.Vendor.objects.all()
+                        for vendor in vendors:
+                            print(">>>>", user, vendor.vendorAdmin, ">>>")
+                            if user in vendor.vendorUsers.all() or user == vendor.vendorAdmin:
+                                login_user = True
+                else:
+                    if user.is_superuser:
+                        login_user = True
                 if login_user:
                     login(request, user)
                     messages.success(request, 'You are now logged in.')

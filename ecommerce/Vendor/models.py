@@ -25,6 +25,24 @@ if settings.MULTI_VENDOR:
             verbose_name_plural = "Vendors"
             verbose_name = "Vendor"
 
+    class VendorRequest(user_models.AbstractTimeStamp):
+        email = models.EmailField(max_length=255, null=False, blank=False, unique=True)
+        organizationName = models.CharField(
+            max_length=254, null=False, blank=False, verbose_name=_('Organization/ Vendor Name'), unique=True)
+        first_name = models.CharField(max_length=100, null=False, blank=False)
+        last_name = models.CharField(max_length=100, null=False, blank=False)
+
+
+        def __str__(self):
+            return self.organizationName
+
+        def get_full_name(self):
+            return self.first_name+" "+self.last_name
+
+        class Meta:
+            verbose_name = "Vendor Request"
+            verbose_name_plural = "Vendor Requests"
+        
     Group.add_to_class('vendor', models.ForeignKey(
         Vendor, on_delete=models.CASCADE, null=False, blank=False))
 

@@ -4,7 +4,8 @@ from User import models as user_models
 
 
 class SearchedKeyWord(user_models.AbstractTimeStamp):
-    keyword = models.CharField(max_length=255, null=False, blank=False, default="None")
+    keyword = models.CharField(max_length=255, null=False, blank=False, unique=True)
+    count = models.BigIntegerField(null=False, blank=False, default=0)
 
     def __str__(self):
         return self.keyword

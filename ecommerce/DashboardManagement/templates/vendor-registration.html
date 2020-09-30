@@ -1,0 +1,31 @@
+<html lang="en">
+
+<body style="font-family: sans-serif; background: #f5f5f5;">
+    <div style="width: 580px;background-color: white;margin: 0 auto;">
+        <div style="background-color: #444444; padding: 18px; color:antiquewhite; text-align: center;font-size: 18px; ">
+            <p>Welcome to {% if company_name %} {{company_name}} {% else %} E-Commerce {% endif %}</p>
+        </div>
+        <div>
+            <p style="background-color: wantiquewhite; padding:18px 18px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 21px; color: #444444"
+                width="580">
+                <b>Hi {{full_name}},</b> <br />
+                You have been invited to join Multi-Vendor Ecommerce. To finish signing up, please click on the button below.
+            </p>
+            <p style="text-align: center;"> 
+                <a href="http://{{ domain }}{% url 'vendor-join' %}"
+                style="display: block; width: 250px; height: 30px;background-color: #444444; color:antiquewhite;text-decoration: none; text-align: center;margin:auto;padding: 5px;font-size: 16px; ">Join as a Vendor</a>
+            </p>
+        </div>
+        <hr />
+        <div
+            style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 18px; color: #999999; padding: 12px 18px">
+
+            <p>
+                You received this email because you were invited by {{from}} for Multi-Vendor E-commerce
+                account with this email. If you did not register please ignore this message.
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

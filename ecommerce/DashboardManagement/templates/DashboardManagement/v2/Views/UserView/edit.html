@@ -1,0 +1,134 @@
+{% extends 'DashboardManagement/v2/Partials/base.html' %}
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'DashboardManagement/v2/css/multiselect.css' %}"/>
+{% endblock css %}
+
+
+{% block content %}
+<section class="content-header">
+</section>
+<div class="content">
+    {% if messages %}
+        {% include 'DashboardManagement/v2/Partials/notification.html' %}
+    {% endif %}
+    <div class="box">
+        <div class="box-header">
+            <div class="box-title">Edit User</div>
+            {% if 'delete_user' in user_permissions or is_vendor_admin %}
+                <form method="POST" action="{% url 'vendor-delete-users' editUser.id %}" class="pull-right">
+                {% csrf_token %}
+                    <button type="submit" onClick='return confirm("Are you sure you want to delete {{group.name}}?")' class="btn btn-danger btn-sm btn-icon-split float-right">
+                        <span class="icon text-white-50">
+                        <i class="fa fa-trash"></i>
+                        </span>
+                        <span class="text"> Delete</span>
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+        <div class="box-body">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">First Name</label>
+                            <input type="text" class="form-control" id="formGroupExampleInput" {% if 'change_user' in user_permissions or is_vendor_admin %} {% else %} disabled {% endif %} value="{{editUser.first_name}}" name="first_name">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Last Name</label>
+                            <input type="text" class="form-control" {% if 'change_user' in user_permissions or is_vendor_admin %} {% else %}disabled {% endif %} id="formGroupExampleInput" value="{{editUser.last_name}}" name="last_name">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Email</label>
+                            <input type="email" class="form-control" disabled id="formGroupExampleInput" value="{{editUser.email}}" name="email">
+                        </div>
+                    </div>
+                    {% if has_additional_data %}
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="formGroupExampleInput">District</label>
+                                <select name="district" {% if 'change_user' in user_permissions or is_vendor_admin %} {% else %}disabled {% endif %} class="form-control">
+                                    {% for data in districts %}
+                                        <option value={{data.id}} {% if data.id == editUser.user_profile.location.id %} selected {% endif %}>{{data}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                {% if has_additional_data %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="formGroupExampleInput">Address</label>
+                                <input type="text" class="form-control" {% if 'change_user' in user_permissions or is_vendor_admin %} {% else %}disabled {% endif %} id="formGroupExampleInput" value="{{editUser.user_profile.address}}" name="address">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="formGroupExampleInput">Phone</label>
+                                <input type="text" class="form-control" {% if 'change_user' in user_permissions or is_vendor_admin %} {% else %}disabled {% endif %} id="formGroupExampleInput" value="{% if editUser.user_profile.phone %}{{editUser.user_profile.phone}}{% endif %}" name="phone">
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Registered</label>
+                            <input type="text" class="form-control" disabled id="formGroupExampleInput" value="{{editUser.date_joined}}" name="email">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Groups and Permissions</label>
+                            <select name="groups" multiple {% if 'change_group' in user_permissions and 'change_user' in user_permissions or is_vendor_admin %} {% else %}disabled {% endif %} class="form-control">
+                                {% for data in all_groups %}
+                                    <option value={{data.id}} {% if data.id in in_group %} selected {% endif %}>{{data}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                {% if 'change_user' in user_permissions or is_vendor_admin %}
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success btn-sm btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fa fa-check"></i>
+                            </span>
+                            <span class="text">Edit & Save</span>
+                        </button>
+                    </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+</div>
+
+{% endblock content %}
+
+{% block js %}
+<script src="{% static 'DashboardManagement/v2/js/multiselect.min.js' %}"> </script>
+<script type="text/javascript">
+$(document).ready(function() {
+    // make code pretty
+
+    $('#search').multiselect({
+        search: {
+            left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+            right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+        },
+        fireSearch: function(value) {
+            return value.length > 3;
+        }
+    });
+});
+</script>
+{% endblock js %}

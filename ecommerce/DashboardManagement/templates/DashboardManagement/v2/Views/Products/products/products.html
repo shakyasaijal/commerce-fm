@@ -1,0 +1,213 @@
+{% extends 'DashboardManagement/v1/Partials/base.html' %}
+{% load static %}
+{% block content %}
+{% load addcss %}
+<div class="row">
+    <div class="col-md-8">
+        <h1 class="h3 mb-4 text-gray-800">Product</h1>
+        <small>Fields with * are required</small>
+    </div>
+</div>
+{% if messages %}
+    {% include "DashboardManagement/v1/Partials/notification.html" %}
+{% endif %}
+{{ form.media }}
+<div class="card mb-4 py-3 border-bottom-success">
+    <div class="card-body">
+        <form class="user" enctype="multipart/form-data" method="POST">
+            {% csrf_token %}
+            <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label for="name">{{form.english_name.label}}  <span class="red">*</span></label>:</label>
+                    {{form.english_name|addcss:'form-control'}}
+                </div>
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label for="name">{{form.nepali_name.label}}  <span class="red">*</span></label>:</label>
+                    {{form.nepali_name|addcss:'form-control'}}
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label for="name">{{form.old_price.label}}  <span class="red">*</span></label>:</label>
+                    {{form.old_price|addcss:'form-control'}}
+                </div>
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label for="name">{{form.price.label}}  <span class="red">*</span></label>:</label>
+                    {{form.price|addcss:'form-control'}}
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-12 mb-3 mb-sm-0">
+                    <label for="description">{{form.description.label}} :</label>
+                    <br/>
+                    {{form.description|addcss:'form-control'}}<br/>
+                    <small>{{form.description.help_text}}</small>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-12 mb-3 mb-sm-0">
+                    <label for="description">{{form.short_description.label}} :</label>
+                    <br/>
+                    {{form.short_description|addcss:'form-control'}}<br/>
+                    <small>{{form.short_description.help_text}}</small>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label for="category">{{form.category.label}} :</label>
+                    {{form.category|addcss:'form-control js-example-basic-single'}}
+                </div>
+                <div class="col-sm-6">
+                    <label for="sub_category">{{form.brand_name.label}} :</label>
+                    {{form.brand_name|addcss:'form-control js-example-basic-single'}}
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-4">
+                    <label for="status">{{form.status.label}} :</label>
+                    {{form.status|addcss:'form-control'}}
+                </div>
+                <div class="col-sm-4">
+                    <label for="isFeatured">{{form.is_featured.label}} :</label>
+                    {{form.is_featured|addcss:'form-control'}}
+                </div>
+
+                <div class="col-sm-4">
+                    <label for="isFeatured">{{form.warranty.label}} :</label>
+                    {{form.warranty|addcss:'form-control'}}
+                    <small>{{form.warranty.help_text}}</small>
+                </div>
+            </div>
+{% comment %}             
+            
+
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <label for="tags">{{form.tags.label}}</label>
+                    {{form.tags|addcss:'form-control'}}
+                    <small>This is used for search engine.</small>
+                </div>
+                <div class="col-sm-6">
+                    <label for="isFeatured">{{form.sizes.label}} :</label>
+                    {{form.sizes|addcss:'form-control js-example-basic-single'}}
+                </div>
+            </div>
+           
+            <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                    <label for="name">{{form.price.label}} <span class="red">*</span></label> :</label>
+                    {{form.price|addcss:'form-control'}}
+                </div>
+                <div class="col-sm-6">
+                    <label for="sub_category">{{form.old_price.label}} :</label>
+                    {{form.old_price|addcss:'form-control'}}
+                </div>
+            </div>
+            
+            <div class="form-group row">
+                <div class="col-sm-12 mb-3 mb-sm-0">
+                    <label for="category">{{form.related_products.label}} :</label>
+                    {{form.related_products|addcss:'form-control js-example-basic-single'}}
+                    <small>{{form.related_products.help_text}}</small>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-4">
+                    <label for="status">{{form.status.label}} :</label>
+                    {{form.status|addcss:'form-control'}}
+                </div>
+                <div class="col-sm-4">
+                    <label for="isFeatured">{{form.isFeatured.label}} :</label>
+                    {{form.isFeatured|addcss:'form-control'}}
+                </div>
+
+                <div class="col-sm-4">
+                    <label for="isFeatured">{{form.warranty.label}} :</label>
+                    {{form.warranty|addcss:'form-control'}}
+                    <small>{{form.warranty.help_text}}</small>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">{{form.description.label}} :</label>
+                <br/>
+                {{form.description|addcss:'form-control'}}<br/>
+                <small>{{form.description.help_text}}</small>
+            </div>
+            <div class="form-group">
+                {{form.about.errors}}
+                <label for="about">{{form.about.label}} :</label>
+                <br/>
+                {{form.about|addcss:'form-control'}}<br/>
+                <small>{{form.about.help_text}}</small>
+            </div>
+            <div class="form-group">
+                <label for="main_image">{{form.main_image.label}} <span class="red">*</span>:</label>
+                <br/>
+                {{form.main_image}}<br/>
+                {{ formset.management_form }}
+                {% for field in formset %}
+                  {% if forloop.first %}
+                      <label for="id_is_feature">Product Images  </label>:</label><br/><br/>
+                  {% endif %}
+                    {{ field }}<br/><br/>
+                {% endfor %}
+            </div> {% endcomment %}
+            <div class="row">
+                <div class="col-md-2">
+                    <input type="submit" name="add-product" id="update-profile" class="btn btn-primary btn-user btn-block"
+                    value="Add Product" />
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block js%}
+{% comment %} <script>
+    $(document).ready(function() {
+        $('.js-example-basic-single').select2();
+    });
+    $(document).ready(function(){
+        $('#id_tags').select2({
+            ajax: {
+                delay: 2500,
+                tags: "true",
+                url: "{% url 'tag' %}",
+                dataType: 'json',
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {id: item.id, text: item.tag};
+                        })
+                    };
+                }
+            },
+            minimumInputLength: 1
+        });
+    });
+
+    $(document).ready(function(){
+        $('#id_brand_name').select2({
+            ajax: {
+                delay: 2500,
+                tags: "true",
+                url: "{% url 'brand' %}",
+                dataType: 'json',
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {id: item.id, text: item.name};
+                        })
+                    };
+                }
+            },
+            minimumInputLength: 1
+        });
+    });
+</script> {% endcomment %}
+{% endblock js %}

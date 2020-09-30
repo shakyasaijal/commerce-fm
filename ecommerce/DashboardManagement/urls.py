@@ -34,5 +34,8 @@ urlpatterns = [
     path('category/edit/<id>', views.CategoryEdit.as_view(), name="category-edit"),
 
     # Orders
-    path('orders/', include('OrderAndDelivery.urls'))
+    path('orders/', include('OrderAndDelivery.urls')),
+
+    # Vendor
+    path('vendors/', include('Vendor.urls')),
 ]

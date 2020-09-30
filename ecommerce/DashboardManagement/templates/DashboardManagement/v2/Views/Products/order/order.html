@@ -1,0 +1,74 @@
+{% extends 'DashboardManagement/v2/Partials/base.html' %}
+{% load static %}
+{% load addcss %}
+
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'DashboardManagement/v2/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+{% endblock css %}
+
+{% block content %}
+<section class="content-header">
+</section>
+<div class="content">
+    {% if messages %}
+    {% include "DashboardManagement/v2/Partials/notification.html" %}
+    {% endif %}
+    <div class="box">
+        <div class="box-header">
+            <h3 class="box-title">Pending/ New Orders</h3>
+        </div>
+        <div class="box-body">
+            <table id="example1" class="table table-bordered table-striped table-responsive">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Product</th>
+                        {% if 'view_order' in user_permissions or is_vendor_admin %}
+                        <th>Options</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td>{{order.user.get_full_name}}</td>
+                            <td> 
+                                {% if order.status == 1 %}
+                                <button class="btn btn-danger btn-sm">Pending</button>
+                                {% elif order.status == 2 %}
+                                <button class="btn btn-primary btn-sm">In Progress</button>
+                                {% else %}
+                                <button class="btn btn-success btn-sm">Delivered</button>
+                                {% endif %}
+                            </td>
+                            <td>{{ order }}</td>
+                            {% if 'view_category' in user_permissions or 'delete_category' in user_permissions or 'change_category' in user_permissions or is_vendor_admin %}
+                            <td class="flex-row">
+                                {% if 'change_order' in user_permissions or 'view_order' in user_permissions or is_vendor_admin%}
+                                <a class="btn btn-sm btn-primary" href="">View Details</a>
+                                {% endif %}
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                </tbody>
+              </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'DashboardManagement/v2/bower_components/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'DashboardManagement/v2/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'DashboardManagement/v2/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+<script>
+    $(function () {
+      $('#example1').DataTable({
+        "lengthMenu": [[20, 50, 150, -1], [20, 50, 150, "All"]]
+      })
+    })
+  </script>
+{% endblock js %}

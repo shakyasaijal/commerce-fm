@@ -1,0 +1,45 @@
+{% extends "DashboardManagement/v1/Views/Authentication/base.html" %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} text-center" role="alert">{{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{% endfor %}
+{% endif %}
+<div class="row login-row">
+    <div class="col-lg-6 d-none d-lg-block bg-login-image">
+        <div class="logo-container verticle-center center text-center">
+            <img src="http://nepalheart.com.np/nepalHeart/static/appManager/assets/img/nepal-heart.png" />
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="p-5">
+            <div class="text-center">
+                <h1 class="h4 text-gray-900 mb-4">Welcome</h1>
+            </div>
+            <form class="user" method="POST" action="{% url 'vendor-login' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" name="username" class="form-control form-control-user" id="exampleInputEmail"
+                        aria-describedby="emailHelp" placeholder="Enter Username">
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" class="form-control form-control-user"
+                        id="exampleInputPassword" placeholder="Password">
+                </div>
+                <input type="submit" name="signin" id="signin" class="btn btn-primary btn-user btn-block"
+                    value="Login" />
+            </form>
+            <hr>
+            <div class="text-center">
+                <a class="small" href="">Forgot Password?</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

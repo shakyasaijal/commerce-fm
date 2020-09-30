@@ -1,0 +1,62 @@
+{% extends 'dashboardManagement/Partials/base.html' %}
+{% load static %}
+{% block content %}
+{% load addcss %}
+<div class="row">
+    <div class="col-md-8">
+        <h1 class="h3 mb-4 text-gray-800">Sub Category</h1>
+    </div>
+</div>
+{% if messages %}
+{% include "dashboardManagement/Partials/notification.html" %}
+{% endif %}
+<div class="card mb-4 py-3 border-bottom-success">
+    <div class="card-body">
+        <form class="user" enctype="multipart/form-data" method="POST">
+            <div class="form-group">
+                <label for="name">{{form.name.label}} :</label>
+                {{form.name|addcss:'form-control'}}
+            </div>
+            <div class="form-group">
+                <label for="status">{{form.category.label}} :</label>
+                {{form.category|addcss:'form-control'}}
+            </div>
+            <div class="form-group">
+                <label for="subcategoryImage">{{form.subCategoryImage.label}} :</label>
+                {{form.subCategoryImage}}
+            </div>
+            <div class="form-group">
+                <label for="status">{{form.status.label}} :</label>
+                {{form.status|addcss:'form-control'}}
+            </div>
+            <div class='row'>
+                {% if 'change_sub_category' in user_permissions or is_vendor_admin %}
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success btn-sm btn-icon-split">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-check"></i>
+                        </span>
+                        <span class="text">Edit & Save</span>
+                    </button>
+                </div>
+                {% endif%}
+            </div>
+        </form>
+
+        {% if 'delete_sub_category' in user_permissions or is_vendor_admin %}
+        <form action="{% url 'sub-category-delete' sub_category.id %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm btn-icon-split float-right"
+                onClick='return confirm("Are you sure you want to delete {{product.name}}? ")'>
+                <span class="icon text-white-50">
+                    <i class="fas fa-trash"></i>
+                </span>
+                <span class="text">Delete</span>
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+
+{% endblock %}

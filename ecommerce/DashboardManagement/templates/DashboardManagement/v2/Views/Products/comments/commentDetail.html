@@ -1,0 +1,189 @@
+{% extends 'dashboardManagement/Partials/base.html' %}
+{% load static %}
+
+{% load addcss %}
+{% block content %}
+{% if messages %}
+{% include "dashboardManagement/Partials/notification.html" %}
+{% endif %}
+<div class="row comments-detail">
+    <div class="col-md-4">
+        <div class="  card mb-4 py-3 border-bottom-success">
+            <div class="col-md-12">
+                <h6 class="m-0 font-weight-bold font-black pl10">Product Details</h6>
+            </div>
+            <div class="card-body">
+                <div class="comment-product-img">
+                    <img src="{{product.main_image.url}}" alt={{product.name}}/>
+                </div>
+                <div class="description">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" value={{product.name}} disabled class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Price</label>
+                        <input type="text" value={{product.price}} disabled class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Old Price</label>
+                        <input type="text" value={{product.old_price}} disabled class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        {{product.description |safe }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-8 comments">
+        <div class="card mb-4 py-3 border-bottom-success">
+            <div class="col-md-12 black-underline">
+                <h5 class="m-0 font-weight-bold pl10 pb10 font-black">Comments</h5>
+            </div>
+            <div class="card-body">
+                {% for i in comments %}
+                    <div class="comment-head mt10">
+                        <div class="by">{{i.comments| length}} {% if i.comments|length > 1 %}comments {% else %} comment {% endif %} by {{i.comments.0.user.get_full_name}}</div>
+                        <div class="float-right">
+                            <a class="text-uppercase reply reply-" data-toggle="collapse" href="#view{{i.user_id}}">Explore</a> 
+                        </div>
+                    </div>
+                {% for comment in i.comments%}
+                <div id="view{{i.user_id}}">
+                {% if not comment.parent %}
+                <div class="collapse comment-tail" id="view{{i.user_id}}">
+                    <div class="media-body">
+                        <div class="well well-lg">
+                            <div class="row comments-row">
+                                <div class="col-md-12">  
+                                    <div class="comment-by">{{comment.user.get_full_name}} - {{ comment.created_date }} </div>
+                                    <p>
+                                        {{comment.body}}
+                                    </p>
+                                    <div class="inline-grid text-center">
+                                        <div class="">
+                                            {% if comment.replies %}
+                                                {% if 'view_reply' in user_permissions or is_vendor_admin %}
+                                                <a class="text-uppercase reply" data-toggle="collapse" href="#comment{{i.user_id}}{{forloop.counter}}"><i
+                                                    class="fa fa-comments-o"></i> View Reply</a>
+                                                {% endif %}
+                                            {%elif 'add_comment' in user_permissions or 'add_reply' in user_permissions or is_vendor_admin %}
+                                                <a class="text-uppercase reply" data-toggle="collapse" href="#reply{{i.user_id}}{{forloop.counter}}">Reply</a> 
+                                            {% endif %}
+                                        </div>
+
+                                        <div>
+                                            {% if 'delete_comment' in user_permissions or is_vendor_admin %}
+                                                    <form method="POST" action="{% url 'comment-delete' comment.id %}" class="verticle-center">
+                                                        {% csrf_token %}
+                                                        <button class="text-uppercase reply-delete"
+                                                            onClick='return confirm("Are you sure you want to delete?")' type="submit">Delete</button>
+                                                    </form>
+                                            {% endif %}
+                                        </div>
+                                        <div class="">
+                                            
+                                            {%if comment.approved_comment%}
+                                                {% if 'disapprove_reply' in user_permissions or is_vendor_admin %}
+                                                    <span class="disapprove">
+                                                        <a class="text-uppercase" href="{% url 'comment-approve' comment.id%}">
+                                                            Disapprove 
+                                                        </a>
+                                                    </span>
+                                                {% endif %}
+                                            {%else%}
+                                                {% if 'approve_reply' in user_permissions or is_vendor_admin %}
+                                                    <span class="approve">
+                                                        <a class="text-uppercase" href="{% url 'comment-approve' comment.id%}">
+                                                            Approve
+                                                        </a>
+                                                    </span>
+                                                {% endif %}
+                                            {%endif%}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="collapse vendor-replies" id="comment{{i.user_id}}{{forloop.counter}}">
+                    <div class="media-body">
+                        <div class="well well-lg">
+                            <div class="row comments-row reply-row">
+                                <div class="col-md-12" >
+                                    <div class="comment-by">Replied By: {{comment.replies.user.get_full_name}} - {{ comment.replies.created_date }} </div>
+                                    <div class="reply-container">
+                                        <form method="POST" action="/comments/edit/{{comment.replies.id}}">
+                                            <input type='text' name ='reply' value='{{comment.replies.body}}' class='form-control'>
+                                            {% if 'change_reply' in user_permissions or 'change_comment' in user_permissions or is_vendor_admin %}
+                                                <input class="btn btn-primary btn-sm reply-btn" type="submit" value="Reply">
+                                            {% endif %}
+                                        </form>
+                                        {% if 'delete_comment' in user_permissions or 'delete_reply' in user_permissions or is_vendor_admin %}
+                                            <form method="POST" action="/comments/delete/{{comment.replies.id}}" class="verticle-center">
+                                                {% csrf_token %}
+                                                <button class="text-uppercase reply-delete"
+                                                    onClick='return confirm("Are you sure you want to delete?")' type="submit">Delete Reply</button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                          
+                <div class="collapse reply-form" id="reply{{i.user_id}}{{forloop.counter}}">
+                    <div class="media-body">
+                        <div class="well well-lg">
+                            <form method="post">
+                                {{form.body|addcss:'form-control'}}
+                                {% csrf_token %}
+                                <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                <input class="btn btn-primary btn-sm reply-btn" type="submit" value="Reply">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>    
+                {%endfor%}
+             {% empty %}
+                <h4>There are no comments yet.</h4>
+            {%endfor%}
+            </div>
+            {% if comments.has_other_pages %}
+            <ul class="pagination mx-auto">
+                {% if comments.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ comments.previous_page_number }}">&laquo;</a></li>
+                {% else %}
+                    <li class="page-item" class="disabled"><span class="page-link">&laquo;</span></li>
+                {% endif %}
+                {% for i in comments.paginator.page_range %}
+                    {% if comments.number == i %}
+                        <li class="page-item active"><span class="page-link">{{ i }} <span class="sr-only">(current)</span></span></li>
+                    {% else %}
+                        <li><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                {% if comments.has_next %}
+                    <li class="page-item"><a  class="page-link"href="?page={{ comments.next_page_number }}">&raquo;</a></li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                {% endif %}
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+{% endblock %}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to {% if company_name %} {{company_name}} {% else %} E-Commerce {% endif %}</title>
+    <link rel="stylesheet" href="{% static 'DashboardManagement/v2/bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'DashboardManagement/v2/dist/css/vendor-join.css' %}"/>
+</head>
+<body>
+    
+    <div class="container">
+        <div class="wrapper">
+            <div class="welcome-content container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="welcome">
+                            <div class="welcome-to">Welcome to</div>
+                            <div class="company-name">{% if company_name %} {{company_name}} {% else %} E-Commerce {% endif %}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="data-content container">
+                <div class="row">
+                    <div class="col-md-4 col-sm-8">
+                        <p class="info">You have been invited to join the team. Enter the valid email address below:</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="row">
+                            <form method="POST">
+                                {% csrf_token %}
+                                <div class="col-md-8 col-sm-5 col-lg-8">
+                                    <input type="email" name="email" class="form-control" placeholder="Email Address" required autofocus/>
+                                    {% if messages %}   
+                                        {% for msg in messages %}
+                                            <span class="error">{{msg}}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary btn-md proceed">PROCEED</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="background">
+            <img src="{% static 'DashboardManagement/v2/images/vendor_request.svg' %}" alt="">
+        </div>
+    </div>
+
+    <script src="{% static 'DashboardManagement/v2/bower_components/jquery/dist/jquery.min.js' %}"></script>
+    <script src="{% static 'DashboardManagement/v2/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+</body>
+</html>

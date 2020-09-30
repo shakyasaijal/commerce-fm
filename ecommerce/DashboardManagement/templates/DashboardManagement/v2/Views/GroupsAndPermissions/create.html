@@ -1,0 +1,100 @@
+{% extends 'DashboardManagement/v2/Partials/base.html' %}
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'DashboardManagement/v2/dist/css/multiselect.css' %}"/>
+{% endblock css %}
+
+
+{% block content %}
+<section class="content-header">
+    <h1>
+        Create New Groups And Permissions
+    </h1>
+</section>
+<section class="content">
+    {% if messages %}
+        {% include "DashboardManagement/v2/Partials/notification.html" %}
+    {% endif %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box">
+                <div class="box-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Group Name</label>
+                            <input type="text" class="form-control" autocomplete="off" autofocus id="formGroupExampleInput" value="{{oldName}}" name="name">
+                            {% if error %}
+                                <span class="form-error">{{error.0.name}}</span>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Group Desciption</label>
+                            <textarea class="form-control" name="description">{{oldDescription}}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Group Permissions</label>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <label class="permissions">Available Permissions</label>
+                                    <select name="from[]" id="search" class="form-control" size="8" multiple="multiple">
+                                        {% for data in available_permissions %}
+                                            <option value="{{data.id}}">{{data.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-2">
+                                    <button type="button" id="search_rightAll" class="btn btn-block"><i class="fa fa-arrow-right"></i> </button>
+                                    <button type="button" id="search_rightSelected" class="btn btn-block"><i class="fa fa-arrow-circle-right"></i></button>
+                                    <button type="button" id="search_leftSelected" class="btn btn-block"><i class="fa fa-arrow-circle-left"></i></button>
+                                    <button type="button" id="search_leftAll" class="btn btn-block"><i class="fa fa-arrow-left"></i></button>
+                                </div>
+                                
+                                <div class="col-md-5">
+                                    <label class="permissions">Chosen Permissions</label>
+                                    <select name="to[]" id="search_to" class="form-control" size="8" multiple="multiple">
+                                   
+                                    </select>
+                                    {% if error %}
+                                        <span class="form-error">{{error.1.permissions}}</span>
+                                        <span class="form-error">{{error.0.permissions}}</span>
+                                    {% endif %}
+                                </div>
+                                
+                            </div>
+                            
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success btn-sm btn-icon-split">
+                                <span class="icon text-white-50">
+                                    <i class="fa fa-check"></i>
+                                </span>
+                                <span class="text"> Create</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block js %}
+    <script src="{% static 'DashboardManagement/v2/bower_components/jquery/dist/jquery.min.js' %}"></script>
+    <script src="{% static 'DashboardManagement/v2/dist/js/multiselect.min.js' %}"> </script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#search').multiselect({
+                search: {
+                    left: '<input type="text" name="q" class="form-control" autocomplete="off" placeholder="Search..." />',
+                    right: '<input type="text" name="q" class="form-control" autocomplete="off" placeholder="Search..." />',
+                },
+                fireSearch: function(value) {
+                    return value.length > 3;
+                }
+            });
+        });
+    </script>
+{% endblock js %}

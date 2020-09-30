@@ -1,0 +1,80 @@
+{% extends 'DashboardManagement/v2/Partials/base.html' %}
+{% load static %}
+{% block content %}
+
+<section class="content-header">
+
+</section>
+<div class="content">
+    {% if messages %}
+        {% include 'DashboardManagement/v2/Partials/notification.html' %}
+    {% endif %}
+    <div class="box">
+        <div class="box-header">
+            <h3 class="box-title">Your Profile</h3>
+            <a href="{% url 'change-password' %}" class="btn btn-danger btn-sm btn-icon-split pull-right">
+                <span class="icon text-white-50">
+                    <i class="fa fa-refresh"></i>
+                </span>
+                <span class="text">&nbsp;Change Password</span>
+            </a>
+        </div>
+        <div class="box-body">
+            <form class="user" method="POST" action="{% url 'profile' %}">
+                {% csrf_token %}
+                <div class="form-group row">
+                    <div class="col-sm-6 mb-3 mb-sm-0">
+                        <label for="first-name">First Name </label>
+                        <input type="text" class="form-control" id="first-name" name="first_name" placeholder="First Name"
+                            value="{{request.user.first_name}}">
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="last-name">Last Name </label>
+                        <input type="text" class="form-control" id="last-name" name="last_name" placeholder="Last Name"
+                            value="{{request.user.last_name}}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email </label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Email Address"
+                        value="{{request.user.email}}" readonly>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-6 mb-3 mb-sm-0">
+                        <label for="district">District</label>
+                        <select id="district" class="form-control" name="district">
+                            <option value="" disabled {% if not request.user.user_profile.district %}selected{% endif %}>--- Select District ---</option>
+                            {% for district in districts %}
+                            <option value="{{district.id}}" {% if district.id == request.user.user_profile.district.id %} selected {% endif %}>{{district.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="province">Province </label>
+                        <input type="text" class="form-control" id="province" placeholder="Province"
+                            value="{{user.location.province}}" readonly>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-6 mb-3 mb-sm-0">
+                        <label for="phone">Phone Number </label>
+                        <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone Number"
+                            value="{% if request.user.user_profile.phone %} {{request.user.user_profile.phone}} {% endif %}">
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="register">Registered Date </label>
+                        <input type="text" class="form-control" id="last-name" placeholder="Registered Date"
+                            value="{{request.user.date_joined}}" readonly>
+                    </div>
+                </div>
+               <div class="form-group row">
+                    <div class="col-md-2">
+                        <input type="submit" name="update-profile" id="update-profile" class="btn btn-primary btn-user btn-block"
+                        value="Update Profile" />
+                    </div>
+               </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

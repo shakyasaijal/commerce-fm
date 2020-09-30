@@ -1,0 +1,65 @@
+{% extends 'DashboardManagement/v2/Partials/base.html' %}
+{% load static %}
+{% load addcss %}
+
+{% block content %}
+<div class="content-header">
+</div>
+<div class="content">
+    {% if messages %}
+        {% include "DashboardManagement/v2/Partials/notification.html" %}
+    {% endif %}
+    <div class="box">
+        <div class="box-header">
+            <h3 class="box-title">Edit Category</h3>
+            {% if 'delete_category' in user_permissions or is_vendor_admin %}
+                <form action="{% url 'category-delete' category.id %}" method="POST" class="pull-right">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm btn-icon-split float-right"
+                        onClick='return confirm("Are you sure you want to delete {{product.name}}? ")'>
+                        <span class="icon text-white-50">
+                            <i class="fa fa-trash"></i>
+                        </span>
+                        <span class="text">Delete</span>
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+        <div class="box-body">
+            <form class="user" enctype="multipart/form-data" method="POST">
+                {% csrf_token %}
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <label>{{form.english_name.label}}</label>
+                        {{form.english_name|addcss:'form-control'}}
+                    </div>
+                    <div class="col-md-6">
+                        <label>{{form.nepali_name.label}}</label>
+                        {{form.nepali_name|addcss:'form-control'}}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        <label>{{form.categoryImage.label}} :</label>
+                        {{form.categoryImage|addcss:'form-control'}}
+                    </div>
+                    <div class="col-md-6">
+                        <label>{{form.isFeatured.label}}</label>
+                        {{form.isFeatured|addcss:'form-control'}}
+                    </div>
+                </div>
+                {% if 'change_category' in user_permissions or is_vendor_admin %}
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success btn-sm btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fa fa-check"></i>
+                            </span>
+                            <span class="text">Edit & Save</span>
+                        </button>
+                    </div>
+                {% endif%}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

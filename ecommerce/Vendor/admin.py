@@ -8,3 +8,4 @@ class VendorAdmin(admin.ModelAdmin):
 
 if settings.MULTI_VENDOR:
     admin.site.register(models.Vendor, VendorAdmin)
+    admin.site.register(models.VendorRequest)

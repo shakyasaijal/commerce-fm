@@ -1,8 +1,10 @@
 from django.db import models
+from django.db.models import Q
+from django.conf import settings
+
 from User import models as user_models
 from helper import modelHelper
 from CartSystem import models as cart_models
-from django.db.models import Q
 
 
 class OrderItem(user_models.AbstractTimeStamp):
@@ -24,7 +26,8 @@ class Order(user_models.AbstractTimeStamp):
     user = models.ForeignKey(user_models.User, null=True, blank=True, on_delete=models.PROTECT)
     status = models.IntegerField(choices=modelHelper.order_status_choice, null=False, blank=False, default=1)
     grand_total = models.FloatField(null=True, blank=True)
-    vendor = models.ForeignKey("Vendor.vendor", on_delete=models.PROTECT)
+    if settings.MULTI_VENDOR:
+        vendor = models.ForeignKey("Vendor.vendor", on_delete=models.PROTECT)
     objects = models.Manager()
     delivered_objects = DeliveredManager()
 

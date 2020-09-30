@@ -1,0 +1,62 @@
+{% extends 'DashboardManagement/v2/Partials/base.html' %}
+
+{% block content %}
+
+<section class="content-header">
+    <div class="row">
+        <div class="col-md-6">
+            <h1>
+                Groups And Permissions
+            </h1>
+        </div>
+        <div class="col-md-6">
+            {% if 'add_group' in user_permissions or is_vendor_admin %}
+                <a href="{% url 'vendor-create-group' %}" class="btn btn-primary btn-sm btn-icon-split pull-right mt20">
+                    <span class="icon text-white-50">
+                        <i class="fa fa-plus"></i>
+                    </span>
+                    <span class="text"> Create New Group and Permissions</span>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+<section class="content">
+    {% if messages %}
+    {% include 'DashboardManagement/v2/Partials/notification.html' %}
+    {% endif %}
+    <div class="row">
+        <div class="col-md-6">
+          <div class="box">
+            <div class="box-body">
+              <table class="table table-bordered">
+                <tr>
+                  <th style="width: 10px">#</th>
+                  <th>Group Name</th>
+                  <th>Actions</th>
+                </tr>
+                {% if groups %}
+                    <ul class="list-group">
+                        {% for group in groups %}
+                            <tr>
+                                <td>{{forloop.counter}}</td>
+                                <td>{{group}}</td>
+                                <td style='width: 40%;'>
+                                    <a href="{% url 'vendor-group-detail' group.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <h3>No Groups Created</h3>
+                {% endif %}
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+</section>
+
+{% endblock content %}

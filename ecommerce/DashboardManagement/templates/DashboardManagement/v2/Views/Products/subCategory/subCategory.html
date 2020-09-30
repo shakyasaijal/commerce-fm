@@ -1,0 +1,45 @@
+{% extends 'dashboardManagement/Partials/base.html' %}
+{% load static %}
+{% block content %}
+{% load addcss %}
+<div class="row">
+    <div class="col-md-8">
+        <h1 class="h3 mb-4 text-gray-800">Sub Category</h1>
+        <small>Fields with * are required</small>
+    </div>
+</div>
+{% if messages %}
+    {% include "dashboardManagement/Partials/notification.html" %}
+{% endif %}
+<div class="card mb-4 py-3 border-bottom-success">
+    <div class="card-body">
+        <form class="user" enctype="multipart/form-data" method="POST">
+            <div class="form-group">
+                <label for="name">{{form.name.label}} <span class="red">*</span>:</label>
+                {{form.name|addcss:'form-control'}}
+            </div>
+            <div class="form-group">
+                <label for="category">{{form.category.label}} :</label>
+                {{form.category|addcss:'form-control'}}
+            </div>
+            <div class="form-group">
+                <label for="subcategoryImage">{{form.subCategoryImage.label}}<span class="red">*</span> :</label>
+                {{form.subCategoryImage}}
+            </div>
+            <div class="form-group">
+                <label for="status">{{form.status.label}} :</label>
+                {{form.status|addcss:'form-control'}}
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <input type="submit" name="sub-category" id="sub-category" class="btn btn-primary btn-sm btn-user btn-block"
+                value="Add Sub Category" />
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+
+{% endblock %}

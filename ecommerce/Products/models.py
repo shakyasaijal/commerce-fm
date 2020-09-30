@@ -96,6 +96,7 @@ class Product(user_models.AbstractTimeStamp):
     description = RichTextField(help_text="Bio e.g. size, material type, etc", blank=True, null=True)
     category = models.ManyToManyField(
         Category, related_name="category_product",  blank=True)
+    quantity_left = models.BigIntegerField(null=True, blank=True, default=0, help_text="Automatic quantity decreased after order placed. Leave it empty for unlimited/manual quantity of the product.")
     status = models.BooleanField(choices=modelHelper.availability_choice, null=False, blank=False, default=True)
     is_featured = models.BooleanField(null=False, blank=False, default=False, choices=modelHelper.is_featured)
     tags = models.ManyToManyField(

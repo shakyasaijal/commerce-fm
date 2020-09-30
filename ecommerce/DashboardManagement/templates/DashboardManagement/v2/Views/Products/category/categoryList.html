@@ -1,0 +1,82 @@
+{% extends 'DashboardManagement/v2/Partials/base.html' %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'DashboardManagement/v2/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+{% endblock css %}
+
+{% block content %}
+<section class="content-header">
+</section>
+<div class="content">
+  {% if messages %}
+    {% include "DashboardManagement/v2/Partials/notification.html" %}
+  {% endif %}
+  <div class="box">
+    <div class="box-header">
+      <h3 class="box-title">Categories</h3>
+        {% if 'add_category' in user_permissions or is_vendor_admin %}
+          <a href="{% url 'category-add' %}" class="btn btn-primary btn-sm btn-icon-split pull-right">
+              <span class="icon text-white-50">
+                  <i class="fa fa-plus"></i>
+              </span>
+              <span class="text"> Add New Category</span>
+          </a>
+        {% endif %}
+    </div>
+    <div class="box-body">
+      <table id="example1" class="table table-bordered table-striped table-responsive">
+        <thead>
+            <tr>
+              <th>Engish/ Nepali Name</th>
+              <th>Image</th>
+              <th>Is Featured?</th>
+              {% if 'view_category' in user_permissions or 'change_category' in user_permissions or 'delete_category' in user_permissions or is_vendor_admin %}
+                  <th>Actions</th>
+              {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+          {% for category in categories %}
+              <tr>
+                  <td>{{category.english_name}}/ {{category.nepali_name}}</td>
+                  <td>
+                    <div class="table-img-container">
+                      <img src="{{category.categoryImage.url}}" class="table-img"/>
+                    </div>
+                  </td>
+                  <td>{% if category.isFeatured %}Yes{% else %}No{%endif%}</td>
+                  {% if 'view_category' in user_permissions or 'delete_category' in user_permissions or 'change_category' in user_permissions or is_vendor_admin %}
+                      <td class="flex-row">
+                          {% if 'change_category' in user_permissions or 'view_category' in user_permissions or is_vendor_admin%}
+                              <a class="btn btn-sm btn-primary" href="{% url 'category-edit' category.id %}"><i class="fa fa-pencil"></i></a>
+                          {% endif %}
+                          {% if 'delete_category' in user_permissions or is_vendor_admin %}
+                              <form method="POST" action="{% url 'category-delete' category.id %}" class="pull-right">
+                              {% csrf_token %}
+                                  <button class="btn btn-danger btn-sm" onClick='return confirm("Are you sure you want to delete {{category.name}} ?")' type="submit"><i class="fa fa-trash"></i></button>
+                              </form>
+                          {% endif %}
+                      </td>
+                  {% endif %}
+              </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>  
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'DashboardManagement/v2/bower_components/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'DashboardManagement/v2/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'DashboardManagement/v2/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+<script>
+    $(function () {
+      $('#example1').DataTable({
+        "lengthMenu": [[20, 50, 150, -1], [20, 50, 150, "All"]]
+      })
+    })
+  </script>
+{% endblock js %}

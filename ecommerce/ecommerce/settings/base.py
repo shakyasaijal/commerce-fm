@@ -128,6 +128,12 @@ try:
     EMAIL_HOST_PASSWORD = credentials['sys_password']
     EMAIL_PORT = credentials['smtp_port']
     EMAIL_USE_SSL = credentials['EMAIL_USE_SSL']
+    HAS_CELERY = credentials['HAS_CELERY']
+    CELERY_FOR_EMAIL = credentials['CELERY_FOR_EMAIL']
+    if HAS_CELERY:
+        CELERY_BROKER_URL = credentials['CELERY_BROKER_URL']
+        CELERY_ACCEPT_CONTENT = ['json']
+        CELERY_TASK_SERIALIZER = 'json'
 except (Exception, KeyError) as e:
     raise ImproperlyConfigured("Config.yaml is not properly set.", e)
 
