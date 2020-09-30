@@ -91,7 +91,7 @@ class Product(user_models.AbstractTimeStamp):
     english_name = models.CharField(max_length=255, null=False, blank=False)
     nepali_name = models.CharField(max_length=255, null=False, blank=False)
     old_price = models.FloatField(max_length=255, null=True, blank=True)
-    price = models.FloatField(max_length=255, null=True, blank=True)
+    price = models.FloatField(max_length=255, null=False, blank=False)
     short_description = RichTextField(help_text="Not more than 30 words.", blank=True, null=True)
     description = RichTextField(help_text="Bio e.g. size, material type, etc", blank=True, null=True)
     category = models.ManyToManyField(
@@ -108,7 +108,7 @@ class Product(user_models.AbstractTimeStamp):
     related_products = models.ManyToManyField('self', blank=True, related_name='related_products')
 
     if settings.MULTI_VENDOR:
-        vendor = models.ForeignKey('Vendor.Vendor', on_delete=models.CASCADE, null=True, blank=True)
+        vendor = models.ForeignKey('Vendor.Vendor', on_delete=models.CASCADE, null=False, blank=False)
 
     def __str__(self):
         return self.english_name

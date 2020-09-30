@@ -10,7 +10,7 @@ from CartSystem import models as cart_models
 class OrderItem(user_models.AbstractTimeStamp):
     user = models.ForeignKey(user_models.User, on_delete=models.CASCADE)
     item = models.ForeignKey("Products.Product", on_delete=models.CASCADE)
-    quantity = models.IntegerField(default=1)
+    quantity = models.IntegerField(default=1, null=False, blank=False)
 
     def __str__(self):
         return "Quantity: {} {}, Product: {} - Rs. {}".format(self.quantity, self.item.sizes or '',
@@ -23,7 +23,7 @@ class DeliveredManager(models.Manager):
 
 class Order(user_models.AbstractTimeStamp):
     item = models.ManyToManyField(OrderItem, blank=False)
-    user = models.ForeignKey(user_models.User, null=True, blank=True, on_delete=models.PROTECT)
+    user = models.ForeignKey(user_models.User, null=False, blank=False, on_delete=models.PROTECT)
     status = models.IntegerField(choices=modelHelper.order_status_choice, null=False, blank=False, default=1)
     grand_total = models.FloatField(null=True, blank=True)
     if settings.MULTI_VENDOR:

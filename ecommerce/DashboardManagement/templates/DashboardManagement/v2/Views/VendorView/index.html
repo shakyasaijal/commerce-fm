@@ -34,7 +34,8 @@
                 {% for data in all_vendors %}
                     <tr>
                         <td>{{forloop.counter}}</td>
-                        <td>{{data.vendorAdmin.get_full_name}}</td>
+                        <td>
+                            <a href="{% url 'vendor-vendor-details' data.id %}">{{data.vendorAdmin.get_full_name}}</a></td>
                         <td>{{data.organizationName}}</td>
                         <td>{{data.address}}</td>
                         <td>{{data.created_at}}</td>

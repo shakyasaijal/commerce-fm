@@ -8,5 +8,6 @@ urlpatterns = [
     path('register', views.RegisterAsVendor.as_view(), name="vendor-join-register"),
     path('vr-delete', views.DeleteVendorRequest.as_view(), name="vendor-vr-delete"),
     path('vr-edit', views.EditVendorRequest.as_view(), name="vendor-vr-edit"),
+    path('details/<int:id>', views.VendorDetails.as_view(), name="vendor-vendor-details"),
     path('resend-email/<int:id>', views.ResendRegistrationEmail.as_view(), name="vendor-resend-email")
 ]

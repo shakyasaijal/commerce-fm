@@ -15,8 +15,7 @@ from DashboardManagement.common import helper
 
 
 def highly_searched_keyword():
-    data = analytics_model.SearchedKeyWord.objects.all().order_by(
-        -count)[:10]
+    data = analytics_model.SearchedKeyWord.objects.all().order_by('-count')[:10]
     return data
 
 
@@ -77,3 +76,34 @@ def total_products(user):
         products = product_models.Product.objects.all().count()
 
     return products
+
+
+def a(vendor):
+    # Top 5 buyed category and highest & lowest sold product Start
+    highest_ordered = order_models.Order.delivered_objects.filter(vendor=vendor)
+    highest_ordered_category = {}
+    highest_ordered_product = {}
+    for data in highest_ordered:
+        for d in data.item.all():
+            if d.item.vendor == vendor:
+                if d.item.english_name in highest_ordered_product:
+                    highest_ordered_product[d.item.english_name] = d.quantity + highest_ordered_product[d.item.english_name]
+                else:
+                    highest_ordered_product[d.item.english_name] = d.quantity
+                for category in d.item.category.all()[:1]:
+                    if category.english_name in highest_ordered_category:
+                        highest_ordered_category[category.english_name] = d.quantity + highest_ordered_category[category.english_name]
+                    else:
+                        highest_ordered_category[category.english_name] = d.quantity
+    top_five = sorted(highest_ordered_category.items(), key=lambda x: x[1], reverse=True)
+    identify = Counter(top_five)
+    highest = identify.most_common(5)
+    highest_ordered_category = {}
+    for data in highest:
+        highest_ordered_category.update({data[0][0]:data[0][1]}) #include
+    highest_product = {}
+    for data in sorted(highest_ordered_product, key=highest_ordered_product.get, reverse=True)[:1]:
+        highest_product[data] = highest_ordered_product[data] #include
+
+    for data in sorted(highest_ordered_product, key=highest_ordered_product.get)[:1]:
+        highest_product[data] = highest_ordered_product[data] #include

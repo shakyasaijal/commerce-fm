@@ -7,6 +7,10 @@ from django.views import View
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib import messages
+from django.contrib.auth.models import Group
+from django.db.models import Q, Count, Sum
+from collections import Counter 
+
 
 from DashboardManagement.views import vendor_only
 from DashboardManagement.common import routes as navbar
@@ -15,6 +19,9 @@ from Vendor import forms as vendor_forms
 from User import models as user_models
 from CartSystem import models as cart_models
 from DashboardManagement.common import emails as send_email
+from OrderAndDelivery import models as order_models
+from Products import models as product_models
+from Analytics import views as analytics_views
 
 
 template_version = "DashboardManagement/v1"
@@ -335,3 +342,55 @@ class ResendRegistrationEmail(LoginRequiredMixin, View):
             messages.error(request, "Data not found.")
 
         return HttpResponseRedirect(reverse('vendor-vendors'))
+
+
+class VendorDetails(LoginRequiredMixin, View):
+    def get(self, request, id):
+        if not request.user.is_superuser:
+            messages.warning(request, "You do not have permission.")
+            return HttpResponseRedirect(reverse('vendor-home'))
+
+        try:
+            vendor = vendor_models.Vendor.objects.get(id=id)
+            routes = navbar.get_formatted_routes(navbar.get_routes(
+                request.user), active_page='vendor management')
+            context = {}
+            context.update({"routes": routes})
+            context.update(
+                {"title": "Details of {}".format(vendor.organizationName)})
+            context.update({"sub_navbar": 'vendors'})
+
+            # Orders and Delivery
+            remaining_orders = order_models.Order.objects.filter( Q(vendor=vendor) and ~Q(status=3)).count()
+            context.update({"remaining_orders": remaining_orders})
+
+            delivered_orders = order_models.Order.delivered_objects.filter(vendor=vendor).count()
+            context.update({"delivered_orders": delivered_orders})
+
+            # Vendor User
+            vendor_users = vendor.vendorUsers.all().count()
+            context.update({"vendor_users": vendor_users})
+
+            # Products, search, wishlist
+            products = product_models.Product.objects.filter(vendor=vendor).count()
+            context.update({"vendor_users": vendor_users})
+
+            recent_added_products = product_models.Product.objects.filter(vendor=vendor).order_by('-created_at')[:4]
+            context.update({"recent_added_products": recent_added_products})
+
+            searched = analytics_views.highly_searched_keyword()
+            highly_searched = product_models.Product.objects.filter(tags__in=[d for d in searched])
+            context.update({"highly_searched": highly_searched})
+
+            wishlist = cart_models.WishList.objects.filter(product__vendor=vendor)
+            context.update({"wishlist": wishlist})
+
+            # Groups
+            groups = Group.objects.filter(vendor=vendor).count()
+            context.update({"groups": groups})
+
+            return render(request, template_version+"/Views/VendorView/details.html", context=context)
+        except (Exception, vendor_models.VendorRequest.DoesNotExist) as e:
+            print(e)
+            messages.error(request, "Vendor does not exists.")
+            return HttpResponseRedirect(reverse('vendor-vendors'))

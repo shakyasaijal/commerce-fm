@@ -1,0 +1,14 @@
+{% extends 'DashboardManagement/v2/Partials/base.html' %} 
+{% load static %}
+{% load addcss %}
+
+{% block content %}
+<section class="content-header">
+</section>
+<div class="content">
+    {% if messages %} 
+        {% include 'DashboardManagement/v2/Partials/notification.html' %}
+    {% endif %}
+   
+</div>
+{% endblock content %}
