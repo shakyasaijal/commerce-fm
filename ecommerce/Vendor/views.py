@@ -8,9 +8,9 @@ from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib import messages
 from django.contrib.auth.models import Group
-from django.db.models import Q, Count, Sum
-from collections import Counter 
-
+from django.db.models import Q, Sum, Count
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 from DashboardManagement.views import vendor_only
 from DashboardManagement.common import routes as navbar
@@ -356,41 +356,117 @@ class VendorDetails(LoginRequiredMixin, View):
                 request.user), active_page='vendor management')
             context = {}
             context.update({"routes": routes})
+            context.update({"vendor": vendor})
             context.update(
                 {"title": "Details of {}".format(vendor.organizationName)})
             context.update({"sub_navbar": 'vendors'})
 
             # Orders and Delivery
-            remaining_orders = order_models.Order.objects.filter( Q(vendor=vendor) and ~Q(status=3)).count()
-            context.update({"remaining_orders": remaining_orders})
+            '''
+               remaining_orders         : Remaining orders of a vendor
+               remaining_orders_of_all  : Remaining orders of all vendors
+               r_percentage_covered       : Total Percentage Covered by a vendor in total orders
+            '''
+            remaining_orders = order_models.Order.objects.filter( Q(vendor=vendor) & ~Q(status=3))
+            context.update({"remaining_orders": remaining_orders.count()})
+            remaining_orders_of_all = order_models.Order.objects.filter( ~Q(status=3)).count()
+            context.update({"remaining_orders_of_all": remaining_orders_of_all})
+            r_percentage_covered = round((remaining_orders.count()/remaining_orders_of_all)*100, 2)
+            context.update({"r_percentage_covered": r_percentage_covered})
 
-            delivered_orders = order_models.Order.delivered_objects.filter(vendor=vendor).count()
-            context.update({"delivered_orders": delivered_orders})
+            '''
+               delivered_orders         : Delivered orders of a vendor
+               delivered_orders_of_all  : Delivered orders of all vendors
+               percentage_covered       : Total Percentage Covered by a vendor in total orders
+            '''
+            delivered_orders = order_models.Order.delivered_objects.filter(vendor=vendor)
+            context.update({"delivered_orders": delivered_orders.count()})
+            delivered_orders_of_all = order_models.Order.delivered_objects.filter().count()
+            context.update({"delivered_orders_of_all": delivered_orders_of_all})
+            d_percentage_covered = round((delivered_orders.count()/delivered_orders_of_all)*100, 2)
+            context.update({"d_percentage_covered": d_percentage_covered})
 
             # Vendor User
+            '''
+               vendor_users             : Users of a vendor
+               all_vendor_user          : Users of all vendors
+               vu_percentage_covered    : Total Percentage Covered by a vendor in total orders
+            '''
             vendor_users = vendor.vendorUsers.all().count()
             context.update({"vendor_users": vendor_users})
+            all_vendor_user = vendor_models.Vendor.objects.aggregate(total=Count('vendorUsers'))['total']
+            context.update({"all_vendor_user": all_vendor_user})
+            vu_percentage_covered = round((vendor_users/all_vendor_user)*100, 2)
+            context.update({"vu_percentage_covered": vu_percentage_covered})
 
+
+            
             # Products, search, wishlist
+            '''
+               products                : Products of a vendor
+               all_products            : Products of all vendors
+               p_percentage_covered    : Total Percentage Covered by a vendor in products
+            '''
             products = product_models.Product.objects.filter(vendor=vendor).count()
-            context.update({"vendor_users": vendor_users})
+            context.update({"products": products})
+            all_products = product_models.Product.objects.all().count()
+            context.update({"all_products": all_products})
+            p_percentage_covered = round((products/all_products)*100, 2)
+            context.update({"p_percentage_covered": p_percentage_covered})
 
-            recent_added_products = product_models.Product.objects.filter(vendor=vendor).order_by('-created_at')[:4]
+            recent_added_products = product_models.Product.objects.filter(vendor=vendor).order_by('-created_at')[:5]
             context.update({"recent_added_products": recent_added_products})
 
             searched = analytics_views.highly_searched_keyword()
-            highly_searched = product_models.Product.objects.filter(tags__in=[d for d in searched])
+            tags = product_models.Tags.objects.filter(tag__in=[d for d in searched])
+            highly_searched = product_models.Product.objects.filter(tags__in=tags, vendor=vendor).distinct()[:8]
             context.update({"highly_searched": highly_searched})
 
             wishlist = cart_models.WishList.objects.filter(product__vendor=vendor)
             context.update({"wishlist": wishlist})
 
+            # Most Expensive and Least Expensive Products
+            least_expensive = product_models.Product.objects.filter(vendor=vendor).order_by('price')[:1]
+            if least_expensive:
+                context.update({"least_expensive_product": least_expensive[0]})
+                least_expensive_sold = order_models.OrderItem.objects.filter(item=least_expensive[0]).aggregate(total=Sum('quantity'))
+                context.update({"least_expensive_product_sold": least_expensive_sold['total']})
+
+            most_expensive = product_models.Product.objects.filter(vendor=vendor).order_by('-price')[:1]
+            if most_expensive:
+                context.update({"most_expensive_product": most_expensive[0]})
+                most_expensive_sold = order_models.OrderItem.objects.filter(item=most_expensive[0]).aggregate(total=Sum('quantity'))
+                context.update({"most_expensive_product_sold": most_expensive_sold['total']})
+                
+            total_quantity_sold = order_models.OrderItem.objects.aggregate(Sum('quantity'))
+            context.update({"total_quantity_sold": total_quantity_sold['quantity__sum']})
+
             # Groups
+            '''
+               groups                  : Groups of a vendor
+               all_groups              : Groups of all vendors
+               g_percentage_covered    : Total Percentage Covered by a vendor in total groups
+            '''
             groups = Group.objects.filter(vendor=vendor).count()
             context.update({"groups": groups})
+            all_groups = Group.objects.count()
+            context.update({"all_groups": all_groups})
+            g_percentage_covered = round((groups/all_groups)*100, 2)
+            context.update({"g_percentage_covered": g_percentage_covered})
 
+            # print(request.headers['Referer'])
             return render(request, template_version+"/Views/VendorView/details.html", context=context)
         except (Exception, vendor_models.VendorRequest.DoesNotExist) as e:
             print(e)
             messages.error(request, "Vendor does not exists.")
             return HttpResponseRedirect(reverse('vendor-vendors'))
+
+
+@api_view(['GET'])
+def TopFiveCategory(request):
+    try:
+        vendor = vendor_models.Vendor.objects.get(id=request.data['vendorId'])
+    except (Exception, vendor_models.Vendor.DoesNotExist):
+        pass
+    data = analytics_views.top_five_category()
+    return Ressponse(data, status=200)

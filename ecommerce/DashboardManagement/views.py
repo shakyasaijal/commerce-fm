@@ -175,8 +175,11 @@ class GroupView(LoginRequiredMixin, View):
         context = {}
         context.update({'title': 'Groups and Permissions'})
         if settings.MULTI_VENDOR:
-            all_groups = Group.objects.filter(
-                vendor=app_helper.current_user_vendor(request.user))
+            if request.user.is_superuser:
+                all_groups = Group.objects.all()
+            else:
+                all_groups = Group.objects.filter(
+                    vendor=app_helper.current_user_vendor(request.user))
         else:
             all_groups = Group.objects.all()
         context.update({'groups': all_groups})
@@ -198,10 +201,11 @@ class GroupDetailView(LoginRequiredMixin, View):
         all_perm = []
         group = Group.objects.get(id=id)
         if settings.MULTI_VENDOR:
-            vendor = app_helper.current_user_vendor(request.user)
-            if group.vendor != vendor:
-                messages.error(request, "Group not found.")
-                return HttpResponseRedirect(reverse('vendor-groups'))
+            if not request.user.is_superuser:
+                vendor = app_helper.current_user_vendor(request.user)
+                if group.vendor != vendor:
+                    messages.error(request, "Group not found.")
+                    return HttpResponseRedirect(reverse('vendor-groups'))
 
         permissions = app_helper.permissions_of_group(group)
         all_permissions = Permission.objects.exclude(

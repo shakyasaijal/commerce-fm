@@ -1,14 +1,328 @@
-{% extends 'DashboardManagement/v2/Partials/base.html' %} 
-{% load static %}
-{% load addcss %}
-
-{% block content %}
+{% extends 'DashboardManagement/v2/Partials/base.html' %} {% load static %} {%
+load addcss %} {% block content %}
 <section class="content-header">
+	<h1>
+		{{vendor.organizationName|title}}
+		<small>Basic Analytics</small>
+	</h1>
+	<ol class="breadcrumb">
+		<li>
+			<a href="{% url 'vendor-home' %}"
+				><i class="fa fa-dashboard"></i> Dashboard</a
+			>
+		</li>
+		<li>
+			<a href="{% url 'vendor-vendors' %}"
+				><i class="fa fa-object-group"></i> Vendors</a
+			>
+		</li>
+		<li class="active">Analytics</li>
+	</ol>
 </section>
 <div class="content">
-    {% if messages %} 
-        {% include 'DashboardManagement/v2/Partials/notification.html' %}
-    {% endif %}
-   
+	{% if messages %} {% include
+	'DashboardManagement/v2/Partials/notification.html' %} {% endif %}
+
+	<div class="row">
+		<div class="col-md-3 col-sm-6 col-xs-12">
+			<div class="info-box bg-red">
+				<span class="info-box-icon"><i class="fa fa-cart-arrow-down"></i></span>
+
+				<div class="info-box-content">
+					<span class="info-box-text">Remaining Orders</span>
+					<span class="info-box-number">{{remaining_orders}}</span>
+
+					<div class="progress">
+						<div class="progress-bar" style="width: {{r_percentage_covered}}%"></div>
+					</div>
+					<span class="progress-description" title="{{r_percentage_covered}}% of Total Orders"> {{r_percentage_covered}}% of Total Orders </span>
+				</div>
+				<!-- /.info-box-content -->
+			</div>
+			<!-- /.info-box -->
+		</div>
+		<!-- /.col -->
+		<div class="col-md-3 col-sm-6 col-xs-12">
+			<div class="info-box bg-green">
+				<span class="info-box-icon"><i class="fa fa-shopping-cart"></i></span>
+
+				<div class="info-box-content">
+					<span class="info-box-text">Delivered Orders</span>
+					<span class="info-box-number">{{delivered_orders}}</span>
+
+					<div class="progress">
+						<div class="progress-bar" style="width: {{d_percentage_covered}}%"></div>
+					</div>
+					<span class="progress-description" title="{{d_percentage_covered}}% of Total Order Delivered">{{d_percentage_covered}}% of Total Order Delivered </span>
+				</div>
+				<!-- /.info-box-content -->
+			</div>
+			<!-- /.info-box -->
+		</div>
+		<!-- /.col -->
+		<div class="col-md-3 col-sm-6 col-xs-12">
+			<div class="info-box bg-yellow">
+				<span class="info-box-icon"><i class="fa fa-users"></i></span>
+
+				<div class="info-box-content">
+					<span class="info-box-text">Vendor Users</span>
+					<span class="info-box-number">{{vendor_users}}</span>
+
+					<div class="progress">
+						<div class="progress-bar" style="width: {{vu_percentage_covered}}%"></div>
+					</div>
+					<span class="progress-description" title="{{vu_percentage_covered}}% of Total Vendor Users"> {{vu_percentage_covered}}% of Total Vendor Users </span>
+				</div>
+				<!-- /.info-box-content -->
+			</div>
+			<!-- /.info-box -->
+		</div>
+		<!-- /.col -->
+		<div class="col-md-3 col-sm-6 col-xs-12">
+			<div class="info-box bg-aqua">
+				<span class="info-box-icon"><i class="fa fa-product-hunt"></i></span>
+
+				<div class="info-box-content">
+					<span class="info-box-text">Total Products</span>
+					<span class="info-box-number">{{products}}</span>
+
+					<div class="progress">
+						<div class="progress-bar" style="width: {{p_percentage_covered}}%"></div>
+					</div>
+					<span class="progress-description" title="{{p_percentage_covered}}% of Total Products"> {{p_percentage_covered}}% of Total Products </span>
+				</div>
+				<!-- /.info-box-content -->
+			</div>
+			<!-- /.info-box -->
+		</div>
+		<!-- /.col -->
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<div class="box box-danger">
+				<div class="box-header with-border">
+					<h3 class="box-title">Popular Products Based On Search & Tags</h3>
+
+					<div class="box-tools pull-right">
+						<span class="label label-danger">{{highly_searched|length}} Products</span>
+						<button
+							type="button"
+							class="btn btn-box-tool"
+							data-widget="collapse"
+						>
+							<i class="fa fa-minus"></i>
+						</button>
+						<button type="button" class="btn btn-box-tool" data-widget="remove">
+							<i class="fa fa-times"></i>
+						</button>
+					</div>
+				</div>
+				<div class="box-body no-padding">
+					<ul class="users-list clearfix">
+                        {% if highly_searched %}
+                            {% for data in highly_searched %}
+                                <li>
+                                    <div class="small-img-container">
+                                        <img src="{{data.main_image.url}}" alt="{{data.english_name}}" />
+                                    </div>
+                                    <a class="users-list-name" href="#">{{data.english_name}}</a>
+                                    <span class="users-list-date">{{data.price}}</span>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                                <p class="text-center">No Data Found.</p>
+                        {% endif %}
+					</ul>
+				</div>
+			</div>
+        </div>
+        <div class="col-md-6">
+            <div class="box box-danger">
+				<div class="box-header with-border">
+					<h3 class="box-title">Products in Users Wishlist</h3>
+
+					<div class="box-tools pull-right">
+						<span class="label label-danger">{{wishlist|length}} Products</span>
+						<button
+							type="button"
+							class="btn btn-box-tool"
+							data-widget="collapse"
+						>
+							<i class="fa fa-minus"></i>
+						</button>
+						<button type="button" class="btn btn-box-tool" data-widget="remove">
+							<i class="fa fa-times"></i>
+						</button>
+					</div>
+				</div>
+				<div class="box-body no-padding">
+					<ul class="users-list clearfix">
+                        {% if wishlist %}
+                            {% for data in wishlist %}
+                                <li>
+                                    <div class="small-img-container">
+                                        <img src="{{data.product.main_image.url}}" alt="{{data.product.english_name}}" />
+                                    </div>
+                                    <a class="users-list-name" href="#">{{data.product.english_name}}</a>
+                                    <span class="users-list-date">{{data.product.price}}</span>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                                <p class="text-center">No Data Found.</p>
+                        {% endif %}
+					</ul>
+				</div>
+			</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                  <h3 class="box-title">Recently Added Products</h3>
+    
+                  <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                  </div>
+                </div>
+                <div class="box-body">
+                  <ul class="products-list product-list-in-box">
+                    {% if recent_added_products %}
+                        {% for data in recent_added_products %}
+                            <li class="item">
+                                <div class="product-img">
+                                    <img src="{{data.main_image.url}}" alt="{{data.english_name}}">
+                                </div>
+                                <div class="product-info">
+                                <a href="javascript:void(0)" class="product-title">{{data.english_name}}
+                                    <span class="label label-warning pull-right f15">Rs. {% if data.old_price %}<span class="line-through f13">{{data.old_price}}</span>{% endif %} {{data.price}}</span></a>
+                                    <span class="product-description">
+                                        {% if data.is_featured %} In Featured Product {% else %} Not In Featured Product {% endif %}
+                                    </span>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center">No Data Found.</p>
+                    {% endif %}
+                </ul>
+                </div>
+              </div>
+        </div>
+        <div class="col-md-6">
+            <div class="box box-solid">
+                <div class="box-header">
+                  <i class="fa fa-bar-chart-o"></i>
+    
+                  <h3 class="box-title">Most Expensive and Cheapest Product</h3>
+    
+                  <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-default btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-sm" data-widget="remove"><i class="fa fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="box-body">
+                  <div class="row">
+                    <div class="col-xs-6 col-md-6 text-center">
+                        <label>Cheapest Product</label>
+                        {% if least_expensive_product_sold %}
+                            <input type="text" class="knob" value="{{least_expensive_product_sold}}" data-skin="tron" data-thickness="0.2" data-width="{{total_quantity_sold}}" data-height="{{total_quantity_sold}}" data-fgColor="#3c8dbc" data-readonly="true">
+        
+                            <div class="knob-label">{{least_expensive_product.english_name}} - Rs.{{least_expensive_product.price}}</div>
+                        {% else %}
+                            <p class="text-center">No data found.</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-xs-6 col-md-6 text-center">
+                        <label>Expensive Product</label>
+                      {% if most_expensive_product_sold %}
+                        <input type="text" class="knob" value="{% if most_expensive_product_sold %}{{most_expensive_product_sold}}{% else %}0{% endif %}" data-skin="tron" data-thickness="0.1" data-width="{{total_quantity_sold}}" data-height="{{total_quantity_sold}}" data-fgColor="#00a65a">
+        
+                        <div class="knob-label">{{most_expensive_product.english_name}} - Rs.{{most_expensive_product.price}}</div>
+                      {% else %}
+                          <p class="text-center">No data found.</p>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+                <div class="box-footer">
+                    <span>Total Quantity of product sold from all "VENDORS": {{total_quantity_sold}}</span>
+                </div>
+            </div>
+            <div class="info-box bg-yellow">
+				<span class="info-box-icon"><i class="fa fa-users"></i></span>
+
+				<div class="info-box-content">
+					<span class="info-box-text">Total Groups Created</span>
+					<span class="info-box-number">{{groups}}</span>
+
+					<div class="progress">
+						<div class="progress-bar" style="width: {{g_percentage_covered}}%"></div>
+					</div>
+					<span class="progress-description" title="{{g_percentage_covered}}% of Total Groups"> {{g_percentage_covered}}% of Total Groups </span>
+				</div>
+				<!-- /.info-box-content -->
+			</div>
+        </div>
+    </div>
 </div>
 {% endblock content %}
+
+{% block js %}
+<script src="{% static 'DashboardManagement/v2/bower_components/jquery-knob/js/jquery.knob.js' %}"></script>
+<script>
+    $(function () {
+      $(".knob").knob({
+        draw: function () {
+          if (this.$.data('skin') == 'tron') {
+  
+            var a = this.angle(this.cv)  // Angle
+                , sa = this.startAngle          // Previous start angle
+                , sat = this.startAngle         // Start angle
+                , ea                            // Previous end angle
+                , eat = sat + a                 // End angle
+                , r = true;
+  
+            this.g.lineWidth = this.lineWidth;
+  
+            this.o.cursor
+            && (sat = eat - 0.3)
+            && (eat = eat + 0.3);
+  
+            if (this.o.displayPrevious) {
+              ea = this.startAngle + this.angle(this.value);
+              this.o.cursor
+              && (sa = ea - 0.3)
+              && (ea = ea + 0.3);
+              this.g.beginPath();
+              this.g.strokeStyle = this.previousColor;
+              this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, sa, ea, false);
+              this.g.stroke();
+            }
+  
+            this.g.beginPath();
+            this.g.strokeStyle = r ? this.o.fgColor : this.fgColor;
+            this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, sat, eat, false);
+            this.g.stroke();
+  
+            this.g.lineWidth = 2;
+            this.g.beginPath();
+            this.g.strokeStyle = this.o.fgColor;
+            this.g.arc(this.xy, this.xy, this.radius - this.lineWidth + 1 + this.lineWidth * 2 / 3, 0, 2 * Math.PI, false);
+            this.g.stroke();
+  
+            return false;
+          }
+        }
+      });
+      $(".sparkline").each(function () {
+        var $this = $(this);
+        $this.sparkline('html', $this.data());
+      });
+    });
+  </script>
+{% endblock js %}

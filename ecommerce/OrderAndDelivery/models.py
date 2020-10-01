@@ -22,7 +22,7 @@ class DeliveredManager(models.Manager):
 
 
 class Order(user_models.AbstractTimeStamp):
-    item = models.ManyToManyField(OrderItem, blank=False)
+    item = models.ManyToManyField(OrderItem, blank=False, related_name="order_orderItem")
     user = models.ForeignKey(user_models.User, null=False, blank=False, on_delete=models.PROTECT)
     status = models.IntegerField(choices=modelHelper.order_status_choice, null=False, blank=False, default=1)
     grand_total = models.FloatField(null=True, blank=True)

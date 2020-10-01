@@ -22,6 +22,7 @@ INSTALLED_APPS = [
 THIRD_PARTY_APPS = [
     'ckeditor',
     'ckeditor_uploader',
+    'rest_framework',
 ]
 OWN_APPS = [
     'Api',
@@ -38,6 +39,19 @@ OWN_APPS = [
 INSTALLED_APPS += THIRD_PARTY_APPS + OWN_APPS
 CKEDITOR_UPLOAD_PATH = "uploads/"
 AUTH_USER_MODEL = 'User.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    )
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.conf import settings
-from django.db.models import Count
-from django.db.models import Q
 from datetime import date, timedelta
+from django.db.models import Q, Count, Sum
+from collections import Counter 
 
 
 from Analytics import models as analytics_model
@@ -15,7 +15,7 @@ from DashboardManagement.common import helper
 
 
 def highly_searched_keyword():
-    data = analytics_model.SearchedKeyWord.objects.all().order_by('-count')[:10]
+    data = analytics_model.SearchedKeyWord.objects.all().order_by('-count')[:20]
     return data
 
 
@@ -78,18 +78,13 @@ def total_products(user):
     return products
 
 
-def a(vendor):
+def top_five_category(vendor):
     # Top 5 buyed category and highest & lowest sold product Start
     highest_ordered = order_models.Order.delivered_objects.filter(vendor=vendor)
     highest_ordered_category = {}
-    highest_ordered_product = {}
     for data in highest_ordered:
         for d in data.item.all():
             if d.item.vendor == vendor:
-                if d.item.english_name in highest_ordered_product:
-                    highest_ordered_product[d.item.english_name] = d.quantity + highest_ordered_product[d.item.english_name]
-                else:
-                    highest_ordered_product[d.item.english_name] = d.quantity
                 for category in d.item.category.all()[:1]:
                     if category.english_name in highest_ordered_category:
                         highest_ordered_category[category.english_name] = d.quantity + highest_ordered_category[category.english_name]
@@ -101,9 +96,30 @@ def a(vendor):
     highest_ordered_category = {}
     for data in highest:
         highest_ordered_category.update({data[0][0]:data[0][1]}) #include
-    highest_product = {}
+ 
+    return highest_ordered_category
+
+
+def highest_and_lowest_sold(vendor):
+    '''
+        Maximum sold product and
+        Minimum sold product
+    '''
+    highest_ordered = order_models.Order.delivered_objects.filter(vendor=vendor)
+    highest_ordered_category = {}
+    highest_ordered_product = {}
+    for data in highest_ordered:
+        for d in data.item.all():
+            if d.item.vendor == vendor:
+                if d.item.english_name in highest_ordered_product:
+                    highest_ordered_product[d.item.english_name] = d.quantity + highest_ordered_product[d.item.english_name]
+                else:
+                    highest_ordered_product[d.item.english_name] = d.quantity
+    response = {}
     for data in sorted(highest_ordered_product, key=highest_ordered_product.get, reverse=True)[:1]:
-        highest_product[data] = highest_ordered_product[data] #include
+        response[data] = highest_ordered_product[data] #include
 
     for data in sorted(highest_ordered_product, key=highest_ordered_product.get)[:1]:
-        highest_product[data] = highest_ordered_product[data] #include
+        response[data] = highest_ordered_product[data] #include
+
+    return response
