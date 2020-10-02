@@ -122,6 +122,9 @@ class Product(user_models.AbstractTimeStamp):
     if settings.MULTI_VENDOR:
         vendor = models.ForeignKey('Vendor.Vendor', on_delete=models.CASCADE, null=False, blank=False)
 
+    if settings.HAS_OFFER_APP:
+        offers = models.ManyToManyField("Offer.OfferCategory", related_name="offer_products", blank=True)
+
     def __str__(self):
         return self.english_name
 

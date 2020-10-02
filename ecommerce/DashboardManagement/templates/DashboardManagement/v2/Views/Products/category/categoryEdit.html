@@ -48,7 +48,7 @@
                         {{form.isFeatured|addcss:'form-control'}}
                     </div>
                 </div>
-                {% if 'change_category' in user_permissions or is_vendor_admin %}
+                {% if 'change_category' in user_permissions or request.user.is_superuser %}
                     <div class="form-group">
                         <button type="submit" class="btn btn-success btn-sm btn-icon-split">
                             <span class="icon text-white-50">

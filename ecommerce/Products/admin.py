@@ -26,11 +26,13 @@ class ProductAdmin(admin.ModelAdmin):
 @admin.register(models.SoftDeletedProducts)
 class DeletedProductsAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
-        return self.model.deletedObject.filter(soft_delete=True)
+        return self.model.objects.filter(soft_delete=True)
 
     list_per_page = 25
     list_display = ['english_name', 'is_featured', 'status']
     search_fields = ['english_name', 'price', 'old_price', 'description', 'sizes']
+
+
 
 admin.site.register(models.Size)
 admin.site.register(models.Tags)

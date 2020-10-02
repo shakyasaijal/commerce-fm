@@ -2,10 +2,14 @@ from django import forms
 from django.contrib import admin
 from dal import autocomplete
 from ckeditor.widgets import CKEditorWidget
+from django.conf import settings
 
 from helper import modelHelper
 from Products import models as products_models
 from Vendor import models as vendor_models
+
+if settings.HAS_OFFER_APP:
+    from Offer import models as offer_models
 
 
 class CategoryForm(forms.ModelForm):
@@ -57,6 +61,9 @@ class ProductForm(forms.ModelForm):
         required=False, queryset=products_models.ProductImage.objects.none())
     soft_delete = forms.ChoiceField(required=False)
 
+    if settings.HAS_OFFER_APP:
+        offer = forms.ModelMultipleChoiceField(required=False, queryset=offer_models.OfferCategory.objects.all())
+
     def __init__(self, vendor, *args, **kwargs):
         super(ProductForm, self).__init__(*args, **kwargs)
         self.fields['related_products'].queryset = products_models.Product.objects.filter(
@@ -95,6 +102,8 @@ class ProductSingleForm(forms.ModelForm):
     ),  help_text="Similar products that you sell", widget=autocomplete.ModelSelect2Multiple())
     soft_delete = forms.ChoiceField(required=False)
 
+    if settings.HAS_OFFER_APP:
+        offer = forms.ModelMultipleChoiceField(required=False, queryset=offer_models.OfferCategory.objects.all())
 
 class ProductImage(forms.ModelForm):
     image = forms.ImageField(label='Image')

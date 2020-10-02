@@ -671,6 +671,10 @@ class CategoryEdit(LoginRequiredMixin, View):
             messages.error(
                 request, "You do not have permission to edit or view category detail.")
             return HttpResponseRedirect(reverse('vendor-home'))
+        if not request.user.has_perm('Products.change_category') and not request.user.is_superuser():
+            messages.error(
+                request, "You do not have permission to edit or view category detail.")
+            return HttpResponseRedirect(reverse('category'))
         try:
             category = product_models.Category.objects.get(id=id)
         except product_models.Category.DoesNotExist:
@@ -688,6 +692,10 @@ class CategoryEdit(LoginRequiredMixin, View):
             messages.error(
                 request, "You do not have permission to edit or view category detail.")
             return HttpResponseRedirect(reverse('vendor-home'))
+        if not request.user.has_perm('Products.change_category') and not request.user.is_superuser():
+            messages.error(
+                request, "You do not have permission to edit or view category detail.")
+            return HttpResponseRedirect(reverse('category'))
         context = {}
         try:
             category = product_models.Category.objects.get(id=id)
@@ -718,6 +726,10 @@ class CategoryDelete(LoginRequiredMixin, View):
             messages.error(
                 request, "You do not have permission to delete category.")
             return HttpResponseRedirect(reverse('vendor-home'))
+        if not request.user.has_perm('Products.delete_category') and not request.user.is_superuser():
+            messages.error(
+                request, "You do not have permission to edit or view category detail.")
+            return HttpResponseRedirect(reverse('category'))
         try:
             category = product_models.Category.objects.get(id=id)
             category.delete()
@@ -829,6 +841,7 @@ class Product(LoginRequiredMixin, View):
             messages.success(request, 'Product has been successfully added.')
             return HttpResponseRedirect(reverse('products'))
         else:
+            print(form.errors)
             context = {}
             context.update({"form": form})
             context.update({"formset": formset})

@@ -35,7 +35,8 @@ OWN_APPS = [
     'Analytics',
     'CartSystem',
     'DashboardManagement',
-    'OrderAndDelivery'
+    'OrderAndDelivery',
+    'Offer'
 ]
 
 INSTALLED_APPS += THIRD_PARTY_APPS + OWN_APPS
@@ -135,6 +136,7 @@ try:
     MUST_HAVE_ADDITIONAL_DATA = credentials['MUST_HAVE_ADDITIONAL_DATA']
     TEMPLATE_VERSION = credentials['TEMPLATE_VERSION']
     COMPANY_NAME = credentials['COMPANY_NAME']
+    HAS_OFFER_APP = credentials['HAS_OFFER_APP']
 
     # Email
     EMAIL_USE_TLS = credentials['EMAIL_USE_TLS']
