@@ -116,7 +116,7 @@ def access_management(permission, request):
         if not request.user.has_perm(permission) and not is_vendor_admin(request.user):
             isOK = False
     else:
-        if not request.user.has_perm(permission):
+        if not request.user.has_perm(permission) or not request.user.is_superuser:
             isOK = False
 
     return isOK

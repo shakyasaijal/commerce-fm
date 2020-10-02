@@ -116,15 +116,15 @@ class VendorsList(LoginRequiredMixin, View):
 
 class JoinAsVendor(View):
     def get(self, request):
-        # if request.user.is_authenticated:
-        #     messages.warning(request, "You are already logged in.")
-        #     return HttpResponseRedirect(reverse('index'))
+        if request.user.is_authenticated:
+            messages.warning(request, "You are already logged in.")
+            return HttpResponseRedirect(reverse('index'))
         return render(request, template_version+"/Views/VendorView/join.html")
 
     def post(self, request):
-        # if request.user.is_authenticated:
-        #     messages.warning(request, "You are already logged in.")
-        #     return HttpResponseRedirect(reverse('index'))
+        if request.user.is_authenticated:
+            messages.warning(request, "You are already logged in.")
+            return HttpResponseRedirect(reverse('index'))
         try:
             vendor = vendor_models.VendorRequest.objects.get(
                 email=request.POST['email'])
@@ -430,14 +430,20 @@ class VendorDetails(LoginRequiredMixin, View):
             if least_expensive:
                 context.update({"least_expensive_product": least_expensive[0]})
                 least_expensive_sold = order_models.OrderItem.objects.filter(item=least_expensive[0]).aggregate(total=Sum('quantity'))
-                context.update({"least_expensive_product_sold": least_expensive_sold['total']})
+                if least_expensive_sold['total'] is not None:
+                    context.update({"least_expensive_product_sold": least_expensive_sold['total']})
+                else:
+                    context.update({"least_expensive_product_sold": 0})
 
             most_expensive = product_models.Product.objects.filter(vendor=vendor).order_by('-price')[:1]
             if most_expensive:
                 context.update({"most_expensive_product": most_expensive[0]})
                 most_expensive_sold = order_models.OrderItem.objects.filter(item=most_expensive[0]).aggregate(total=Sum('quantity'))
-                context.update({"most_expensive_product_sold": most_expensive_sold['total']})
-                
+                if most_expensive_sold['total'] is not None:
+                    context.update({"most_expensive_product_sold": most_expensive_sold['total']})
+                else:
+                    context.update({"most_expensive_product_sold": 0})
+
             total_quantity_sold = order_models.OrderItem.objects.aggregate(Sum('quantity'))
             context.update({"total_quantity_sold": total_quantity_sold['quantity__sum']})
 

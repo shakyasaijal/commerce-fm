@@ -48,7 +48,8 @@ def vendor_only(function):
                     for vendor in vendors:
                         if request.user in vendor.vendorUsers.all() or request.user == vendor.vendorAdmin:
                             return function(request, *args, **kwargs)
-                    messages.warning(request, 'Only vendors are allowed to login.')
+                    messages.warning(
+                        request, 'Only vendors are allowed to login.')
                     return render(request, template_version+"/Views/LoginView/login.html")
         else:
             if not request.user.is_superuser:
@@ -79,7 +80,6 @@ class IndexView(LoginRequiredMixin, View):
         total_products = analytics_views.total_products(request.user)
         context.update({"total_products": total_products})
 
-
         return render(request, template_version+"/index.html", context=context)
 
 
@@ -102,7 +102,6 @@ class LoginView(View):
                     else:
                         vendors = vendor_models.Vendor.objects.all()
                         for vendor in vendors:
-                            print(">>>>", user, vendor.vendorAdmin, ">>>")
                             if user in vendor.vendorUsers.all() or user == vendor.vendorAdmin:
                                 login_user = True
                 else:
@@ -129,7 +128,7 @@ class LoginView(View):
 
 
 @method_decorator(vendor_only, name='dispatch')
-class LogoutView(View):
+class LogoutView(LoginRequiredMixin, View):
     def post(self, request):
         logout(request)
         return HttpResponseRedirect(reverse('vendor-login'))
@@ -154,7 +153,8 @@ class ChangePassword(LoginRequiredMixin, View):
                     request.user), active_page='')
                 return render(request, template_version+"/Views/Profile/changePassword.html", context={"routes": routes, "form": form})
 
-            messages.success(request, 'Your password was successfully updated!')
+            messages.success(
+                request, 'Your password was successfully updated!')
             return HttpResponseRedirect(reverse('profile'))
         except Exception as e:
             print(e)
@@ -356,7 +356,8 @@ class UsersView(LoginRequiredMixin, View):
 
         if settings.MULTI_VENDOR:
             if request.user.is_superuser:
-                vendor_user = user_models.User.objects.filter(is_superuser=True)
+                vendor_user = user_models.User.objects.filter(
+                    is_superuser=True)
             else:
                 vendor = app_helper.current_user_vendor(request.user)
                 vendor_user = vendor.vendorUsers.all()
@@ -747,53 +748,206 @@ class ProductList(LoginRequiredMixin, View):
 
 @method_decorator(vendor_only, name='dispatch')
 class Product(LoginRequiredMixin, View):
+    def common(self, request):
+        context = {}
+        routes = navbar.get_formatted_routes(
+            navbar.get_routes(request.user), active_page='products')
+        products = product_models.Product.objects.filter(soft_delete=False)
+
+        context.update({"routes": routes})
+        context.update({"products": products})
+        context.update({"title": "Product"})
+        context.update({"sub_navbar": "products"})
+        return context
+
     def get(self, request):
         if not app_helper.access_management('Products.add_product', request):
             messages.error(
                 request, "You do not have permission to add products.")
             return HttpResponseRedirect(reverse('vendor-home'))
-        if settings.MULTI_VENDOR and not request.user.is_superuser:
+        if settings.MULTI_VENDOR:
+            if request.user.is_superuser:
+                messages.warning(
+                    request, "Sorry. Only Vendors are allowed to upload products.")
+                return HttpResponseRedirect(reverse('products'))
             form = product_forms.ProductForm(
                 app_helper.current_user_vendor(request.user))
         else:
             form = product_forms.ProductSingleForm()
 
         ImageFormSet = modelformset_factory(
-            product_models.ProductImage, form=product_models.ProductImage, extra=4, max_num=5, validate_max=True)
+            product_models.ProductImage, form=product_forms.ProductImage, extra=4, max_num=4, validate_max=True)
         formset = ImageFormSet(
             queryset=product_models.ProductImage.objects.none())
-        products = product_models.Product.objects.all()
-        routes = navbar.get_formatted_routes(
-            navbar.get_routes(request.user), active_page='products')
-        return render(request, template_version+"/Views/Products/products/products.html", context={"form": form, 'products': products, 'routes': routes, 'formset': formset, "title": "Product"})
+        context = {}
+        context.update({"form": form})
+        context.update({"formset": formset})
+        context.update(self.common(request))
+        return render(request, template_version+"/Views/Products/products/products.html", context=context)
 
     def post(self, request):
-        if not request.user.has_perm('products.add_product') and not app_helper.is_vendor_admin(request.user):
+        if not app_helper.access_management('Products.add_product', request):
+            messages.error(
+                request, "You do not have permission to add products.")
             return HttpResponseRedirect(reverse('vendor-home'))
-        routes = navbar.get_formatted_routes(navbar.get_routes(
-            request.user), active_page='our products')
-        form = product_forms.ProductForm(helper.current_user_vendor(
-            request.user), request.POST, request.FILES)
+        if settings.MULTI_VENDOR:
+            if request.user.is_superuser:
+                messages.warning(
+                    request, "Sorry. Only Vendors are allowed to upload products.")
+                return HttpResponseRedirect(reverse('products'))
+            form = product_forms.ProductForm(app_helper.current_user_vendor(
+                request.user), request.POST, request.FILES)
+        else:
+            form = product_forms.ProductSingleForm(request.POST, request.FILES)
+
         ImageFormSet = modelformset_factory(
-            products_models.ProductImage, form=product_forms.ProductImage, extra=4, max_num=4, validate_max=True)
+            product_models.ProductImage, form=product_forms.ProductImage, extra=4, max_num=4, validate_max=True)
         formset = ImageFormSet(request.POST, request.FILES,
-                               queryset=products_models.ProductImage.objects.none())
+                               queryset=product_models.ProductImage.objects.none())
 
         if form.is_valid() and formset.is_valid():
             product = form.save(commit=False)
-            product.vendor = helper.current_user_vendor(request.user)
-            product.save()
-            form.save()
-            form.save_m2m()
+            if settings.MULTI_VENDOR:
+                product.vendor = app_helper.current_user_vendor(request.user)
+                product.save()
 
             for data in formset.cleaned_data:
-                if data:
-                    image = data['image']
-                    photo = products_models.ProductImage(
-                        product=product, image=image)
-                    photo.save()
+                try:
+                    if data:
+                        image = data['image']
+                        photo = product_models.ProductImage(
+                            product=product, image=image)
+                        photo.save()
 
+                except Exception:
+                    messages.error(
+                        request, "Something went wrong. Please try again.")
+                    return HttpResponseRedirect(reverse('products'))
+
+            form.save()
+            form.save_m2m()
             messages.success(request, 'Product has been successfully added.')
             return HttpResponseRedirect(reverse('products'))
-        messages.warning(request, 'Failed to add new Product.')
-        return HttpResponseRedirect(reverse('product-add'))
+        else:
+            context = {}
+            context.update({"form": form})
+            context.update({"formset": formset})
+            context.update(self.common(request))
+            return render(request, template_version+"/Views/Products/products/products.html", context=context)
+
+
+@method_decorator(vendor_only, name='dispatch')
+class ProductDelete(LoginRequiredMixin, View):
+    def get(self, request):
+        return HttpResponseRedirect(reverse('products'))
+
+    def post(self, request):
+        if not app_helper.access_management('Products.delete_product', request):
+            messages.error(
+                request, "You do not have permission to delete products.")
+            return HttpResponseRedirect(reverse('vendor-home'))
+
+        try:
+            product = product_models.Product.objects.get(
+                id=request.POST['product_id'])
+            if settings.MULTI_VENDOR:
+                if request.user.is_superuser and not app_helper.is_vendor_admin(request.user):
+                    messages.error(request, "You cannot delete the product.")
+                    return HttpResponseRedirect(reverse('products'))
+                elif product.vendor.id != app_helper.current_user_vendor(request.user).id:
+                    messages.error(request, "You cannot delete others product")
+                    return HttpResponseRedirect(reverse('products'))
+            product.delete_softly()
+            product.save()
+            messages.success(request, 'Product has been successfully deleted.')
+        except (Exception, product_models.Product.DoesNotExist):
+            messages.warning(
+                request, "Product not found.")
+        return HttpResponseRedirect(reverse('products'))
+
+
+@method_decorator(vendor_only, name='dispatch')
+class ProductEdit(LoginRequiredMixin, View):
+    def get(self, request, id):
+        if not app_helper.access_management('Products.change_product', request):
+            messages.error(
+                request, "You do not have permission to change products.")
+            return HttpResponseRedirect(reverse('vendor-home'))
+
+        try:
+            product = product_models.Product.objects.get(id=id)
+        except product_models.Product.DoesNotExist:
+            messages.warning(
+                request, 'There is no such product')
+            return HttpResponseRedirect(reverse('products'))
+
+        if settings.MULTI_VENDOR:
+            form = product_forms.ProductForm(
+                app_helper.current_user_vendor(request.user), instance=product)
+        else:
+            form = product_forms.ProductSingleForm(instance=product)
+        ImageFormSet = modelformset_factory(
+            product_models.ProductImage, form=product_forms.ProductImage, extra=4, max_num=4, validate_max=True)
+        formset = ImageFormSet(
+            queryset=product_models.ProductImage.objects.filter(product=product))
+
+        routes = navbar.get_formatted_routes(navbar.get_routes(
+            request.user), active_page='our products')
+        return render(request, template_version+"/Views/Products/products/productEdit.html", context={"form": form, 'product': product, 'routes': routes, 'formset': formset, "title": "Edit {}".format(product.english_name)})
+
+    def post(self, request, id):
+        if not app_helper.access_management('Products.change_product', request):
+            messages.error(
+                request, "You do not have permission to change products.")
+        context = {}
+        try:
+            product = product_models.Product.objects.get(id=id)
+        except (Exception, product_models.Product.DoesNotExist):
+            messages.warning(
+                request, 'There is no such product')
+            return HttpResponseRedirect(reverse('products'))
+        if settings.MULTI_VENDOR:
+            form = product_forms.ProductForm(app_helper.current_user_vendor(
+                request.user), request.POST, request.FILES, instance=product)
+        else:
+            form = product_forms.ProductSingleForm(
+                request.POST, request.FILES, instance=product)
+
+        ImageFormSet = modelformset_factory(
+            product_models.ProductImage, form=product_forms.ProductImage, extra=4, max_num=4, validate_max=True)
+        formset = ImageFormSet(request.POST, request.FILES,
+                               queryset=product_models.ProductImage.objects.filter(product=product))
+
+        if form.is_valid() and formset.is_valid():
+            product = form.save(commit=False)
+            if settings.MULTI_VENDOR:
+                product.vendor = app_helper.current_user_vendor(request.user)
+                product.save()
+
+            for data in formset.cleaned_data:
+                try:
+                    if data:
+                        instance = data['id']
+                        if instance:
+                            try:
+                                if request.POST.getlist('pi{}'.format(instance.id)):
+                                    instance.delete()
+                            except Exception:
+                                instance.image = data['image']
+                                instance.save()
+                        else:
+                            image = data['image']
+                            photo = product_models.ProductImage(
+                                product=product, image=image)
+                            photo.save()
+                except Exception:
+                    messages.error(
+                        request, "Something went wrong. Please try again.")
+                    return HttpResponseRedirect(reverse('products'))
+            form.save()
+            form.save_m2m()
+            messages.success(request, 'Product has been successfully updated.')
+            return HttpResponseRedirect(reverse('products'))
+
+        messages.warning(request, 'Failed to update Product.')
+        return HttpResponseRedirect(reverse('vendor-product-edit', args=[str(id)]))

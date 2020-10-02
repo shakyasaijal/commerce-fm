@@ -1,173 +1,211 @@
-{% extends 'DashboardManagement/v1/Partials/base.html' %}
+{% extends 'DashboardManagement/v2/Partials/base.html' %}
 {% load static %}
-{% block content %}
+
+{% block css %}
+{{ form.media.css }}
+<style>
+.select2-container--default .select2-selection--multiple .select2-selection__choice{
+    color: #000;
+}
+span.select2.select2-container.select2-container--default {
+    width: 100% !important;
+}
+</style>
+{% endblock css %}
 {% load addcss %}
-<div class="row">
-    <div class="col-md-8">
-        <h1 class="h3 mb-4 text-gray-800">Product</h1>
-        <small>Fields with * are required</small>
-    </div>
+
+{% block content %}
+
+<section class="content-header">
+    <h1>Add New Product<small>Fields with <span class="form-error">*</span> is required.</small></h1>
+    <ol class="breadcrumb">
+		<li>
+			<a href="{% url 'vendor-home' %}"
+				><i class="fa fa-dashboard"></i> Dashboard</a
+			>
+		</li>
+		<li>
+			<a href="{% url 'products' %}"
+				><i class="glyphicon glyphicon-gift"></i>Products</a
+			>
+		</li>
+		<li class="active">Add New Products</li>
+	</ol>
+</section>
+<div class="content">
+    {% if messages %}
+        {% include "DashboardManagement/v2/Partials/notification.html" %}
+    {% endif %}
+    <form class="user" enctype="multipart/form-data" method="POST">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="box box-info">
+                    <div class="box-header">
+                        <div class="box-title">Basic Information</div>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        {% csrf_token %}
+                        <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <label for="name">{{form.english_name.label}}: <span class="form-error">*</span></label>
+                                {{form.english_name|addcss:'form-control'}}
+                            </div>
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <label for="name">{{form.nepali_name.label}}:</label>
+                                {{form.nepali_name|addcss:'form-control'}}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <label for="name">{{form.old_price.label}}:</label>
+                                {{form.old_price|addcss:'form-control'}}
+                            </div>
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <label for="name">{{form.price.label}}: <span class="form-error">*</span></label>
+                                {{form.price|addcss:'form-control'}}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                <label for="status">{{form.status.label}}: <span class="form-error">*</span></label>
+                                {{form.status|addcss:'form-control'}}
+                                <small>{{form.status.help_text}}</small>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="isFeatured">{{form.is_featured.label}}: <span class="form-error">*</span></label>
+                                {{form.is_featured|addcss:'form-control'}}
+                                <small>{{form.is_featured.help_text}}</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label for="status">{{form.quantity_left.label}}: </label>
+                                {{form.quantity_left|addcss:'form-control'}}
+                                <small>{{form.quantity_left.help_text}}</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <label for="status">{{form.sizes.label}}: </label><br/>
+                                {{form.sizes}}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <label for="tags">{{form.tags.label}}:</label><br/>
+                                {{form.tags}}
+                                <small>
+                                    {{form.tags.help_text}}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="box box-danger">
+                    <div class="box-header">
+                        <div class="box-title">Product Images</div>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="Main Image">{{form.main_image.label}}: <span class="form-error">*</span></label>
+                                    {{form.main_image|addcss:'form-control'}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            {{ formset.management_form }}
+                            {% for field in formset %}
+                              {% if forloop.first %}
+                                  <label for="id_is_feature">Product Image:</label><br/>
+                              {% endif %}
+                                {{ field }}<br/>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+           <div class="col-md-7">
+               <div class="box box-success">
+                   <div class="box-header">
+                       <div class="box-title">Product Description</div>
+                       <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                   </div>
+                   <div class="box-body">
+                    <div class="form-group row">
+                        <div class="col-sm-12 mb-3 mb-sm-0">
+                            <label for="description">{{form.short_description.label}} :</label>
+                            <br/>
+                            {{form.short_description|addcss:'form-control'}}<br/>
+                            <small>{{form.short_description.help_text}}</small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12 mb-3 mb-sm-0">
+                            <label for="description">{{form.description.label}} :</label>
+                            <br/>
+                            {{form.description|addcss:'form-control'}}<br/>
+                            <small>{{form.description.help_text}}</small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-6 mb-3 mb-sm-0">
+                            <label for="category">{{form.category.label}} :</label>
+                            {{form.category}}
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="sub_category">{{form.brand_name.label}} :</label>
+                            {{form.brand_name|addcss:'form-control js-example-basic-single'}}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-6">
+                            <label for="isFeatured">{{form.warranty.label}} :</label>
+                            {{form.warranty|addcss:'form-control'}}
+                            <small>{{form.warranty.help_text}}</small>
+                        </div>
+                        <div class="col-sm-6 mb-3 mb-sm-0">
+                            <label for="category">{{form.related_products.label}} :</label>
+                            {{form.related_products}}
+                        </div>
+                    </div>
+                   </div>
+               </div>
+               <div class="box">
+                   <div class="box-body">
+                       <button type="submit" class="btn btn-success">
+                           <i class="fa fa-plus"></i>
+                           Save
+                       </button>
+                       <a href="{% url 'products' %}" class="btn btn-danger pull-right">
+                            <i class="fa fa-ban"></i>
+                            Cancel
+                        </a>
+                   </div>
+               </div>
+           </div>
+        </div>
+    </form>
 </div>
-{% if messages %}
-    {% include "DashboardManagement/v1/Partials/notification.html" %}
-{% endif %}
+
 {{ form.media }}
-<div class="card mb-4 py-3 border-bottom-success">
-    <div class="card-body">
-        <form class="user" enctype="multipart/form-data" method="POST">
-            {% csrf_token %}
-            <div class="form-group row">
-                <div class="col-sm-6 mb-3 mb-sm-0">
-                    <label for="name">{{form.english_name.label}}  <span class="red">*</span></label>:</label>
-                    {{form.english_name|addcss:'form-control'}}
-                </div>
-                <div class="col-sm-6 mb-3 mb-sm-0">
-                    <label for="name">{{form.nepali_name.label}}  <span class="red">*</span></label>:</label>
-                    {{form.nepali_name|addcss:'form-control'}}
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-6 mb-3 mb-sm-0">
-                    <label for="name">{{form.old_price.label}}  <span class="red">*</span></label>:</label>
-                    {{form.old_price|addcss:'form-control'}}
-                </div>
-                <div class="col-sm-6 mb-3 mb-sm-0">
-                    <label for="name">{{form.price.label}}  <span class="red">*</span></label>:</label>
-                    {{form.price|addcss:'form-control'}}
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-12 mb-3 mb-sm-0">
-                    <label for="description">{{form.description.label}} :</label>
-                    <br/>
-                    {{form.description|addcss:'form-control'}}<br/>
-                    <small>{{form.description.help_text}}</small>
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-12 mb-3 mb-sm-0">
-                    <label for="description">{{form.short_description.label}} :</label>
-                    <br/>
-                    {{form.short_description|addcss:'form-control'}}<br/>
-                    <small>{{form.short_description.help_text}}</small>
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-6 mb-3 mb-sm-0">
-                    <label for="category">{{form.category.label}} :</label>
-                    {{form.category|addcss:'form-control js-example-basic-single'}}
-                </div>
-                <div class="col-sm-6">
-                    <label for="sub_category">{{form.brand_name.label}} :</label>
-                    {{form.brand_name|addcss:'form-control js-example-basic-single'}}
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-4">
-                    <label for="status">{{form.status.label}} :</label>
-                    {{form.status|addcss:'form-control'}}
-                </div>
-                <div class="col-sm-4">
-                    <label for="isFeatured">{{form.is_featured.label}} :</label>
-                    {{form.is_featured|addcss:'form-control'}}
-                </div>
-
-                <div class="col-sm-4">
-                    <label for="isFeatured">{{form.warranty.label}} :</label>
-                    {{form.warranty|addcss:'form-control'}}
-                    <small>{{form.warranty.help_text}}</small>
-                </div>
-            </div>
-{% comment %}             
-            
-
-            <div class="form-group row">
-                <div class="col-sm-6">
-                    <label for="tags">{{form.tags.label}}</label>
-                    {{form.tags|addcss:'form-control'}}
-                    <small>This is used for search engine.</small>
-                </div>
-                <div class="col-sm-6">
-                    <label for="isFeatured">{{form.sizes.label}} :</label>
-                    {{form.sizes|addcss:'form-control js-example-basic-single'}}
-                </div>
-            </div>
-           
-            <div class="form-group row">
-                <div class="col-sm-6 mb-3 mb-sm-0">
-                    <label for="name">{{form.price.label}} <span class="red">*</span></label> :</label>
-                    {{form.price|addcss:'form-control'}}
-                </div>
-                <div class="col-sm-6">
-                    <label for="sub_category">{{form.old_price.label}} :</label>
-                    {{form.old_price|addcss:'form-control'}}
-                </div>
-            </div>
-            
-            <div class="form-group row">
-                <div class="col-sm-12 mb-3 mb-sm-0">
-                    <label for="category">{{form.related_products.label}} :</label>
-                    {{form.related_products|addcss:'form-control js-example-basic-single'}}
-                    <small>{{form.related_products.help_text}}</small>
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-4">
-                    <label for="status">{{form.status.label}} :</label>
-                    {{form.status|addcss:'form-control'}}
-                </div>
-                <div class="col-sm-4">
-                    <label for="isFeatured">{{form.isFeatured.label}} :</label>
-                    {{form.isFeatured|addcss:'form-control'}}
-                </div>
-
-                <div class="col-sm-4">
-                    <label for="isFeatured">{{form.warranty.label}} :</label>
-                    {{form.warranty|addcss:'form-control'}}
-                    <small>{{form.warranty.help_text}}</small>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="description">{{form.description.label}} :</label>
-                <br/>
-                {{form.description|addcss:'form-control'}}<br/>
-                <small>{{form.description.help_text}}</small>
-            </div>
-            <div class="form-group">
-                {{form.about.errors}}
-                <label for="about">{{form.about.label}} :</label>
-                <br/>
-                {{form.about|addcss:'form-control'}}<br/>
-                <small>{{form.about.help_text}}</small>
-            </div>
-            <div class="form-group">
-                <label for="main_image">{{form.main_image.label}} <span class="red">*</span>:</label>
-                <br/>
-                {{form.main_image}}<br/>
-                {{ formset.management_form }}
-                {% for field in formset %}
-                  {% if forloop.first %}
-                      <label for="id_is_feature">Product Images  </label>:</label><br/><br/>
-                  {% endif %}
-                    {{ field }}<br/><br/>
-                {% endfor %}
-            </div> {% endcomment %}
-            <div class="row">
-                <div class="col-md-2">
-                    <input type="submit" name="add-product" id="update-profile" class="btn btn-primary btn-user btn-block"
-                    value="Add Product" />
-                </div>
-            </div>
-        </form>
-
-    </div>
-</div>
-
 
 {% endblock %}
 
 {% block js%}
+{{ form.media.js }}
 {% comment %} <script>
     $(document).ready(function() {
         $('.js-example-basic-single').select2();

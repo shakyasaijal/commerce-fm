@@ -28,6 +28,8 @@ urlpatterns = [
     # Products and Categories
     path('products', views.ProductList.as_view(), name="products"),
     path('products/add', views.Product.as_view(), name="product-add"),
+    path('products/delete', views.ProductDelete.as_view(), name="vendor-product-delete"),
+    path('products/edit/<int:id>', views.ProductEdit.as_view(), name="vendor-product-edit"),
     path('category', views.CategoryList.as_view(), name="category"),
     path('category/delete/<id>', views.CategoryDelete.as_view(), name="category-delete"),
     path('category/add', views.Category.as_view(), name="category-add"),

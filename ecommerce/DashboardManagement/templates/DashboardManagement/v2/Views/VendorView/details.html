@@ -229,7 +229,7 @@ load addcss %} {% block content %}
                   <div class="row">
                     <div class="col-xs-6 col-md-6 text-center">
                         <label>Cheapest Product</label>
-                        {% if least_expensive_product_sold %}
+                        {% if least_expensive_product_sold == 0 or least_expensive_product_sold %}
                             <input type="text" class="knob" value="{{least_expensive_product_sold}}" data-skin="tron" data-thickness="0.2" data-width="{{total_quantity_sold}}" data-height="{{total_quantity_sold}}" data-fgColor="#3c8dbc" data-readonly="true">
         
                             <div class="knob-label">{{least_expensive_product.english_name}} - Rs.{{least_expensive_product.price}}</div>
@@ -239,7 +239,7 @@ load addcss %} {% block content %}
                     </div>
                     <div class="col-xs-6 col-md-6 text-center">
                         <label>Expensive Product</label>
-                      {% if most_expensive_product_sold %}
+                      {% if most_expensive_product_sold == 0 or most_expensive_product_sold %}
                         <input type="text" class="knob" value="{% if most_expensive_product_sold %}{{most_expensive_product_sold}}{% else %}0{% endif %}" data-skin="tron" data-thickness="0.1" data-width="{{total_quantity_sold}}" data-height="{{total_quantity_sold}}" data-fgColor="#00a65a">
         
                         <div class="knob-label">{{most_expensive_product.english_name}} - Rs.{{most_expensive_product.price}}</div>

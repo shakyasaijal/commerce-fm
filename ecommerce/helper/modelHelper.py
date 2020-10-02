@@ -26,3 +26,8 @@ order_status_choice = (
     (2, 'In Progress'),
     (3, 'Delivered')
 )
+
+soft_delete = (
+    (True, "Soft Deleted"),
+    (False, "Not Deleted")
+)

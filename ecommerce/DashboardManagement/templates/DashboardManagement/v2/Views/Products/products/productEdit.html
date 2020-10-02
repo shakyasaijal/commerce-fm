@@ -1,185 +1,202 @@
-{% extends 'dashboardManagement/Partials/base.html' %}
+{% extends 'DashboardManagement/v2/Partials/base.html' %}
 {% load static %}
-{% block content %}
 {% load addcss %}
-<div class="row">
-    <div class="col-md-8">
-        <h1 class="h3 mb-4 text-gray-800">Product</h1>
-    </div>
-</div>
+
+{% block css %}
+{{ form.media.css }}
+<style>
+.select2-container--default .select2-selection--multiple .select2-selection__choice{
+    color: #000;
+}
+span.select2.select2-container.select2-container--default {
+    width: 100% !important;
+}
+</style>
+{% endblock css %}
+
+{% block content %}
+<section class="content-header">
+    <h1>{{title}}<small>Fields with <span class="form-error">*</span> is required.</small></h1>
+</section>
 {% if messages %}
-{% include "dashboardManagement/Partials/notification.html" %}
+{% include "DashboardManagement/v2/Partials/notification.html" %}
 {% endif %}
 {{ form.media }}
-<div class="card mb-4 py-3 border-bottom-success">
-    <div class="card-body">
-        <form class="user" enctype="multipart/form-data" method="POST">
-            {% csrf_token %}
-            <div class="form-group row">
-                <div class="col-sm-6 mb-3 mb-sm-0">
-                    <label for="name">{{form.name.label}} :</label>
-                    {{form.name|addcss:'form-control'}}
+<div class="content">
+    {% if messages %}
+        {% include "DashboardManagement/v2/Partials/notification.html" %}
+    {% endif %}
+    <form class="user" enctype="multipart/form-data" method="POST">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="box box-info">
+                    <div class="box-header">
+                        <div class="box-title">Basic Information</div>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        {% csrf_token %}
+                        <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <label for="name">{{form.english_name.label}}: <span class="form-error">*</span></label>
+                                {{form.english_name|addcss:'form-control'}}
+                            </div>
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <label for="name">{{form.nepali_name.label}}:</label>
+                                {{form.nepali_name|addcss:'form-control'}}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <label for="name">{{form.old_price.label}}:</label>
+                                {{form.old_price|addcss:'form-control'}}
+                            </div>
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <label for="name">{{form.price.label}}: <span class="form-error">*</span></label>
+                                {{form.price|addcss:'form-control'}}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                <label for="status">{{form.status.label}}: <span class="form-error">*</span></label>
+                                {{form.status|addcss:'form-control'}}
+                                <small>{{form.status.help_text}}</small>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="isFeatured">{{form.is_featured.label}}: <span class="form-error">*</span></label>
+                                {{form.is_featured|addcss:'form-control'}}
+                                <small>{{form.is_featured.help_text}}</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label for="status">{{form.quantity_left.label}}: </label>
+                                {{form.quantity_left|addcss:'form-control'}}
+                                <small>{{form.quantity_left.help_text}}</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <label for="status">{{form.sizes.label}}: </label><br/>
+                                {{form.sizes}}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <label for="tags">{{form.tags.label}}:</label><br/>
+                                {{form.tags}}
+                                <small>
+                                    {{form.tags.help_text}}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-sm-6 mb-3 mb-sm-0">
-                    <label for="category">{{form.brand_name.label}} :</label>
-                    {{form.brand_name|addcss:'form-control js-example-basic-single'}}
+                <div class="box box-danger">
+                    <div class="box-header">
+                        <div class="box-title">Product Images</div>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="Main Image">{{form.main_image.label}}: <span class="form-error">*</span></label>
+                                    {{form.main_image|addcss:'form-control'}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            {{ formset.management_form }}
+                            {% for field in formset %}
+                                {% if forloop.first %}
+                                    <label for="id_is_feature">Product Image:</label><br/>
+                                {% endif %}
+                                {% if field.instance.id %}
+                                    <input type="checkbox" name="pi{{field.instance.id}}"/>  Delete?<br/>
+                                {% endif %}
+                                {{ field }} <br/>
+                                {% if not forloop.last %}
+                                <hr/>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
             </div>
-            
-
-            <div class="form-group row">
-                <div class="col-sm-6">
-                    <label for="tags">{{form.tags.label}}</label>
-                    {{form.tags|addcss:'form-control'}}
-                </div>
-                <div class="col-sm-6">
-                    <label for="isFeatured">{{form.sizes.label}} :</label>
-                    {{form.sizes|addcss:'form-control js-example-basic-single'}}
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-6 mb-3 mb-sm-0">
-                    <label for="name">{{form.price.label}} :</label>
-                    {{form.price|addcss:'form-control'}}
-                </div>
-                <div class="col-sm-6">
-                    <label for="sub_category">{{form.old_price.label}} :</label>
-                    {{form.old_price|addcss:'form-control'}}
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-6 mb-3 mb-sm-0">
-                    <label for="category">{{form.category.label}} :</label>
-                    {{form.category|addcss:'form-control js-example-basic-single'}}
-                </div>
-                <div class="col-sm-6">
-                    <label for="sub_category">{{form.sub_category.label}} :</label>
-                    {{form.sub_category|addcss:'form-control js-example-basic-single'}}
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-12 mb-3 mb-sm-0">
-                    <label for="category">{{form.related_products.label}} :</label>
-                    {{form.related_products|addcss:'form-control js-example-basic-single'}}
-                    <small>{{form.related_products.help_text}}</small>
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-4">
-                    <label for="status">{{form.status.label}} :</label>
-                    {{form.status|addcss:'form-control'}}
-                </div>
-                <div class="col-sm-4">
-                    <label for="isFeatured">{{form.isFeatured.label}} :</label>
-                    {{form.isFeatured|addcss:'form-control'}}
-                </div>
-
-                <div class="col-sm-4">
-                    <label for="isFeatured">{{form.warranty.label}} :</label>
-                    {{form.warranty|addcss:'form-control'}}
-                    <small>{{form.warranty.help_text}}</small>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="description">{{form.description.label}} :</label>
-                <br/>
-                {{form.description|addcss:'form-control'}}<br/>
-                <small>{{form.description.help_text}}</small>
-            </div>
-            <div class="form-group">
-                {{form.about.errors}}
-                <label for="about">{{form.about.label}} :</label>
-                <br/>
-                {{form.about|addcss:'form-control'}}<br/>
-                <small>{{form.about.help_text}}</small>
-            </div>
-            <div class="form-group">
-                <label for="main_image">{{form.main_image.label}} <span class="red">*</span>:</label>
-                <br/>
-                {{form.main_image}}<br/>
-                {{ formset.management_form }}
-                {% for field in formset %}
-                  {% if forloop.first %}
-                      <label for="id_is_feature">Product Images:</label><br/><br/>
-                  {% endif %}
-                    {{ field }}<br/><br/>
-                {% endfor %}
-            </div>
-
-            <div class='row'>
-                {% if 'change_product' in user_permissions or is_vendor_admin %}
-                <div class="form-group">
-                    <button type="submit" class="btn btn-success btn-sm btn-icon-split">
-                        <span class="icon text-white-50">
-                            <i class="fas fa-check"></i>
-                        </span>
-                        <span class="text">Edit & Save</span>
-                    </button>
-                </div>
-                {% endif%}
-            </div>
-        </form>
-
-        {% if 'delete_product' in user_permissions or is_vendor_admin %}
-        <form action="{% url 'product-delete' product.id %}" method="POST">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger btn-sm btn-icon-split float-right"
-                onClick='return confirm("Are you sure you want to delete {{product.name}}? ")'>
-                <span class="icon text-white-50">
-                    <i class="fas fa-trash"></i>
-                </span>
-                <span class="text">Delete</span>
-            </button>
-        </form>
-        {% endif %}
-    </div>
+           <div class="col-md-7">
+               <div class="box box-success">
+                   <div class="box-header">
+                       <div class="box-title">Product Description</div>
+                       <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                   </div>
+                   <div class="box-body">
+                    <div class="form-group row">
+                        <div class="col-sm-12 mb-3 mb-sm-0">
+                            <label for="description">{{form.short_description.label}} :</label>
+                            <br/>
+                            {{form.short_description|addcss:'form-control'}}<br/>
+                            <small>{{form.short_description.help_text}}</small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12 mb-3 mb-sm-0">
+                            <label for="description">{{form.description.label}} :</label>
+                            <br/>
+                            {{form.description|addcss:'form-control'}}<br/>
+                            <small>{{form.description.help_text}}</small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-6 mb-3 mb-sm-0">
+                            <label for="category">{{form.category.label}} :</label>
+                            {{form.category}}
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="sub_category">{{form.brand_name.label}} :</label>
+                            {{form.brand_name|addcss:'form-control js-example-basic-single'}}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-6">
+                            <label for="isFeatured">{{form.warranty.label}} :</label>
+                            {{form.warranty|addcss:'form-control'}}
+                            <small>{{form.warranty.help_text}}</small>
+                        </div>
+                        <div class="col-sm-6 mb-3 mb-sm-0">
+                            <label for="category">{{form.related_products.label}} :</label>
+                            {{form.related_products}}
+                        </div>
+                    </div>
+                   </div>
+               </div>
+               <div class="box">
+                   <div class="box-body">
+                       <button type="submit" class="btn btn-success">
+                           <i class="fa fa-check"></i>
+                           Edit & Save
+                       </button>
+                       <a href="{% url 'products' %}" class="btn btn-danger pull-right">
+                            <i class="fa fa-ban"></i>
+                            Cancel
+                        </a>
+                   </div>
+               </div>
+           </div>
+        </div>
+    </form>
 </div>
-
-
 {% endblock %}
 
 {% block js%}
-<script>
-    $(document).ready(function() {
-        $('.js-example-basic-single').select2();
-    });
-    $(document).ready(function(){
-        $('#id_tags').select2({
-            ajax: {
-                delay: 2500,
-                tags: "true",
-                url: "{% url 'tag' %}",
-                dataType: 'json',
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {id: item.id, text: item.tag};
-                        })
-                    };
-                }
-            },
-            minimumInputLength: 1
-        });
-    });
-
-    $(document).ready(function(){
-        $('#id_brand_name').select2({
-            ajax: {
-                delay: 2500,
-                tags: "true",
-                url: "{% url 'brand' %}",
-                dataType: 'json',
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {id: item.id, text: item.name};
-                        })
-                    };
-                }
-            },
-            minimumInputLength: 1
-        });
-    });
-</script>
+{{ form.media.js }}
 {% endblock js %}

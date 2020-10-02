@@ -23,16 +23,16 @@
             </span>
             <span class="text"> Add New Product</span>
         </a>
-        {% endif %}
+      {% endif %}
     </div>
     <div class="box-body">
       <table id="example1" class="table table-bordered table-striped table-responsive">
         <thead>
             <tr>
-              <th>Name</th>
+              <th>En/Np</th>
               <th>Price</th>
               <th>Status</th>
-              <th>Views</th>
+              <th>Featured Product?</th>
               {% if 'view_product' in user_permissions or 'change_product' in user_permissions or 'delete_product' in user_permissions or is_vendor_admin %}
                   <th>Actions</th>
               {% endif %}
@@ -41,21 +41,22 @@
         <tbody>
           {% for product in products %}
               <tr>
-                  <td>{{product.name}}</td>
+                  <td>{{product.english_name}} /{{product.nepali_name}}</td>
                   <td>
-                      {{product.price}}
+                      {% if product.old_price %}<span class="line-through">{{product.old_price}}</span> {% endif %}{{product.price}}
                   </td>
-                      <td>{% if product.status %} <a class="btn btn-sm btn-success" href="">Available</a> {% else %} <a class="btn btn-sm btn-danger" href="">Unavailable</a> {% endif %}</td>
-                  <td>{{ product.views }}</td>
+                    <td>{% if product.status %} <a class="btn btn-sm btn-success" href="">Available</a> {% else %} <a class="btn btn-sm btn-danger" href="">Unavailable</a> {% endif %}</td>
+                  <td>{% if product.is_featured %} <a class="btn btn-sm btn-success" href="">Yes</a> {% else %} <a class="btn btn-sm btn-danger" href="">No</a> {% endif %}</td>
                   {% if 'view_product' in user_permissions or 'delete_product' in user_permissions or 'change_product' in user_permissions or is_vendor_admin %}
                       <td class="flex-row">
                           {% if 'change_product' in user_permissions or 'view_product' in user_permissions or is_vendor_admin%}
-                              <a class="btn btn-sm btn-primary" href=""><i class="fas fa-fw fa-pencil-alt"></i></a>
+                              <a class="btn btn-sm btn-primary" href="{% url 'vendor-product-edit' product.id %}"><i class="fa fa-pencil"></i></a>
                           {% endif %}
                           {% if 'delete_product' in user_permissions or is_vendor_admin %}
-                              <form method="POST" action="">
+                              <form method="POST" action="{% url 'vendor-product-delete' %}" class="pull-right">
                               {% csrf_token %}
-                                  <button class="btn btn-danger btn-sm" onClick='return confirm("Are you sure you want to delete {{product.name}} ?")' type="submit"><i class="fas fa-fw fa-trash-alt"></i></button>
+                                  <input type="hidden" value="{{product.id}}" name="product_id" />
+                                  <button class="btn btn-danger btn-sm" onClick='return confirm("Are you sure you want to delete {{product.name}} ?")' type="submit"><i class="fa fa-trash"></i></button>
                               </form>
                           {% endif %}
                       </td>

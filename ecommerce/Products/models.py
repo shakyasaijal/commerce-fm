@@ -74,10 +74,14 @@ class Tags(user_models.AbstractTimeStamp):
 
 
 class Size(user_models.AbstractTimeStamp):
-    size = models.CharField(max_length=255, null=False, blank=False)
+    size = models.CharField(max_length=255, null=False, blank=False, unique=True)
 
     def __str__(self):
         return self.size
+    
+    def save(self, *args, **kwargs):
+        self.size = self.size.lower()
+        super(Size, self).save(*args, **kwargs)
 
 
 class Brand(user_models.AbstractTimeStamp):
@@ -87,9 +91,14 @@ class Brand(user_models.AbstractTimeStamp):
         return self.name
 
 
+class ProductManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(soft_delete=False)
+
+
 class Product(user_models.AbstractTimeStamp):
     english_name = models.CharField(max_length=255, null=False, blank=False)
-    nepali_name = models.CharField(max_length=255, null=False, blank=False)
+    nepali_name = models.CharField(max_length=255, null=True, blank=True)
     old_price = models.FloatField(max_length=255, null=True, blank=True)
     price = models.FloatField(max_length=255, null=False, blank=False)
     short_description = RichTextField(help_text="Not more than 30 words.", blank=True, null=True)
@@ -97,15 +106,18 @@ class Product(user_models.AbstractTimeStamp):
     category = models.ManyToManyField(
         Category, related_name="category_product",  blank=True)
     quantity_left = models.BigIntegerField(null=True, blank=True, default=0, help_text="Automatic quantity decreased after order placed. Leave it empty for unlimited/manual quantity of the product.")
-    status = models.BooleanField(choices=modelHelper.availability_choice, null=False, blank=False, default=True)
+    status = models.BooleanField(choices=modelHelper.availability_choice, null=False, blank=False, default=True, help_text="Status with Available are only visible in the site.")
     is_featured = models.BooleanField(null=False, blank=False, default=False, choices=modelHelper.is_featured)
     tags = models.ManyToManyField(
         Tags, related_name="product_tags", blank=True)
-    sizes = models.ForeignKey(Size, on_delete=models.PROTECT, blank=True, null=True)
+    sizes = models.ManyToManyField(Size, blank=True)
     brand_name = models.ForeignKey(Brand, related_name='brand', blank=True, null=True, on_delete=models.CASCADE)
     warranty = models.CharField(max_length=255, blank=True, help_text="eg: 1 year or 6 months") 
     main_image = models.ImageField(upload_to=product_image_name_change, blank=False)
     related_products = models.ManyToManyField('self', blank=True, related_name='related_products')
+    soft_delete = models.BooleanField(choices=modelHelper.soft_delete, null=False, blank=False, default=False)
+    objects = ProductManager()
+    deletedObject = models.Manager()
 
     if settings.MULTI_VENDOR:
         vendor = models.ForeignKey('Vendor.Vendor', on_delete=models.CASCADE, null=False, blank=False)
@@ -120,9 +132,19 @@ class Product(user_models.AbstractTimeStamp):
             print(e)
     image_tag.short_description = 'Main Image'
 
+    def delete_softly(self):
+        self.soft_delete = not self.soft_delete
+
     class Meta:
         verbose_name = "Product"
         verbose_name_plural = "Products"
+
+
+class SoftDeletedProducts(Product):
+    class Meta:
+        proxy = True
+        verbose_name = "Deleted Product"
+        verbose_name_plural = "Deleted Products"
 
 
 class ProductImage(models.Model):

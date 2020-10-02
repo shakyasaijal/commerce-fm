@@ -5,6 +5,7 @@ from . import models
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['english_name', 'isFeatured']
     readonly_fields = ['image_tag']
+    search_fields = ['english_name', 'nepali_name']
 
 
 class ProductImageInline(admin.TabularInline):
@@ -14,12 +15,22 @@ class ProductImageInline(admin.TabularInline):
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['english_name', 'status', 'is_featured']
+    list_display = ['english_name', 'status', 'is_featured', 'soft_delete']
     inlines = [ ProductImageInline, ]
     list_filter = ("status",)
     search_fields = ['english_name', 'price', 'old_price', 'description', 'sizes']
     readonly_fields = ['image_tag']
+    list_per_page = 25
+    
 
+@admin.register(models.SoftDeletedProducts)
+class DeletedProductsAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        return self.model.deletedObject.filter(soft_delete=True)
+
+    list_per_page = 25
+    list_display = ['english_name', 'is_featured', 'status']
+    search_fields = ['english_name', 'price', 'old_price', 'description', 'sizes']
 
 admin.site.register(models.Size)
 admin.site.register(models.Tags)

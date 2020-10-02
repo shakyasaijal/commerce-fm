@@ -11,6 +11,8 @@ ALLOWED_HOSTS = credentials['ALLOWED_HOSTS']
 
 
 INSTALLED_APPS = [
+    'dal',
+    'dal_select2',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -37,7 +39,6 @@ OWN_APPS = [
 ]
 
 INSTALLED_APPS += THIRD_PARTY_APPS + OWN_APPS
-CKEDITOR_UPLOAD_PATH = "uploads/"
 AUTH_USER_MODEL = 'User.User'
 
 REST_FRAMEWORK = {
@@ -152,3 +153,14 @@ except (Exception, KeyError) as e:
     raise ImproperlyConfigured("Config.yaml is not properly set.", e)
 
 TIME_INPUT_FORMATS = ['%I:%M %p', ]
+
+# CKEditor
+CKEDITOR_CONFIGS = {
+    'default': {
+        'width': 'unset',
+        'height': 'unset',
+    }
+}
+
+CKEDITOR_ALLOW_NONIMAGE_FILES = False
+CKEDITOR_UPLOAD_PATH = "uploads/"
