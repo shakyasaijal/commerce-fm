@@ -1,4 +1,6 @@
 from django.urls import reverse_lazy
+from django.conf import settings
+
 
 all_navigation_routes = [
     {
@@ -89,3 +91,28 @@ all_navigation_routes = [
         ]
     }
 ]
+
+
+if settings.HAS_OFFER_APP:
+    all_navigation_routes += [
+        {
+            'title': 'special offers',
+            'superuser': False,
+            'icon': 'fa fa-users',
+            'service': '',
+            'group': True,
+            'permission': '',
+            'links': [
+                {
+                    'title': 'all offers',
+                    'url': reverse_lazy('vendor-offers'),
+                    'permission': 'Offer.view_offer'
+                },
+                {
+                    'title': 'participate in offers',
+                    'url': reverse_lazy('vendor-offers'),
+                    'permission': 'Offer.view_offer'
+                },
+            ]
+        }
+    ]

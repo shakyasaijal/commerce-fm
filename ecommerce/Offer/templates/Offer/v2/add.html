@@ -1,0 +1,199 @@
+{% extends 'DashboardManagement/v2/Partials/base.html' %}
+{% load static %}
+{% load addcss %}
+{% load addid %}
+
+{% block css %}
+{{ form.media.css }}
+<style>
+.select2-container--default .select2-selection--multiple .select2-selection__choice{
+    color: #000;
+}
+span.select2.select2-container.select2-container--default {
+    width: 100% !important;
+}
+</style>
+<link rel="stylesheet" href="{% static 'DashboardManagement/v2/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css' %}">
+<link rel="stylesheet" href="{% static 'DashboardManagement/v2/plugins/timepicker/bootstrap-timepicker.min.css' %}">
+{% endblock css %}
+
+{% block content %}
+<section class="content-header">
+    <h1>Add New Offers
+        <small>Fields with <span class="form-error">*</span> is required.</small>
+    </h1>
+</section>
+<div class="content">
+    {% if messages %}
+        {% include "DashboardManagement/v2/Partials/notification.html" %}
+    {% endif %}
+    <form class="user" enctype="multipart/form-data" method="POST">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="box box-info">
+                    <div class="box-header">
+                        <div class="box-title">Basic Information</div>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        {% csrf_token %}
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <label for="name">{{form.title.label}}: <span class="form-error">*</span></label>
+                                {{form.title|addcss:'form-control'}}
+                                {% if form.errors %}
+                                    {% for index, data in form.errors.items %}
+                                        {% if index == 'title' %}
+                                            <span class="form-error">{{data}}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <label for="name">{{form.description.label}}:</label>
+                                {{form.description|addcss:'form-control'}}
+                                {% if form.errors %}
+                                    {% for index, data in form.errors.items %}
+                                        {% if index == 'description' %}
+                                            <span class="form-error">{{data}}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                <label for="status">{{form.starts_from.label}}: <span class="form-error">*</span></label>
+                                {{form.starts_from|addid:'starts_dt'}}
+                                <small>{{form.starts_from.help_text}}</small>
+                                {% if form.errors %}
+                                    {% for index, data in form.errors.items %}
+                                        {% if index == 'starts_from' %}
+                                            <span class="form-error">{{data}}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="isFeatured">{{form.ends_at.label}}: </label>
+                                {{form.ends_at|addid:'ends_dt'}}
+                                <small>{{form.ends_at.help_text}}</small>
+                                {% if form.errors %}
+                                    {% for index, data in form.errors.items %}
+                                        {% if index == 'ends_at' %}
+                                            <span class="form-error">{{data}}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <label for="status">{{form.category.label}}: <span class="form-error">*</span></label>
+                                {{form.category}}
+                                <small>{{form.category.help_text}}</small>
+                                {% if form.errors %}
+                                    {% for index, data in form.errors.items %}
+                                        {% if index == 'category' %}
+                                            <span class="form-error">{{data}}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if multi_vendor %}
+                            <div class="form-group row">
+                                <div class="col-sm-12">
+                                    <label for="status">{{form.vendor.label}}: <span class="form-error">*</span></label>
+                                    {{form.vendor}}
+                                    <small>{{form.vendor.help_text}}</small>
+                                    {% if form.errors %}
+                                        {% for index, data in form.errors.items %}
+                                            {% if index == 'vendor' %}
+                                                <span class="form-error">{{data}}</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+           <div class="col-md-4">
+               <div class="box box-success">
+                   <div class="box-header">
+                       <div class="box-title">Banner Images</div>
+                       <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                   </div>
+                   <div class="box-body">
+                    <div class="form-group row">
+                        <div class="col-sm-12 mb-3 mb-sm-0">
+                            <label for="description">{{form.big_banner_image.label}}: <span class="form-error">*</span></label>
+                            <br/>
+                            {{form.big_banner_image|addcss:'form-control'}}
+                            <small>{{form.big_banner_image.help_text}}</small>
+                            {% if form.errors %}
+                                {% for index, data in form.errors.items %}
+                                    {% if index == 'big_banner_image' %}
+                                        <span class="form-error">{{data}}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12 mb-3 mb-sm-0">
+                            <label for="description">{{form.small_banner_image.label}}: <span class="form-error">*</span></label>
+                            {{form.small_banner_image|addcss:'form-control'}}<br/>
+                            <small>{{form.small_banner_image.help_text}}</small>
+                            {% if form.errors %}
+                                {% for index, data in form.errors.items %}
+                                    {% if index == 'small_banner_image' %}
+                                        <span class="form-error">{{data}}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                   </div>
+               </div>
+               <div class="box">
+                <div class="box-body">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fa fa-plus"></i>
+                        Save
+                    </button>
+                    <a href="{% url 'vendor-offers' %}" class="btn btn-danger pull-right">
+                         <i class="fa fa-ban"></i>
+                         Cancel
+                     </a>
+                </div>
+            </div>
+           </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block js%}
+{{ form.media.js }}
+<script src="{% static 'DashboardManagement/v2/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'DashboardManagement/v2/plugins/timepicker/bootstrap-timepicker.min.js' %}"></script>
+<script>
+$('#starts_dt').datepicker({
+    autoclose: true
+})
+$('#ends_dt').datepicker({
+    autoclose: true
+})
+</script>
+{% endblock js %}

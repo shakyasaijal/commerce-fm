@@ -26,6 +26,7 @@ from Products import models as product_models
 from Products import forms as product_forms
 from DashboardManagement.common import validation as validations
 from Analytics import views as analytics_views
+from Offer import models as offer_models
 
 
 template_version = "DashboardManagement/v1"
@@ -80,6 +81,14 @@ class IndexView(LoginRequiredMixin, View):
         total_products = analytics_views.total_products(request.user)
         context.update({"total_products": total_products})
 
+        if settings.HAS_OFFER_APP:
+            if settings.MULTI_VENDOR and not request.user.is_superuser:
+                offers = offer_models.Offer.objects.filter(vendor=app_helper.current_user_vendor(request.user)).count()
+                context.update({"first_offers": offer_models.Offer.objects.filter(vendor=app_helper.current_user_vendor(request.user)).order_by('starts_from').first()})
+            else:
+                offers = offer_models.Offer.objects.all()
+                context.update({"first_offers": offer_models.Offer.objects.order_by('starts_from').first()})
+            context.update({"offers": offers})
         return render(request, template_version+"/index.html", context=context)
 
 
@@ -106,7 +115,7 @@ class LoginView(View):
                                 login_user = True
                 else:
                     if user.is_superuser:
-                        login_user = True
+                        login_user = True   
                 if login_user:
                     login(request, user)
                     messages.success(request, 'You are now logged in.')

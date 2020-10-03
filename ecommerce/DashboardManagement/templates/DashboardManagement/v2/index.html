@@ -67,7 +67,37 @@
             </div>
           </div>
           <!-- ./col -->
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+        {% if offers %}
+          <div class="box box-success">
+            <div class="box-header">
+              <i class="fa fa-comments-o"></i>
+
+              <h3 class="box-title">Hey, Special Offers Alert</h3>
+
+              <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                  </button>
+              </div>
+            </div>
+            <div class="box-body">
+              <h4>{{first_offers.title|title}}</h4>
+              <div class="banner-index-img">
+                <img src="{{first_offers.small_banner_image.url}}" alt="{{first_offers.title}}" />
+              </div>
+            </div>
+            <!-- /.chat -->
+            <div class="box-footer">
+              <div class="input-group">
+                <a href="{% url 'vendor-offers' %}">View All</a>
+              </div>
+            </div>
+          </div>
+        {% endif %}
       </div>
+    </div>
 </div>
 
 {% endblock content %}

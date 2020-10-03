@@ -1,0 +1,85 @@
+{% extends 'DashboardManagement/v2/Partials/base.html' %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'DashboardManagement/v2/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+{% endblock css %}
+
+{% block content %}
+<section class="content-header">
+</section>
+<div class="content">
+    {% if messages %}
+        {% include "DashboardManagement/v2/Partials/notification.html" %}
+    {% endif %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box">
+                <div class="box-header">
+                    <h1 class="box-title">Special Offers</h1>
+                    {% if 'add_offer' in user_permissions or request.user.is_superuser %}
+                        <a href="{% url 'vendor-offers-add' %}" class="btn btn-primary btn-sm btn-icon-split pull-right">
+                            <span class="icon text-white-50">
+                                <i class="fa fa-plus"></i>
+                            </span>
+                            <span class="text"> Add New Offers</span>
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="box-body">
+                  <table id="example1" class="table table-bordered table-striped table-responsive">
+                    <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Title</th>
+                          <th>Starting From</th>
+                          <th>Ends At</th>
+                          <th>Category</th>
+                          {% if 'delete_offer' in user_permissions or request.user.is_superuser %}
+                            <th>Actions</th>
+                          {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for data in offers %}
+                            <tr>
+                                <td>{{forloop.counter}}</td>
+                                <td><a href="{% url 'vendor-offers-edit' data.id %}">{{data.title}}</a></td>
+                                <td>{{data.starts_from}}</td>
+                                <td>{{data.ends_at}}</td>
+                                <td>{{data.category.all|length}}</td>
+                                {% if 'delete_offer' in user_permissions or request.user.is_superuser %}
+                                  <td>
+                                    <form action="{% url 'vendor-offers-delete' %}" method="POST">
+                                      <input type="hidden" value="{{data.id}}" name="id" />
+                                      {% csrf_token %}
+                                      <button class="btn btn-danger btn-sm" onClick='return confirm("Are you sure you want to delete {{data.title}} ?")'>
+                                        <i class="fa fa-trash"></i>
+                                        Delete
+                                      </button>
+                                    </form>
+                                  </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>  
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'DashboardManagement/v2/bower_components/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'DashboardManagement/v2/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'DashboardManagement/v2/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+<script>
+    $(function () {
+      $('#example1').DataTable({
+        "lengthMenu": [[5, 10, 15, -1], [5, 10, 15, "All"]]
+      })
+    })
+  </script>
+{% endblock js %}

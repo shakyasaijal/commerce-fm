@@ -40,4 +40,7 @@ urlpatterns = [
 
     # Vendor
     path('vendors/', include('Vendor.urls')),
+
+    # Offers
+    path('offers/', include('Offer.urls'))
 ]

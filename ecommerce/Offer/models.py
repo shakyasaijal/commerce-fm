@@ -52,8 +52,8 @@ if settings.HAS_OFFER_APP:
     class Offer(user_models.AbstractTimeStamp):
         title = models.CharField(max_length=255, null=False, blank=False)
         description = RichTextField(blank=True, null=True)
-        starts_from = models.DateTimeField(null=False, blank=False)
-        ends_at = models.DateTimeField(null=True, blank=True)
+        starts_from = models.DateField(null=False, blank=False)
+        ends_at = models.DateField(null=True, blank=True)
         big_banner_image = models.ImageField(upload_to=big_banner_image_name_change, blank=False)
         small_banner_image = models.ImageField(upload_to=small_banner_image_name_change, blank=False)
         category = models.ManyToManyField(OfferCategory, related_name="offers_category")
@@ -64,9 +64,6 @@ if settings.HAS_OFFER_APP:
 
             def total_vendors(self):
                 return self.vendor.count()
-
-        def starting_from(self):
-            return self.starts_from.date()
 
         def __str__(self):
             return self.title
@@ -89,6 +86,9 @@ if settings.HAS_OFFER_APP:
             verbose_name = "Special Offer"
             verbose_name_plural = "Special Offers"
             ordering = ["starts_from"]
+            permissions = (
+                ("participate_in_offer", "Can participate in offers."),
+            )
         
 
     @receiver(models.signals.post_delete, sender=Offer)
