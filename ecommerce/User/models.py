@@ -105,6 +105,8 @@ if settings.HAS_ADDITIONAL_USER_DATA:
         district = models.ForeignKey("CartSystem.Location", null=True, blank=True, on_delete=models.CASCADE)
         phone = models.CharField(max_length=255, null=False, blank=False)
         address = models.CharField(max_length=255, null=False, blank=False)
+        ip = models.GenericIPAddressField(protocol="both", unpack_ipv4=False, null=True, blank=False)
+
 
         def __str__(self):
             return self.phone

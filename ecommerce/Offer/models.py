@@ -5,8 +5,8 @@ from django.utils.safestring import mark_safe
 from django.dispatch import receiver
 from datetime import datetime
 from django.conf import settings
-from User import models as user_models
 
+from User import models as user_models
 
 
 if settings.HAS_OFFER_APP:
@@ -19,7 +19,6 @@ if settings.HAS_OFFER_APP:
         class Meta:
             verbose_name = "Category for Offers"
             verbose_name_plural = "Categories for Offers"
-
 
     def big_banner_image_name_change(instance, filename):
         upload_to = 'banners/big'
@@ -34,7 +33,6 @@ if settings.HAS_OFFER_APP:
         filename = '{}.{}'.format(date_join, ext)
         return os.path.join(upload_to, filename)
 
-
     def small_banner_image_name_change(instance, filename):
         upload_to = 'banners/small'
         ext = filename.split('.')[-1]
@@ -48,19 +46,22 @@ if settings.HAS_OFFER_APP:
         filename = '{}.{}'.format(date_join, ext)
         return os.path.join(upload_to, filename)
 
-
     class Offer(user_models.AbstractTimeStamp):
         title = models.CharField(max_length=255, null=False, blank=False)
         description = RichTextField(blank=True, null=True)
         starts_from = models.DateField(null=False, blank=False)
         ends_at = models.DateField(null=True, blank=True)
-        big_banner_image = models.ImageField(upload_to=big_banner_image_name_change, blank=False)
-        small_banner_image = models.ImageField(upload_to=small_banner_image_name_change, blank=False)
-        category = models.ManyToManyField(OfferCategory, related_name="offers_category")
+        big_banner_image = models.ImageField(
+            upload_to=big_banner_image_name_change, blank=False)
+        small_banner_image = models.ImageField(
+            upload_to=small_banner_image_name_change, blank=False)
+        category = models.ManyToManyField(
+            OfferCategory, related_name="offers_category")
 
         if settings.MULTI_VENDOR:
             from Vendor import models as vendor_models
-            vendor = models.ManyToManyField(vendor_models.Vendor, related_name="vendors_offer", help_text="Which vendors can participate?")
+            vendor = models.ManyToManyField(
+                vendor_models.Vendor, related_name="vendors_offer", help_text="Which vendors can participate?")
 
             def total_vendors(self):
                 return self.vendor.count()
@@ -89,7 +90,6 @@ if settings.HAS_OFFER_APP:
             permissions = (
                 ("participate_in_offer", "Can participate in offers."),
             )
-        
 
     @receiver(models.signals.post_delete, sender=Offer)
     def auto_delete_file_on_delete(sender, instance, **kwargs):
@@ -110,7 +110,6 @@ if settings.HAS_OFFER_APP:
             print('Delete on change', e)
             pass
 
-
     @receiver(models.signals.pre_save, sender=Offer)
     def auto_delete_file_on_change(sender, instance, **kwargs):
         """
@@ -125,7 +124,8 @@ if settings.HAS_OFFER_APP:
                 old_file = sender.objects.get(pk=instance.pk).big_banner_image
                 new_file = instance.big_banner_image
 
-                old_file1 = sender.objects.get(pk=instance.pk).small_banner_image
+                old_file1 = sender.objects.get(
+                    pk=instance.pk).small_banner_image
                 new_file1 = instance.small_banner_image
 
                 if not old_file1 == new_file1:
