@@ -96,6 +96,11 @@ class ProductManager(models.Manager):
         return super().get_queryset().filter(soft_delete=False)
 
 
+class ExcludedManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(soft_delete=False, status=True)
+
+
 class Product(user_models.AbstractTimeStamp):
     english_name = models.CharField(max_length=255, null=False, blank=False)
     nepali_name = models.CharField(max_length=255, null=True, blank=True)
@@ -118,6 +123,7 @@ class Product(user_models.AbstractTimeStamp):
     soft_delete = models.BooleanField(choices=modelHelper.soft_delete, null=False, blank=False, default=False)
     objects = ProductManager()
     deletedObject = models.Manager()
+    excludedObject = ExcludedManager()
 
     if settings.MULTI_VENDOR:
         vendor = models.ForeignKey('Vendor.Vendor', on_delete=models.CASCADE, null=False, blank=False)

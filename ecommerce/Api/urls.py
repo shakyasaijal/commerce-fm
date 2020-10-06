@@ -7,6 +7,7 @@ router = routers.DefaultRouter()
 router.register('featured-category', api_views.FeaturedCategory, "featured-category"),
 router.register('featured-products', api_views.FeaturedProducts, "featured-products"),
 router.register('offers', api_views.Offers, "offers"),
+router.register('just-for-you', api_views.JustForYou, "just-for-you"),
 urlpatterns = [
     path('products/', include(('Products.Api.urls', 'Product'), namespace='products_detail')),
 ]

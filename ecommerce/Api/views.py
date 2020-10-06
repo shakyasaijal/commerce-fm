@@ -6,11 +6,14 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import viewsets
 from datetime import date
+from django.db.models import Q
 
 from Products import models as product_models
 from Products import serializers as product_serializers
 from Offer import models as offer_models
 from Offer import serializers as offer_serializers
+from User import models as user_models
+from Analytics import models as analytics_model
 
 
 def SystemInfo(request):
@@ -23,7 +26,8 @@ def SystemInfo(request):
 
 
 class FeaturedCategory(mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = product_models.Category.objects.filter(isFeatured=True).order_by('?')[:12]
+    queryset = product_models.Category.objects.filter(
+        isFeatured=True).order_by('?')[:12]
     serializer_class = product_serializers.FeaturedCategorySerializer
     permission_classes = [AllowAny, ]
 
@@ -41,7 +45,8 @@ class FeaturedCategory(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 class FeaturedProducts(mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = product_models.Product.objects.filter(is_featured=True).order_by('?').distinct()[:12]
+    queryset = product_models.Product.objects.filter(
+        is_featured=True).order_by('?').distinct()[:12]
     serializer_class = product_serializers.FeaturedProductSerializer
     permission_classes = [AllowAny, ]
 
@@ -58,7 +63,6 @@ class FeaturedProducts(mixins.ListModelMixin, viewsets.GenericViewSet):
                 "newPrice": data.price
             })
         return Response({"status": True, "data": products}, status=200)
-
 
 
 class Offers(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.RetrieveModelMixin):
@@ -90,7 +94,6 @@ class Offers(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.RetrieveMode
             queryset = self.get_queryset().get(pk=pk)
             if (queryset.ends_at-date.today()).days < 0:
                 return Response({"status": True, "data": {"msg": "Offer not available"}}, status=400)
-            print(request.ip)
             data = {
                 "id": queryset.id,
                 "title": queryset.title,
@@ -106,3 +109,78 @@ class Offers(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.RetrieveMode
         except Exception as e:
             print(e)
             return Response({"status": True, "data": {"msg": "Offer not found"}}, status=400)
+
+
+class JustForYou(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = product_models.Product.objects.all()
+    serializer_class = product_serializers.ProductSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def list(self, request):
+        product_list = []
+        products_in_list = []
+        
+        # From Searched Basis
+        try:
+            if request.user.is_authenticated:
+                searched = analytics_model.SearchedAnalytics.objects.get(
+                    user=request.user)
+            else:
+                searched = analytics_model.SearchedAnalytics.objects.get(
+                    ip=request.ip)
+        except (Exception, analytics_model.SearchedAnalytics.DoesNotExist):
+            searched = None
+
+        searched_products = []
+        if searched is not None:
+            keywords = searched.keyword.all().order_by('-count')[:5]
+            tags = product_models.Tags.objects.filter(
+                tag__in=[d.keyword for d in keywords])
+            for tag in tags:
+                searched_products += product_models.Product.excludedObject.filter(
+                    tags__tag__icontains=tag).distinct()
+        if searched_products:
+            for data in searched_products:
+                if data.id not in products_in_list:
+                    product_list.append({
+                        "id": data.id,
+                        "englishName": data.english_name,
+                        "nepaliName": data.nepali_name,
+                        "mainImage": data.main_image.url,
+                        "oldPrice": data.old_price,
+                        "price": data.price,
+                        "isFeatured": data.is_featured,
+                        "fromSearch": True,
+                        "tags": [f.tag for f in data.tags.all()]
+                    })
+                    products_in_list.append(data.id)
+
+        # From User interests
+        try:
+            user_profile = user_models.UserProfile.objects.get(
+                user=request.user)
+        except (Exception, user_models.UserProfile.DoesNotExist):
+            user_profile = None
+
+        if user_profile is None or not user_profile.interested_category.all():
+            products = product_models.Product.excludedObject.order_by(
+                '-created_at')[:8]
+        else:
+            products = product_models.Product.excludedObject.filter(
+                category__in=[d for d in user_profile.interested_category.all()]).order_by('?')[:8]
+
+        for data in products:
+            if data.id not in products_in_list:
+                product_list.append({
+                    "id": data.id,
+                    "englishName": data.english_name,
+                    "nepaliName": data.nepali_name,
+                    "mainImage": data.main_image.url,
+                    "oldPrice": data.old_price,
+                    "price": data.price,
+                    "isFeatured": data.is_featured,
+                    "fromSearch": False,
+                })
+                products_in_list.append(data.id)
+
+        return Response({"status": True, "data": product_list}, status=200)

@@ -13,3 +13,6 @@ class IpAddress:
         else:
             ip = request.META.get('REMOTE_ADDR')
         request.ip = ip
+
+        if request.user.is_authenticated:
+            print(ip, "Auth")
