@@ -26,6 +26,7 @@ THIRD_PARTY_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'rest_framework',
+    'security'
 ]
 OWN_APPS = [
     'Api',
@@ -37,7 +38,8 @@ OWN_APPS = [
     'CartSystem',
     'DashboardManagement',
     'OrderAndDelivery',
-    'Offer'
+    'Offer',
+    'CompanyInformation'
 ]
 
 INSTALLED_APPS += THIRD_PARTY_APPS + OWN_APPS
@@ -66,6 +68,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # django-security
+    'security.middleware.DoNotTrackMiddleware',
+    'security.middleware.ContentNoSniff',
+    'security.middleware.XssProtectMiddleware',
+    'security.middleware.XFrameOptionsMiddleware',
+
+    # Own
     'ecommerce.middlewares.ip.IpAddress'
 ]
 
