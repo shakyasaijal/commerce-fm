@@ -98,6 +98,29 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
+class CityFromIpAddress(models.Model):
+    city = models.CharField(max_length=255, null=False, blank=False, unique=True)
+
+    def __str__(self):
+        return self.city
+
+    class Meta:
+        verbose_name = "City From Ip Address"
+        verbose_name_plural = "Cities From Ip Address"
+
+
+class IpAddress(models.Model):
+    ip = models.GenericIPAddressField(protocol="both", unpack_ipv4=False, null=False, blank=False, unique=True)
+    city = models.ForeignKey(CityFromIpAddress, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return self.ip
+    
+    class Meta:
+        verbose_name = "Ip Address"
+        verbose_name_plural = "Ip Addresses"
+
+
 if settings.HAS_ADDITIONAL_USER_DATA:
     class UserProfile(models.Model):
         user = models.OneToOneField(
@@ -105,8 +128,8 @@ if settings.HAS_ADDITIONAL_USER_DATA:
         district = models.ForeignKey("CartSystem.Location", null=True, blank=True, on_delete=models.CASCADE)
         phone = models.CharField(max_length=255, null=False, blank=False)
         address = models.CharField(max_length=255, null=False, blank=False)
-        ip = models.GenericIPAddressField(protocol="both", unpack_ipv4=False, null=True, blank=True)
         interested_category = models.ManyToManyField("Products.Category", blank=True,  related_name="users_interests")
+        ip = models.ManyToManyField(IpAddress, blank=True, related_name="user_ip")
 
         def __str__(self):
             return self.phone

@@ -29,3 +29,5 @@ class UserAdmin(admin.ModelAdmin):
         obj.save()
 
 admin.site.register(models.User, UserAdmin)
+admin.site.register(models.IpAddress)
+admin.site.register(models.CityFromIpAddress)

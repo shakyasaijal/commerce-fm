@@ -23,7 +23,9 @@ def send_email_with_delay(subject, data):
             'company_name': settings.COMPANY_NAME
         }
         if subject == "Vendor Registration":
-            update_details = render_to_string('vendor-registration.html',context)
+            update_details = render_to_string('vendor-registration.html', context)
+        elif subject == "Resend Registration Veri   fication":
+            update_details = render_to_string('resend-verification.html', context)
         elif subject == "Password Reset":
             update_details = render_to_string('reset_password.html',context)
         elif subject == "Password Reset Request":

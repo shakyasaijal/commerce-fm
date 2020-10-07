@@ -40,9 +40,9 @@ def product_image_name_change(instance, filename):
 
 class Category(user_models.AbstractTimeStamp):
     english_name = models.CharField(max_length=250, null=False,
-                            blank=False, unique=True)
+                                    blank=False, unique=True)
     nepali_name = models.CharField(max_length=250, null=False,
-                            blank=False, unique=True)                            
+                                   blank=False, unique=True)
     categoryImage = models.ImageField(
         upload_to=category_image_name_change, null=False, blank=False, verbose_name="Category Image")
     isFeatured = models.BooleanField(
@@ -74,11 +74,12 @@ class Tags(user_models.AbstractTimeStamp):
 
 
 class Size(user_models.AbstractTimeStamp):
-    size = models.CharField(max_length=255, null=False, blank=False, unique=True)
+    size = models.CharField(max_length=255, null=False,
+                            blank=False, unique=True)
 
     def __str__(self):
         return self.size
-    
+
     def save(self, *args, **kwargs):
         self.size = self.size.lower()
         super(Size, self).save(*args, **kwargs)
@@ -93,12 +94,9 @@ class Brand(user_models.AbstractTimeStamp):
 
 class ProductManager(models.Manager):
     def get_queryset(self):
+        if not settings.DISPLAY_OUT_OF_STOCK_PRODUCTS:
+            return super().get_queryset().filter(soft_delete=False, status=True)
         return super().get_queryset().filter(soft_delete=False)
-
-
-class ExcludedManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(soft_delete=False, status=True)
 
 
 class Product(user_models.AbstractTimeStamp):
@@ -106,30 +104,41 @@ class Product(user_models.AbstractTimeStamp):
     nepali_name = models.CharField(max_length=255, null=True, blank=True)
     old_price = models.FloatField(max_length=255, null=True, blank=True)
     price = models.FloatField(max_length=255, null=False, blank=False)
-    short_description = RichTextField(help_text="Not more than 30 words.", blank=True, null=True)
-    description = RichTextField(help_text="Bio e.g. size, material type, etc", blank=True, null=True)
+    short_description = RichTextField(
+        help_text="Not more than 30 words.", blank=True, null=True)
+    description = RichTextField(
+        help_text="Bio e.g. size, material type, etc", blank=True, null=True)
     category = models.ManyToManyField(
         Category, related_name="category_product",  blank=True)
-    quantity_left = models.BigIntegerField(null=True, blank=True, default=0, help_text="Automatic quantity decreased after order placed. Leave it empty for unlimited/manual quantity of the product.")
-    status = models.BooleanField(choices=modelHelper.availability_choice, null=False, blank=False, default=True, help_text="Status with Available are only visible in the site.")
-    is_featured = models.BooleanField(null=False, blank=False, default=False, choices=modelHelper.is_featured)
+    quantity_left = models.BigIntegerField(
+        null=True, blank=True, default=0, help_text="Automatic quantity decreased after order placed. Leave it empty for unlimited/manual quantity of the product.")
+    status = models.BooleanField(choices=modelHelper.availability_choice, null=False, blank=False,
+                                 default=True, help_text="Status with Available are only visible in the site.")
+    is_featured = models.BooleanField(
+        null=False, blank=False, default=False, choices=modelHelper.is_featured)
     tags = models.ManyToManyField(
         Tags, related_name="product_tags", blank=True)
     sizes = models.ManyToManyField(Size, blank=True)
-    brand_name = models.ForeignKey(Brand, related_name='brand', blank=True, null=True, on_delete=models.CASCADE)
-    warranty = models.CharField(max_length=255, blank=True, help_text="eg: 1 year or 6 months") 
-    main_image = models.ImageField(upload_to=product_image_name_change, blank=False)
-    related_products = models.ManyToManyField('self', blank=True, related_name='related_products')
-    soft_delete = models.BooleanField(choices=modelHelper.soft_delete, null=False, blank=False, default=False)
+    brand_name = models.ForeignKey(
+        Brand, related_name='brand', blank=True, null=True, on_delete=models.CASCADE)
+    warranty = models.CharField(
+        max_length=255, blank=True, help_text="eg: 1 year or 6 months")
+    main_image = models.ImageField(
+        upload_to=product_image_name_change, blank=False)
+    related_products = models.ManyToManyField(
+        'self', blank=True, related_name='related_products')
+    soft_delete = models.BooleanField(
+        choices=modelHelper.soft_delete, null=False, blank=False, default=False)
     objects = ProductManager()
     deletedObject = models.Manager()
-    excludedObject = ExcludedManager()
 
     if settings.MULTI_VENDOR:
-        vendor = models.ForeignKey('Vendor.Vendor', on_delete=models.CASCADE, null=False, blank=False)
+        vendor = models.ForeignKey(
+            'Vendor.Vendor', on_delete=models.CASCADE, null=False, blank=False)
 
     if settings.HAS_OFFER_APP:
-        offers = models.ManyToManyField("Offer.OfferCategory", related_name="offer_products", blank=True)
+        offers = models.ManyToManyField(
+            "Offer.OfferCategory", related_name="offer_products", blank=True)
 
     def __str__(self):
         return self.english_name
@@ -157,7 +166,8 @@ class SoftDeletedProducts(Product):
 
 
 class ProductImage(models.Model):
-    product = models.ForeignKey(Product, related_name='product_images', on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        Product, related_name='product_images', on_delete=models.CASCADE)
     image = models.ImageField(upload_to=product_image_name_change, blank=True)
 
     def __str__(self):
@@ -168,7 +178,7 @@ class ProductImage(models.Model):
             return mark_safe('<img src="{}" width="150" height="150" />'.format(self.image.url))
         except Exception as e:
             pass
-    
+
     image_tag.short_description = 'Image'
 
 

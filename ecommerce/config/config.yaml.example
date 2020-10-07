@@ -8,10 +8,11 @@ ADD_TO_CART_WITHOUT_LOGIN: False #True
 HAS_ADDITIONAL_USER_DATA: True #False
 # Without additional data, user cannot go to other routes.
 # If True, multi step sign up case.
-MUST_HAVE_ADDITIONAL_DATA: True #False
+MUST_HAVE_ADDITIONAL_DATA: False #False
+DISPLAY_OUT_OF_STOCK_PRODUCTS: True #False
 
 # Database
-DB_ENGINE: 'mysql' # sqlite3, mysql
+DB_ENGINE: '' # sqlite3, mysql
 DB_NAME: ''
 DB_USER: ''
 DB_PASSWORD: ''
@@ -36,8 +37,11 @@ HAS_CELERY: True
 CELERY_FOR_EMAIL: True # Works, if HAS_CELERY is True
 CELERY_BROKER_URL: 'redis://127.0.0.1:6379'
 
+# Offer App
+HAS_OFFER_APP: False
+
 # Template
-TEMPLATE_VERSION: 'v2'
+TEMPLATE_VERSION: 'v1'
 
 # Company Info
 COMPANY_NAME: 'Commerce FM'

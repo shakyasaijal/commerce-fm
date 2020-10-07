@@ -97,3 +97,6 @@ media
 
 # JS
 node_modules
+
+#Geo
+GeoLite2-City.mmdb

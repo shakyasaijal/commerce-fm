@@ -33,3 +33,5 @@ class AddToCart(user_models.AbstractTimeStamp):
     def __str__(self):
         return self.product.english_name
 
+    def get_user_name(self):
+        return self.user.get_full_name()

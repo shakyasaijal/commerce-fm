@@ -20,8 +20,25 @@ class ProductInfo(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         queryset = self.get_queryset()
         try:
             instance = self.get_object()
-            if instance.soft_delete or not instance.status:
+
+            """
+                instance.soft_delete: None of the products should be displayed if true
+                if out of stock and display_out_of_stock is true then display otherwise only display if product
+                is in stock.
+            """
+            if not settings.DISPLAY_OUT_OF_STOCK_PRODUCTS and not instance.status:
                 return Response({"status": False, "data": {"msg": "Product not found."}}, status=400)
+
+            related_products = []
+
+            for data in instance.related_products.filter(soft_delete=False).order_by('?')[:6]:
+                if data.status or not data.status and settings.DISPLAY_OUT_OF_STOCK_PRODUCTS:
+                    related_products.append({
+                        "id": data.id,
+                        "englishName": data.english_name,
+                        "nepaliName": data.nepali_name,
+                        "mainImage": data.main_image.url
+                    })
 
             product_info = {
                 "englishName": instance.english_name,
@@ -30,7 +47,9 @@ class ProductInfo(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
                 "price": instance.price,
                 "short_description": instance.short_description,
                 "description": instance.description,
+                "stock": instance.status,
                 "quantityLeft": instance.quantity_left,
+                "delete": instance.soft_delete,
                 "isFeatured": instance.is_featured,
                 "brandName": instance.brand_name.name if instance.brand_name else None,
                 "warranty": instance.warranty,
@@ -41,17 +60,13 @@ class ProductInfo(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
                     "id": data.id
                 } for data in instance.category.all()],
                 "sizes": [data.size for data in instance.sizes.all()],
-                "relatedProducts": [{
-                    "id": data.id,
-                    "englishName": data.english_name,
-                    "nepaliName": data.nepali_name,
-                    "mainImage": data.main_image.url
-                } for data in instance.related_products.filter(status=True, soft_delete=False).order_by('?')[:6]]
+                "relatedProducts": related_products
             }
 
             try:
                 otherImages = []
-                data = product_models.ProductImage.objects.filter(product=instance)
+                data = product_models.ProductImage.objects.filter(
+                    product=instance)
                 if data:
                     for d in data:
                         otherImages.append(d.image.url)
@@ -60,7 +75,8 @@ class ProductInfo(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
                 print(e)
                 pass
             if settings.MULTI_VENDOR:
-                product_info.update({'vendor': instance.vendor.organizationName})
+                product_info.update(
+                    {'vendor': instance.vendor.organizationName})
             return Response({"status": True, "data": product_info}, status=200)
         except (Exception) as e:
             print(e)
@@ -86,4 +102,3 @@ class CategoryInfo(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         except (Exception) as e:
             print(e)
             return Response({"status": False, "data": {"msg": "Category not found."}}, status=400)
-

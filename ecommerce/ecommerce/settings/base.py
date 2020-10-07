@@ -9,6 +9,7 @@ SECRET_KEY = credentials['SECRET_KEY']
 DEBUG = credentials['DEBUG']
 ALLOWED_HOSTS = credentials['ALLOWED_HOSTS']
 
+GEOIP_PATH = BASE_DIR+"/GeoData/GeoLite2-City.mmdb"
 
 INSTALLED_APPS = [
     'dal',
@@ -140,6 +141,7 @@ try:
     TEMPLATE_VERSION = credentials['TEMPLATE_VERSION']
     COMPANY_NAME = credentials['COMPANY_NAME']
     HAS_OFFER_APP = credentials['HAS_OFFER_APP']
+    DISPLAY_OUT_OF_STOCK_PRODUCTS = credentials['DISPLAY_OUT_OF_STOCK_PRODUCTS']
 
     # Email
     EMAIL_USE_TLS = credentials['EMAIL_USE_TLS']
