@@ -5,8 +5,13 @@ from rest_framework import viewsets, mixins
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import viewsets
+from rest_framework.decorators import permission_classes, action, api_view
 from datetime import date
+from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
+from datetime import datetime, timedelta
+
+import jwt
 
 from Products import models as product_models
 from Products import serializers as product_serializers
@@ -137,18 +142,13 @@ class JustForYou(mixins.ListModelMixin, viewsets.GenericViewSet):
             if request.user.is_authenticated:
                 searched = analytics_model.SearchedKeyWord.objects.filter(
                     user=request.user).order_by('-count')[:5]
-                # searched = analytics_model.SearchedAnalytics.objects.filter(
-                #     user=request.user)
             else:
                 searched = analytics_model.SearchedKeyWord.objects.filter(
                     user=request.new_ip.ip).order_by('-count')[:5]
-                # searched = analytics_model.SearchedAnalytics.objects.get(
-                #     ip=request.new_ip.ip)
         except (Exception, analytics_model.SearchedAnalytics.DoesNotExist):
             searched = None
 
         if searched is not None:
-            # keywords = searched.keyword.all().order_by('-count')[:5]
             tags = product_models.Tags.objects.filter(
                 tag__in=[d.keyword for d in searched])
             for tag in tags:
@@ -227,3 +227,26 @@ class RecentArrivals(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         return Response({"status": True, "data": products_list}, status=200)
 
+
+@csrf_exempt
+@api_view(["GET"])
+@permission_classes((AllowAny,))
+def activate(request, token):
+    try:
+        decoded = jwt.decode(token, settings.JWT_SECRET, algorithms="HS256", options={
+            "verify_exp": False})
+        user = user_models.User.objects.get(email=decoded["email"])
+
+        if not decoded["scope"] == "Registration Verification":
+            return Response({"status": False, "data": {"message": "Link is not valid"}}, status=401)
+
+        exp = decoded["expires"]
+        if exp > str(datetime.now()):
+            user.is_verified = True
+            user.save()
+            return Response({"status": True, "data": {"message": "Account activation successfull"}}, status=200)
+        else:
+            return Response({"status": False, "data": {"message": "Activation link is invalid!"}}, status=400)
+    except (user_models.User.DoesNotExist, Exception) as e:
+        print(e)
+        return Response({"status": False, "data": {"message": "Invalid Token"}}, status=401)

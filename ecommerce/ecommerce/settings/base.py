@@ -152,6 +152,7 @@ try:
     COMPANY_NAME = credentials['COMPANY_NAME']
     HAS_OFFER_APP = credentials['HAS_OFFER_APP']
     DISPLAY_OUT_OF_STOCK_PRODUCTS = credentials['DISPLAY_OUT_OF_STOCK_PRODUCTS']
+    JWT_SECRET = credentials['jwt_secret']
 
     # Email
     EMAIL_USE_TLS = credentials['EMAIL_USE_TLS']

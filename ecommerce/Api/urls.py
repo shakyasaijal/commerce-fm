@@ -14,11 +14,13 @@ router.register('recent-arrivals', api_views.RecentArrivals,
                 "recent-arrivals"),
 
 urlpatterns = [
+    path("activate/<token>",api_views.activate, name="activate"),
     path('products/', include(('Products.Api.urls',
                                'Product'), namespace='products_detail')),
     path('carts/', include(('CartSystem.Api.urls', 'Carts'),
                            namespace="carts_and_wishlists")),
-    path('company/', include(('CompanyInformation.Api.urls', 'Company Info'), namespace='company_info'))
+    path('company/', include(('CompanyInformation.Api.urls', 'Company Info'), namespace='company_info')),
+    path('user/', include(('User.Api.urls', 'User Related API'), namespace='user_api')),
 ]
 
 urlpatterns += router.urls

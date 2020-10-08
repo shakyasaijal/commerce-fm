@@ -1,6 +1,9 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, UserManager
 from django.db import models
 from django.conf import settings
+from datetime import datetime, timedelta
+
+import jwt
 
 
 class SingletonModel(models.Model):
@@ -39,6 +42,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(('date joined'), auto_now_add=True)
+    refresh_tokens = models.TextField(blank=True, null=True)
 
     is_verified = models.BooleanField(
         null=False, blank=False, default=False)  # False = not verified
@@ -62,6 +66,27 @@ class User(AbstractBaseUser, PermissionsMixin):
         else:
             full_name = self.email
         return full_name
+
+    @property
+    def access_token(self):
+        exp = str(datetime.now() + timedelta(hours=1))
+        return self._generate_jwt_token(exp, 'access')
+
+    @property
+    def refresh_token(self):
+        exp = str(datetime.now() + timedelta(days=15))
+        return self._generate_jwt_token(exp, 'refresh')
+
+    def _generate_jwt_token(self, exp, scope):
+        """
+        Generates a JSON Web Token that stores user's email and has an expiry
+        date set to exp sent.
+        """
+
+        token = jwt.encode({'email': self.email, 'expires': exp, 'scope': scope},
+                           settings.JWT_SECRET, algorithm='HS256')
+
+        return token.decode('utf-8')
 
     def __str__(self):
         return self.email

@@ -14,7 +14,7 @@ from Products import serializers as product_serializers
 class ProductInfo(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = product_models.Product.objects.all()
     serializer_class = product_serializers.ProductSerializer
-    permission_classes = [AllowAny, ]
+    permission_classes = [AllowAny]
 
     def retrieve(self, request, pk):
         queryset = self.get_queryset()

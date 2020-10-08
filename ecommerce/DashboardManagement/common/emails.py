@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from django.core.mail import send_mail, BadHeaderError, EmailMessage
 from celery import shared_task
 import smtplib
+import jwt
 import socket
 from django.template.loader import render_to_string
 
@@ -24,7 +25,18 @@ def send_email_with_delay(subject, data):
         }
         if subject == "Vendor Registration":
             update_details = render_to_string('vendor-registration.html', context)
-        elif subject == "Resend Registration Veri   fication":
+        elif subject == "Resend Registration Verification":
+            update_details = render_to_string('resend-verification.html', context)
+
+        elif subject == "Registration Verification":
+            exp = str(datetime.now() + timedelta(hours=1))
+            try:
+                token = str(jwt.encode({'email': recipient, 'expires': exp, 'scope': subject},
+                                    settings.JWT_SECRET, algorithm='HS256')).split("'")[1]
+            except Exception:
+                token = jwt.encode({'email': recipient, 'expries': exp, 'scope': subject},
+                                settings.JWT_SECRET, algorithm='HS256')
+            context.update({"token": token})
             update_details = render_to_string('resend-verification.html', context)
         elif subject == "Password Reset":
             update_details = render_to_string('reset_password.html',context)
@@ -55,7 +67,20 @@ def send_email_without_delay(subject, data):
             'company_name': settings.COMPANY_NAME
         }
         if subject == "Vendor Registration":
-            update_details = render_to_string('vendor-registration.html',context)
+            update_details = render_to_string('vendor-registration.html', context)
+        elif subject == "Resend Registration Verification":
+            update_details = render_to_string('resend-verification.html', context)
+
+        elif subject == "Registration Verification":
+            exp = str(datetime.now() + timedelta(hours=1))
+            try:
+                token = str(jwt.encode({'email': recipient, 'expires': exp, 'scope': subject},
+                                    settings.JWT_SECRET, algorithm='HS256')).split("'")[1]
+            except Exception:
+                token = jwt.encode({'email': recipient, 'expries': exp, 'scope': subject},
+                                settings.JWT_SECRET, algorithm='HS256')
+            context.update({"token": token})
+            update_details = render_to_string('resend-verification.html', context)
         elif subject == "Password Reset":
             update_details = render_to_string('reset_password.html',context)
         elif subject == "Password Reset Request":
