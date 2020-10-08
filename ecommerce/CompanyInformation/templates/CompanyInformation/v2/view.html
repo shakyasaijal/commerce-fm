@@ -1,0 +1,263 @@
+{% extends 'DashboardManagement/v2/Partials/base.html' %} 
+{% load static %} 
+{% load addcss %}
+
+{% block css %}
+{{ infoForms.media.css }}
+<style>
+  .select2-container--default .select2-selection--multiple .select2-selection__choice{
+      color: #000;
+  }
+  span.select2.select2-container.select2-container--default {
+      width: 100% !important;
+  }
+</style>
+{% endblock %}
+{% block content %}
+  <section class="content-header">
+    <h1>Company Information
+      <small>All fields will be displayed in the website.</small>
+  </h1>
+  </section>
+  <div class="content">
+    {% if messages %} 
+    {% include "DashboardManagement/v2/Partials/notification.html" %} 
+    {% endif %}
+      <div class="row">
+        <div class="col-md-6">
+          <div class="box box-primary">
+            <div class="box-header with-border">
+              <h3 class="box-title">BASIC INFORMATION</h3>
+                <div class="box-tools pull-right">
+                  <button
+                    type="button"
+                    class="btn btn-box-tool"
+                    data-widget="collapse"
+                  >
+                    <i class="fa fa-minus"></i>
+                  </button>
+                </div>
+            </div>
+              <div class="box-body">
+                <form role="form" method="POST" action="{% url 'vendor-edit-info' %}">
+                  {% csrf_token %}
+                  <div class="form-group">
+                  <label for="exampleInputEmail1">{{infoForms.email.label}}</label>
+                  {{infoForms.email|addcss:'form-control'}}
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputPassword1">{{infoForms.address.label}}</label>
+                  {{infoForms.address|addcss:'form-control'}}
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputPassword1">{{infoForms.phone.label}}</label>
+                  {{infoForms.phone}}
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputFile">{{infoForms.fax.label}}</label>
+                  {{infoForms.fax|addcss:'form-control'}}
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputFile">{{infoForms.post_box.label}}</label>
+                  {{infoForms.post_box|addcss:'form-control'}}
+                </div>
+                {% if 'add_companyinformation' in user_permissions or request.user.is_superuser or 'change_companyinformation' in user_permissions %}
+                <div class="box-footer">
+                  <button type="submit" class="btn btn-success btn-sm"><i class="fa fa-check"></i> Edit & Save</button>
+                </div>
+              {% endif %}
+            </form>
+          </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="box box-success">
+            <div class="box-header">
+              <h3 class="box-title">CONTACT NUMBERS</h3>
+              <div class="box-tools pull-right">
+                <button
+                  type="button"
+                  class="btn btn-box-tool"
+                  data-widget="collapse"
+                >
+                  <i class="fa fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-default">
+                  <i class="fa fa-plus"></i>&emsp;Add New
+                </button>
+                <div class="modal fade {% if contactForm.errors %}in{% endif %}" id="modal-default" {% if contactForm.errors %}style="display:block;"{% endif %}>
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Add New Contact</h4>
+                      </div>
+                      <div class="modal-body">
+                       <form action="{% url 'vendor-create-contact' %}" method="POST">
+                         {% csrf_token %}
+                         <div class="row">
+                          <div class="col-md-6">
+                            <div class="form-group">
+                              <label>{{contactForm.number.label}}</label>
+                              {{contactForm.number|addcss:'form-control'}}
+                              {% if contactForm.errors %}
+                                {% for index, data in contactForm.errors.items %}
+                                  {% if index == 'number' %}
+                                    <span class="form-error">{{data}}</span>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endif %}
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="form-group">
+                              <label>Full Name</label>
+                              {{contactForm.of|addcss:'form-control'}}
+                            </div>
+                          </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-12">
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-danger btn-sm pull-left" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-check"></i> Save</button>
+                          </div>
+                        </div>
+                      </div>
+                       </form>
+                      </div>
+                      
+                    </div>
+                    <!-- /.modal-content -->
+                  </div>
+                  <!-- /.modal-dialog -->
+                </div>
+              </div>
+            </div>
+            <div class="box-body table-responsive no-padding" style="max-height: 250px;">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Phone</th>
+                    <th>Name</th>
+                      {% if 'delete_contactnumber' in user_permissions or request.user.is_superuser %}
+                        <th>Actions</th>
+                      {% endif %}
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for data in contacts %}
+                    <tr>
+                      <td>
+                        <a class="cursor" data-toggle="modal" data-target="#modal-edit-contact{{data.id}}">
+                          {{data.number}}
+                        </a>
+                        <div class="modal fade" id="modal-edit-contact{{data.id}}">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">Edit {{data.number}}</h4>
+                              </div>
+                              <div class="modal-body">
+                               <form action="{% url 'vendor-edit-contact' data.id %}" method="POST">
+                                 {% csrf_token %}
+                                 <div class="row">
+                                  <div class="col-md-6">
+                                    <div class="form-group">
+                                      <label>Phone</label>
+                                      <input type="number" class="form-control" name="phone{{data.id}}" value="{{data.number}}"/>
+                                    </div>
+                                  </div>
+                                  <div class="col-md-6">
+                                    <div class="form-group">
+                                      <label>Full Name</label>
+                                      <input type="text" class="form-control" name="name{{data.id}}" value="{{data.of}}" />
+                                    </div>
+                                  </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-md-12">
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger btn-sm pull-left" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-check"></i> Save</button>
+                                  </div>
+                                </div>
+                              </div>
+                               </form>
+                              </div>
+                              
+                            </div>
+                            <!-- /.modal-content -->
+                          </div>
+                          <!-- /.modal-dialog -->
+                        </div>
+                      </td>
+                      <td>{{data.of}}</td>
+                      {% if 'delete_contactnumber' in user_permissions or request.user.is_superuser %}
+                        <td>
+                          <form method="POST" action="{% url 'vendor-delete-contact' data.id %}">
+                            {% csrf_token %}
+                            <button type="submit" onClick='return confirm("Are you sure you want to delete {{data.number}}?")' class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>
+                          </form>
+                        </td>
+                      {% endif %}
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="box box-warning">
+            <div class="box-header with-border">
+              <h3 class="box-title">SOCIAL MEDIA INFORMATION</h3>
+              <div class="box-tools pull-right">
+                <button
+                  type="button"
+                  class="btn btn-box-tool"
+                  data-widget="collapse"
+                >
+                  <i class="fa fa-minus"></i>
+                </button>
+              </div>
+            </div>
+              <div class="box-body">
+                <form role="form" method="POST" action="{% url 'vendor-edit-social-info' %}">
+                  {% csrf_token %}
+                  <div class="form-group">
+                  <label for="exampleInputEmail1">{{socialForms.facebook_link.label}}</label>
+                  {{socialForms.facebook_link|addcss:'form-control'}}
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputPassword1">{{socialForms.twitter_link.label}}</label>
+                  {{socialForms.twitter_link|addcss:'form-control'}}
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputFile">{{socialForms.linkedIn_link.label}}</label>
+                  {{socialForms.linkedIn_link|addcss:'form-control'}}
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputFile">{{socialForms.instagram_link.label}}</label>
+                  {{socialForms.instagram_link|addcss:'form-control'}}
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputFile">{{socialForms.youtube_link.label}}</label>
+                  {{socialForms.youtube_link|addcss:'form-control'}}
+                </div>
+                {% if 'change_socialmedia' in user_permissions or request.user.is_superuser or 'add_socialmedia' in user_permissions %}
+                  <div class="box-footer">
+                    <button type="submit" class="btn btn-success btn-sm"><i class="fa fa-check"></i> Edit & Save</button>
+                  </div>
+                {% endif %}
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+{% endblock %} 
+{% block js %}
+{{ infoForms.media.js }}
+{% endblock js %}

@@ -26,7 +26,7 @@ class Wishlist(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 class CartItems(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = cart_models.AddToCart.objects.none()
-    serializer = cart_serializers.AddToCartSerializer
+    serializer_class = cart_serializers.AddToCartSerializer
     permission_classes = [AllowAny, ]
 
     def list(self, request):
@@ -36,7 +36,7 @@ class CartItems(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 class WishlistToCart(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = cart_models.WishList.objects.none()
-    serializer = cart_serializers.WishlistProduct
+    serializer_class = cart_serializers.WishlistProduct
     permission_classes = [IsAuthenticated, ]
 
     def create(self, request):

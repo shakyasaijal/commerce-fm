@@ -42,5 +42,8 @@ urlpatterns = [
     path('vendors/', include('Vendor.urls')),
 
     # Offers
-    path('offers/', include('Offer.urls'))
+    path('offers/', include('Offer.urls')),
+
+    # Company Information
+    path('company/', include('CompanyInformation.urls'))
 ]

@@ -1,7 +1,7 @@
 from rest_framework import routers
 from django.urls import include, path, re_path
 from . import views as api_views
-
+from rest_framework.urlpatterns import format_suffix_patterns
 
 router = routers.DefaultRouter()
 router.register('featured-category',
@@ -17,7 +17,8 @@ urlpatterns = [
     path('products/', include(('Products.Api.urls',
                                'Product'), namespace='products_detail')),
     path('carts/', include(('CartSystem.Api.urls', 'Carts'),
-         namespace="carts_and_wishlists"))
+                           namespace="carts_and_wishlists")),
+    path('company/', include(('CompanyInformation.Api.urls', 'Company Info'), namespace='company_info'))
 ]
 
 urlpatterns += router.urls

@@ -69,28 +69,32 @@ all_navigation_routes = [
                 'permission': 'OrderAndDelivery.view_orders'
             },
         ]
-    },
-    {
-        'group': True,
-        'title': 'vendor management',
-        'superuser': True,
-        'icon': 'fa fa-object-group',
-        'permission': 'Vendor.view_vendor',
-        'service': 'multi-vendor',
-        'links': [
-            {
-                'title': 'vendors',
-                'url': reverse_lazy('vendor-vendors'),
-                'permission': 'Vendor.view_vendor'
-            },
-            {
-                'title': 'delivered orders',
-                'url': reverse_lazy('vendor-delivered'),
-                'permission': 'OrderAndDelivery.view_orders'
-            },
-        ]
     }
 ]
+
+if settings.MULTI_VENDOR:
+    all_navigation_routes += [
+        {
+            'group': True,
+            'title': 'vendor management',
+            'superuser': True,
+            'icon': 'fa fa-object-group',
+            'permission': 'Vendor.view_vendor',
+            'service': 'multi-vendor',
+            'links': [
+                {
+                    'title': 'vendors',
+                    'url': reverse_lazy('vendor-vendors'),
+                    'permission': 'Vendor.view_vendor'
+                },
+                {
+                    'title': 'delivered orders',
+                    'url': reverse_lazy('vendor-delivered'),
+                    'permission': 'OrderAndDelivery.view_orders'
+                },
+            ]
+        }
+    ]
 
 
 if settings.HAS_OFFER_APP:
@@ -116,3 +120,15 @@ if settings.HAS_OFFER_APP:
             ]
         }
     ]
+
+all_navigation_routes += [
+    {
+        'title': 'company information',
+        'url': reverse_lazy('vendor-company-info'),
+        'superuser': False,
+        'icon': 'fa fa-info',
+        'service': '',
+        'group': False,
+        'permission': 'CompanyInformation.view_companyinformation'
+    },
+]
