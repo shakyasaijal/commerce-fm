@@ -1,6 +1,7 @@
 import os
 import yaml
 from django.core.exceptions import ImproperlyConfigured
+from datetime import timedelta
 
 credentials = yaml.load(open('config/config.yaml'), Loader=yaml.FullLoader)
 
@@ -26,7 +27,8 @@ THIRD_PARTY_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'rest_framework',
-    'security'
+    'security',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 OWN_APPS = [
     'Api',
@@ -48,6 +50,7 @@ AUTH_USER_MODEL = 'User.User'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -100,7 +103,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ecommerce.wsgi.application'
 
-
 # Database
 if DEBUG:
     from .development import *
@@ -124,7 +126,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
@@ -182,3 +183,18 @@ CKEDITOR_CONFIGS = {
 
 CKEDITOR_ALLOW_NONIMAGE_FILES = False
 CKEDITOR_UPLOAD_PATH = "uploads/"
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': JWT_SECRET,
+    'VERIFYING_KEY': None,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'email',
+    'USER_ID_CLAIM': 'email',
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+}

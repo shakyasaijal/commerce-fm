@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from security.views import csp_report
 
+from rest_framework_simplejwt import views as jwt_views
 
 urlpatterns = [
     path('', include('frontend.urls')),
@@ -12,7 +13,8 @@ urlpatterns = [
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('dashboard/', include('DashboardManagement.urls')),
     path("csp-report/", csp_report),
- ]
+    path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
+]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,

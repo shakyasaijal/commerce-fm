@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate, logout
 import jwt
 import requests
 import json
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from User import models as user_models
 from User import serializers as user_serializers
@@ -39,29 +40,23 @@ class RegisterUser(mixins.CreateModelMixin,
                 sendEmail = send_email.send_email_without_delay(
                     "Registration Verification", email_data)
 
-            if not sendEmail:
-                return Response({"status": False, "data": {"message": "User not registered. There was problem sending verification email."}}, status=status.HTTP_409_CONFLICT)
-
             serializer.save()
             user = user_models.User.objects.none()
             try:
                 user = user_models.User.objects.get(
                     email=request.data["email"])
-                refresh_token = user.refresh_token
-                user.refresh_tokens = refresh_token
-                user.save()
+                token = RefreshToken.for_user(user)
                 data = {
-                    "userId": user.id,
                     "email": user.email,
                     "isVerified": user.is_verified,
-                    "accessToken": user.access_token,
-                    "refreshToken": refresh_token
+                    "accessToken": str(token.access_token),
+                    "refreshToken": str(token)
                 }
                 return Response({"status": True, "data": data}, status=status.HTTP_200_OK)
             except (user_models.User.DoesNotExist):
                 if user:
                     user.delete()
-                return Response({"status": False, "data": {"message": "User not registered. Please try again."}}, status=400)
+                return Response({"status": False, "data": {"message": "User not registered. Please try again."}}, status=status.HTTP_409_CONFLICT)
         else:
             return Response({"status": False, "data": {"message": "User not registered. Please try again.", "errors": serializer.errors}}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
@@ -84,19 +79,13 @@ class LoginUser(mixins.CreateModelMixin,
             except (user_models.User.DoesNotExist, Exception):
                 return Response({"status": False, "data": {"message": "Invalid credentials"}}, status=status.HTTP_404_NOT_FOUND)
             if user:
-                token = user.refresh_token
-                if user.refresh_tokens:
-                    refresh_tokens = user.refresh_tokens + "," + token
-                else:
-                    refresh_tokens = token
-                user.refresh_tokens = refresh_tokens
-                user.save()
+                token = RefreshToken.for_user(user)
                 data = {
                     "userId": user.id,
                     "email": user.email,
                     "isVerified": user.is_verified,
-                    "accessToken": user.access_token,
-                    "refreshToken": token
+                    "accessToken": str(token.access_token),
+                    "refreshToken": str(token)
                 }
                 return Response({"status": True, "data": data}, status=status.HTTP_200_OK)
             else:
@@ -111,26 +100,12 @@ class LogoutUser(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
     def create(self, request):
         try:
-            decoded = jwt.decode(request.data['accessToken'], settings.JWT_SECRET, algorithms="HS256", options={
-                "verify_exp": False})
-            user = user_models.User.objects.get(email=decoded["email"])
-        except (user_models.User.DoesNotExist, Exception):
-            return Response({"status": False, "data": {"message": "Invalid Token"}}, status=status.HTTP_404_NOT_FOUND)
-
-        serializer = user_serializers.LogoutSerializer(data=request.data)
-        if serializer.is_valid():
-            refresh_tokens = user.refresh_tokens.split(",")
-            if serializer.data.get("refreshToken") in refresh_tokens:
-                refresh_tokens.remove(serializer.data.get("refreshToken"))
-                if len(refresh_tokens) > 0:
-                    user.refresh_tokens = ",".join(refresh_tokens)
-                else:
-                    user.refresh_tokens = None
-                user.save()
-                return Response({"status": True, "data": {"message": "Successfully logged out"}}, status=status.HTTP_200_OK)
-            return Response({"status": False, "data": {"message": "Invalid Refresh Token"}}, status=status.HTTP_406_NOT_ACCEPTABLE)
-
-        return Response({"status": False, "data": {"message": serializer.errors}}, status=400)
+            refresh_token = request.data["refresh_token"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({"logout": True}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"message": "Refresh Token is required"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class GoogleLogin(mixins.CreateModelMixin,
@@ -148,27 +123,19 @@ class GoogleLogin(mixins.CreateModelMixin,
         email = info['email']
         try:
             user = user_models.User.objects.get(email=email)
-            token = user.refresh_token
+            token = RefreshToken.for_user(user)
             data = {
                 'userId': user.id,
                 'email': user.email,
                 'isVerified': user.is_verified,
-                'accessToken': user.access_token,
-                'refreshToken': token,
+                'accessToken': str(token.access_token),
+                'refreshToken': str(token),
             }
-            if user.refresh_tokens:
-                refresh_tokens = user.refresh_tokens + "," + token
-            else:
-                refresh_tokens = token
-            user.refresh_tokens = refresh_tokens
-            user.save()
             if not user.google_id:
                 user.google_id = info['sub']
                 user.is_verified = True
                 user.save()
-                return Response({"status": True, "data": data}, status=status.HTTP_200_OK)
-            else:
-                return Response({"status": True, "data": data}, status=status.HTTP_200_OK)
+            return Response({"status": True, "data": data}, status=status.HTTP_200_OK)
         except (Exception, user_models.User.DoesNotExist) as e:
             data = {
                 'first_name': info['given_name'],
@@ -180,19 +147,13 @@ class GoogleLogin(mixins.CreateModelMixin,
                 user = user_models.User.objects.create(**data)
                 user.is_verified = True
                 user.google_id = info['sub']
-                token = user.refresh_token
-                if user.refresh_tokens:
-                    refresh_tokens = user.refresh_tokens + "," + token
-                else:
-                    refresh_tokens = token
-                user.refresh_tokens = refresh_tokens
-                user.save()
+                token = RefreshToken.for_user(user)
                 res = {
                     "userId": user.id,
                     "email": user.email,
                     "isVerified": user.is_verified,
-                    "accessToken": user.access_token,
-                    "refreshToken": token
+                    "accessToken": str(token.access_token),
+                    "refreshToken": str(token)
                 }
                 return Response({"status": True, "data": res}, status=status.HTTP_200_OK)
             except Exception as e:
@@ -215,27 +176,19 @@ class FacebookLogin(mixins.CreateModelMixin,
         email = info['email']
         try:
             user = user_models.User.objects.get(email=email)
-            token = user.refresh_token
+            token = RefreshToken.for_user(user)
             data = {
                 'userId': user.id,
                 'email': user.email,
                 'isVerified': user.is_verified,
-                'accessToken': user.access_token,
-                'refreshToken': token,
+                'accessToken': str(token.access_token),
+                'refreshToken': str(token),
             }
-            if user.refresh_tokens:
-                refresh_tokens = user.refresh_tokens + "," + token
-            else:
-                refresh_tokens = token
-            user.refresh_tokens = refresh_tokens
-            user.save()
             if not user.facebook_id:
                 user.facebook_id = info['id']
                 user.is_verified = True
                 user.save()
-                return Response({"status": True, "data": data}, status=status.HTTP_200_OK)
-            else:
-                return Response({"status": True, "data": data}, status=status.HTTP_200_OK)
+            return Response({"status": True, "data": data}, status=status.HTTP_200_OK)
         except (Exception, user_models.User.DoesNotExist) as e:
             data = {
                 'first_name': info['first_name'],
@@ -247,19 +200,13 @@ class FacebookLogin(mixins.CreateModelMixin,
                 user = user_models.User.objects.create(**data)
                 user.is_verified = True
                 user.facebook_id = info['id']
-                token = user.refresh_token
-                if user.refresh_tokens:
-                    refresh_tokens = user.refresh_tokens + "," + token
-                else:
-                    refresh_tokens = token
-                user.refresh_tokens = refresh_tokens
-                user.save()
+                token = RefreshToken.for_user(user)
                 res = {
                     "userId": user.id,
                     "email": user.email,
                     "isVerified": user.is_verified,
-                    "accessToken": user.access_token,
-                    "refreshToken": token
+                    "accessToken": str(token.access_token),
+                    "refreshToken": str(token)
                 }
                 return Response({"status": True, "data": res}, status=status.HTTP_200_OK)
             except Exception as e:

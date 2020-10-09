@@ -10,6 +10,7 @@ router.register('featured-products',
                 api_views.FeaturedProducts, "featured-products"),
 router.register('offers', api_views.Offers, "offers"),
 router.register('just-for-you', api_views.JustForYou, "just-for-you"),
+router.register('ok', api_views.Ok, "ok"),
 router.register('recent-arrivals', api_views.RecentArrivals,
                 "recent-arrivals"),
 
