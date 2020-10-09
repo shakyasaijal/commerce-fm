@@ -1,16 +1,14 @@
 from django.shortcuts import render
 from django.conf import settings
 from django.http import JsonResponse
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import viewsets
 from rest_framework.decorators import permission_classes, action, api_view
 from datetime import date
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from datetime import datetime, timedelta
-
 import jwt
 
 from Products import models as product_models
@@ -39,7 +37,7 @@ class FeaturedCategory(mixins.ListModelMixin, viewsets.GenericViewSet):
                 "nepaliName": data.nepali_name,
                 "image": request.build_absolute_uri(data.categoryImage.url)
             })
-        return Response({"status": True, "data": categories}, status=200)
+        return Response({"status": True, "data": categories}, status=status.HTTP_200_OK)
 
 
 class FeaturedProducts(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -61,7 +59,7 @@ class FeaturedProducts(mixins.ListModelMixin, viewsets.GenericViewSet):
                     "oldPrice": data.old_price,
                     "newPrice": data.price
                 })
-        return Response({"status": True, "data": products}, status=200)
+        return Response({"status": True, "data": products}, status=status.HTTP_200_OK)
 
 
 class Offers(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.RetrieveModelMixin):
@@ -72,7 +70,8 @@ class Offers(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.RetrieveMode
     def list(self, request):
         queryset = self.get_queryset().filter(ends_at__gte=date.today())
         if not queryset:
-            return Response({"status": False, "data": []}, status=200)
+            return Response({"status": False, "data": []}, status=status.HTTP_204_NO_CONTENT)
+
         offers = []
         for data in queryset:
             finish_after = (data.ends_at-date.today()).days
@@ -86,13 +85,14 @@ class Offers(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.RetrieveMode
                 "started": True if data.starts_from <= date.today() else False,
                 "finishAfter": finish_after
             })
-        return Response({"status": True, "data": offers}, status=200)
+        return Response({"status": True, "data": offers}, status=status.HTTP_200_OK)
 
     def retrieve(self, request, pk):
         try:
             queryset = self.get_queryset().get(pk=pk)
             if (queryset.ends_at-date.today()).days < 0:
-                return Response({"status": True, "data": {"msg": "Offer not available"}}, status=400)
+                return Response({"status": True, "data": {"msg": "Offer not available"}}, status=status.HTTP_204_NO_CONTENT)
+
             data = {
                 "id": queryset.id,
                 "title": queryset.title,
@@ -104,10 +104,10 @@ class Offers(mixins.ListModelMixin, viewsets.GenericViewSet, mixins.RetrieveMode
                 "finishAfter": (queryset.ends_at-date.today()).days,
                 "category": [{"title": d.name, "id": d.id} for d in queryset.category.all()]
             }
-            return Response({"status": True, "data": data}, status=400)
+            return Response({"status": True, "data": data}, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
-            return Response({"status": True, "data": {"msg": "Offer not found"}}, status=400)
+            return Response({"status": True, "data": {"msg": "Offer not found"}}, status=status.HTTP_404_NOT_FOUND)
 
 
 class JustForYou(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -181,7 +181,7 @@ class JustForYou(mixins.ListModelMixin, viewsets.GenericViewSet):
                 :12]
             product_data(product)
 
-        return Response({"status": True, "data": product_list}, status=200)
+        return Response({"status": True, "data": product_list}, status=status.HTTP_200_OK)
 
 
 class PopularOnYourArea(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -225,7 +225,7 @@ class RecentArrivals(mixins.ListModelMixin, viewsets.GenericViewSet):
                 "price": data.price
             })
 
-        return Response({"status": True, "data": products_list}, status=200)
+        return Response({"status": True, "data": products_list}, status=status.HTTP_200_OK)
 
 
 @csrf_exempt
@@ -244,9 +244,9 @@ def activate(request, token):
         if exp > str(datetime.now()):
             user.is_verified = True
             user.save()
-            return Response({"status": True, "data": {"message": "Account activation successfull"}}, status=200)
+            return Response({"status": True, "data": {"message": "Account activation successfull"}}, status=status.HTTP_200_OK)
         else:
-            return Response({"status": False, "data": {"message": "Activation link is invalid!"}}, status=400)
+            return Response({"status": False, "data": {"message": "Activation link is invalid!"}}, status=status.HTTP_403_FORBIDDEN)
     except (user_models.User.DoesNotExist, Exception) as e:
         print(e)
-        return Response({"status": False, "data": {"message": "Invalid Token"}}, status=401)
+        return Response({"status": False, "data": {"message": "Invalid Token"}}, status=status.HTTP_404_NOT_FOUND)

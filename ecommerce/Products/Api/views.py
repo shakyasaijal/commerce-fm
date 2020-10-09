@@ -1,10 +1,9 @@
 from django.shortcuts import render
 from django.conf import settings
 from django.http import JsonResponse
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import generics
 
 
 from Products import models as product_models
@@ -77,10 +76,10 @@ class ProductInfo(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
             if settings.MULTI_VENDOR:
                 product_info.update(
                     {'vendor': instance.vendor.organizationName})
-            return Response({"status": True, "data": product_info}, status=200)
+            return Response({"status": True, "data": product_info}, status=status.HTTP_200_OK)
         except (Exception) as e:
             print(e)
-            return Response({"status": False, "data": {"msg": "Product not found."}}, status=400)
+            return Response({"status": False, "data": {"msg": "Product not found."}}, status=status.HTTP_404_NOT_FOUND)
 
 
 class CategoryInfo(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -98,7 +97,7 @@ class CategoryInfo(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
                 "nepaliName": instance.nepali_name,
                 "image": instance.categoryImage.url
             }
-            return Response({"status": True, "data": category_info}, status=200)
+            return Response({"status": True, "data": category_info}, status=status.HTTP_200_OK)
         except (Exception) as e:
             print(e)
-            return Response({"status": False, "data": {"msg": "Category not found."}}, status=400)
+            return Response({"status": False, "data": {"msg": "Category not found."}}, status=status.HTTP_404_NOT_FOUND)

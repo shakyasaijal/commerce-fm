@@ -1,7 +1,7 @@
 from django.conf import settings
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, status
 
 from CompanyInformation import models as company_info
 from CompanyInformation import serializers as company_serializer
@@ -30,4 +30,4 @@ class CompanyInfo(mixins.ListModelMixin, viewsets.GenericViewSet):
                 "postBox": company_data.post_box
             },
             "socialMedia": social_media.data
-        })
+        }, status=status.HTTP_200_OK)

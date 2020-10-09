@@ -82,6 +82,7 @@
                 >
                   <i class="fa fa-minus"></i>
                 </button>
+                {% if 'add_contactnumber' in user_permissions or request.user.is_superuser %}
                 <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-default">
                   <i class="fa fa-plus"></i>&emsp;Add New
                 </button>
@@ -133,6 +134,8 @@
                   </div>
                   <!-- /.modal-dialog -->
                 </div>
+                {% endif %}
+                
               </div>
             </div>
             <div class="box-body table-responsive no-padding" style="max-height: 250px;">
