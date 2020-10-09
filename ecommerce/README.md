@@ -48,7 +48,10 @@ $ cp config.yaml.example config.yaml
 
 `8. DISPLAY_OUT_OF_STOCK_PRODUCTS = 'Should out of stock product needs to be displayed in frontend. True if Yes else False. For example: We won't be able to view out of stock products if it's False.' `<br/>
 
-`9. TEMPLATE_VERSION = 'This is a template version for dashboard designs.' `
+`9. HAS_REFERRAL_APP = 'True if you need referral code for the ecommerce user and earn rewards else False.'`
+`10. FRONTEND_URL = 'Url of frontend for referal redirect url.' `
+
+`11. TEMPLATE_VERSION = 'This is a template version for dashboard designs.' `
 
 `Other configurations are related to django settings.py`
 

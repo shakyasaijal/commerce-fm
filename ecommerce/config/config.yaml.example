@@ -1,4 +1,4 @@
-# System
+# ===================== SYSTEM SETTINGS =====================
 
 DEBUG: True #False
 MULTI_VENDOR: True #False
@@ -8,8 +8,32 @@ ADD_TO_CART_WITHOUT_LOGIN: False #True
 HAS_ADDITIONAL_USER_DATA: True #False
 # Without additional data, user cannot go to other routes.
 # If True, multi step sign up case.
-MUST_HAVE_ADDITIONAL_DATA: False #False
+MUST_HAVE_ADDITIONAL_DATA: True #False
 DISPLAY_OUT_OF_STOCK_PRODUCTS: True #False
+
+# Celery
+HAS_CELERY: True
+CELERY_FOR_EMAIL: True # Works, if HAS_CELERY is True
+CELERY_BROKER_URL: 'redis://127.0.0.1:6379'
+
+# App
+HAS_OFFER_APP: True
+HAS_REFERRAL_APP: True
+
+# Frontend Links
+FRONTEND_URL: 'http://commercefm.com/'
+
+# Secret Keys
+jwt_secret: ''
+
+# Template
+TEMPLATE_VERSION: ''
+
+# Company Info
+COMPANY_NAME: 'Commerce FM'
+# ===================== SYSTEM SETTINGS ENDS =====================
+
+# ===================== DJANGO SETTINGS =====================
 
 # Database
 DB_ENGINE: '' # sqlite3, mysql
@@ -31,17 +55,4 @@ smtp_port: 587
 EMAIL_USE_TLS: True
 EMAIL_USE_SSL: False
 smtp_ssl_port: 465
-
-# Celery
-HAS_CELERY: True
-CELERY_FOR_EMAIL: True # Works, if HAS_CELERY is True
-CELERY_BROKER_URL: 'redis://127.0.0.1:6379'
-
-# Offer App
-HAS_OFFER_APP: False
-
-# Template
-TEMPLATE_VERSION: 'v1'
-
-# Company Info
-COMPANY_NAME: 'Commerce FM'
+# ===================== DJANGO SETTINGS ENDS =====================
