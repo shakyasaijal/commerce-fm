@@ -20,7 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
+    'django.contrib.staticfiles'
 ]
 
 THIRD_PARTY_APPS = [
@@ -28,7 +28,7 @@ THIRD_PARTY_APPS = [
     'ckeditor_uploader',
     'rest_framework',
     'security',
-    'rest_framework_simplejwt.token_blacklist',
+    'rest_framework_simplejwt.token_blacklist'
 ]
 OWN_APPS = [
     'Api',
@@ -41,7 +41,8 @@ OWN_APPS = [
     'DashboardManagement',
     'OrderAndDelivery',
     'Offer',
-    'CompanyInformation'
+    'CompanyInformation',
+    'Referral'
 ]
 
 INSTALLED_APPS += THIRD_PARTY_APPS + OWN_APPS
@@ -154,6 +155,7 @@ try:
     HAS_OFFER_APP = credentials['HAS_OFFER_APP']
     DISPLAY_OUT_OF_STOCK_PRODUCTS = credentials['DISPLAY_OUT_OF_STOCK_PRODUCTS']
     JWT_SECRET = credentials['jwt_secret']
+    HAS_REFERRAL_APP = credentials['HAS_REFERRAL_APP']
 
     # Email
     EMAIL_USE_TLS = credentials['EMAIL_USE_TLS']
@@ -164,6 +166,7 @@ try:
     EMAIL_USE_SSL = credentials['EMAIL_USE_SSL']
     HAS_CELERY = credentials['HAS_CELERY']
     CELERY_FOR_EMAIL = credentials['CELERY_FOR_EMAIL']
+
     if HAS_CELERY:
         CELERY_BROKER_URL = credentials['CELERY_BROKER_URL']
         CELERY_ACCEPT_CONTENT = ['json']

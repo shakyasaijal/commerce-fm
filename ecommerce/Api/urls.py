@@ -1,7 +1,7 @@
 from rest_framework import routers
 from django.urls import include, path, re_path
 from . import views as api_views
-from rest_framework.urlpatterns import format_suffix_patterns
+from rest_framework_simplejwt import views as jwt_views
 
 router = routers.DefaultRouter()
 router.register('featured-category',
@@ -22,6 +22,8 @@ urlpatterns = [
                            namespace="carts_and_wishlists")),
     path('company/', include(('CompanyInformation.Api.urls', 'Company Info'), namespace='company_info')),
     path('user/', include(('User.Api.urls', 'User Related API'), namespace='user_api')),
+    path('referal/', include(('Referral.Api.urls', 'Refer and Reward API'), namespace='refer_api')),
+    path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
 ]
 
 urlpatterns += router.urls
