@@ -20,6 +20,7 @@ class JoinReferral(mixins.CreateModelMixin, viewsets.GenericViewSet):
             refer_models.Referral.objects.get(user=request.user)
             return Response({"message": "You have participated."}, status=status.HTTP_406_NOT_ACCEPTABLE)
         except (Exception, refer_models.Referral.DoesNotExist):
+            code = _generate_code()
             new_refer_member = refer_models.Referral.objects.create(
-                user=request.user, refer_code=_generate_code())
+                user=request.user, refer_code=code, refer_url=settings.FRONTEND_URL+code)
             return Response({"status": True, "data": {"code": new_refer_member.refer_code}}, status=status.HTTP_200_OK)

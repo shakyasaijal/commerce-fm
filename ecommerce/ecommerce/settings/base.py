@@ -156,6 +156,7 @@ try:
     DISPLAY_OUT_OF_STOCK_PRODUCTS = credentials['DISPLAY_OUT_OF_STOCK_PRODUCTS']
     JWT_SECRET = credentials['jwt_secret']
     HAS_REFERRAL_APP = credentials['HAS_REFERRAL_APP']
+    FRONTEND_URL = credentials['FRONTEND_URL']
 
     # Email
     EMAIL_USE_TLS = credentials['EMAIL_USE_TLS']

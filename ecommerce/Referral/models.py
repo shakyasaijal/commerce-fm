@@ -9,6 +9,7 @@ if settings.HAS_REFERRAL_APP:
         user = models.OneToOneField(
             user_models.User, on_delete=models.CASCADE, null=False, blank=False)
         refer_code = models.CharField(max_length=255, null=False, blank=False)
+        refer_url = models.URLField(null=False, blank=False, default='')
 
         def __str__(self):
             return self.user.get_full_name()
