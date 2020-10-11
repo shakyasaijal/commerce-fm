@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import routers
 from django.urls import include, path, re_path
 from . import views as api_views
@@ -10,7 +11,6 @@ router.register('featured-products',
                 api_views.FeaturedProducts, "featured-products"),
 router.register('offers', api_views.Offers, "offers"),
 router.register('just-for-you', api_views.JustForYou, "just-for-you"),
-router.register('ok', api_views.Ok, "ok"),
 router.register('recent-arrivals', api_views.RecentArrivals,
                 "recent-arrivals"),
 
@@ -22,8 +22,12 @@ urlpatterns = [
                            namespace="carts_and_wishlists")),
     path('company/', include(('CompanyInformation.Api.urls', 'Company Info'), namespace='company_info')),
     path('user/', include(('User.Api.urls', 'User Related API'), namespace='user_api')),
-    path('referal/', include(('Referral.Api.urls', 'Refer and Reward API'), namespace='refer_api')),
     path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
 ]
+
+if settings.HAS_REFERRAL_APP:
+    urlpatterns += [
+        path('referal/', include(('Referral.Api.urls', 'Refer and Reward API'), namespace='refer_api')),
+    ]
 
 urlpatterns += router.urls

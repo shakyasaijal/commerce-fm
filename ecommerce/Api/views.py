@@ -21,13 +21,6 @@ from Api.common import api_helper
 from DashboardManagement.common import emails as send_email
 
 
-class Ok(mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = product_models.Category.objects.filter(
-        isFeatured=True).order_by('?')[:12]
-    serializer_class = product_serializers.FeaturedCategorySerializer
-    permission_classes = [IsAuthenticated]
-
-
 class FeaturedCategory(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = product_models.Category.objects.filter(
         isFeatured=True).order_by('?')[:12]

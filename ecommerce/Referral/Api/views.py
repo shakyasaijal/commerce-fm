@@ -58,23 +58,30 @@ class JoinReferral(mixins.CreateModelMixin, viewsets.GenericViewSet):
         return Response({"status": True, "data": {"code": response}}, status=status.HTTP_200_OK)
 
 
-class ProcessReferral(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class ProcessReferral(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = refer_models.Referral.objects.none()
     permission_classes = [AllowAny]
 
-    def retrieve(self, request, pk):
+    def create(self, request):
+        pk = request.data['refer_code']
+        agent_data = utils.user_agent_data(request)
+        agent_data.update({"ip": utils.get_ip(request)})
+        key = utils.generate_refered_user_key(agent_data)
+
+        try:
+            refer_instance = refer_models.UserKey.objects.get(key=key)
+            return Response({"status": False, "data": {"msg": "You have already been referred by {}".format(refer_instance.referredFrom.user.get_full_name())}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        except (Exception, refer_models.UserKey.DoesNotExist):
+            pass
+
         try:
             refer = refer_models.Referral.objects.get(refer_code=pk)
             reward = refer_models.Reward.objects.get(referral=refer)
             reward.visited = reward.visited + 1
             reward.save()
-            agent_data = utils.user_agent_data(request)
-            agent_data.update({"ip": utils.get_ip(request)})
-            key = utils.generate_refered_user_key(agent_data)
-            refer_models.UserKey.objects.get_or_create(key=key, referredFrom=refer)
-            return Response({"status": True, "data": {"__uik": key, "referredBy": refer.user.get_full_name()}}, status=status.HTTP_200_OK)
+            refer_models.UserKey.objects.get_or_create(
+                key=key, referredFrom=refer)
+            return Response({"status": True, "data": {"__uik": key, "referredBy": refer.user.get_full_name()}}, status=status.HTTP_201_CREATED)
         except (Exception, refer_models.Referral.DoesNotExist, refer_models.Reward.DoesNotExist) as e:
             print(e)
             return Response({"status": False, "data": {"msg": "Refer code invalid."}}, status=status.HTTP_404_NOT_FOUND)
-
-
