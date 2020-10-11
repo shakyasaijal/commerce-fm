@@ -1,4 +1,3 @@
-from pprint import pprint
 from django.conf import settings
 
 from DashboardManagement.common import helper

@@ -31,3 +31,8 @@ soft_delete = (
     (True, "Soft Deleted"),
     (False, "Not Deleted")
 )
+
+genesis_block = (
+    (True, "Is a Genesis Block."),
+    (False, "Is not a Genesis Block."),
+)

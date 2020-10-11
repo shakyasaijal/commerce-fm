@@ -28,7 +28,8 @@ THIRD_PARTY_APPS = [
     'ckeditor_uploader',
     'rest_framework',
     'security',
-    'rest_framework_simplejwt.token_blacklist'
+    'rest_framework_simplejwt.token_blacklist',
+    'user_agents'
 ]
 OWN_APPS = [
     'Api',
@@ -157,6 +158,7 @@ try:
     JWT_SECRET = credentials['jwt_secret']
     HAS_REFERRAL_APP = credentials['HAS_REFERRAL_APP']
     FRONTEND_URL = credentials['FRONTEND_URL']
+    FRONTEND_REFER_URL = credentials['FRONTEND_REFER_URL']
 
     # Email
     EMAIL_USE_TLS = credentials['EMAIL_USE_TLS']

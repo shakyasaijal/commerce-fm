@@ -2,7 +2,6 @@ from django.conf import settings
 from django.contrib.gis.geoip2 import GeoIP2
 from User import models as user_models
 
-
 class IpAddress:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -39,5 +38,5 @@ class IpAddress:
                     except (Exception, user_models.UserProfile.DoesNotExist) as e:
                         print("Ip Middleware: ", e)
                         pass
-        except Exception:
+        except Exception as e:
             pass    
