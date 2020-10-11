@@ -95,7 +95,7 @@ if settings.HAS_VENDOR_REFERRAL_APP:
             verbose_name = "Vendor Reward"
             verbose_name_plural = "Vendor Rewards"
 
-        def user_full_name(self):
+        def vendor_name(self):
             return self.referral.vendor_name()
 
     class VendorKey(user_models.AbstractTimeStamp):
@@ -117,7 +117,7 @@ if settings.HAS_VENDOR_REFERRAL_APP:
             null=False, blank=False, choices=modelHelper.genesis_block, default=False)
 
         # IF GENESIS BLOCK
-        user = models.ForeignKey(
+        vendor = models.ForeignKey(
             "Vendor.Vendor", on_delete=models.DO_NOTHING, null=True, blank=True)
 
         def __str__(self):

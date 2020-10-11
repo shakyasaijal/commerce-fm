@@ -5,15 +5,18 @@ from Referral import models as refer_models
 from user_agents import parse
 
 
-def _generate_code():
+def _generate_code(generateFor='user'):
     def generate_code():
         t = "abcdefghijkmnopqrstuvwwxyzABCDEFGHIJKLOMNOPQRSTUVWXYZ1234567890"
         return "".join([random.choice(t) for i in range(40)])
     code = generate_code()
-    while refer_models.Referral.objects.filter(refer_code=code).exists():
-        code = generate_code()
+    if generateFor == 'user':
+        while refer_models.Referral.objects.filter(refer_code=code).exists():
+            code = generate_code()
+    else:
+        while refer_models.VendorReferral.objects.filter(refer_code=code).exists():
+            code = generate_code()
     return code
-
 
 def ensure_session_key(request):
     """

@@ -26,7 +26,7 @@ class JoinReferral(mixins.CreateModelMixin, viewsets.GenericViewSet):
             }
         except (Exception, refer_models.Referral.DoesNotExist):
             # Referal Activation
-            code = utils._generate_code()
+            code = utils._generate_code(generateFor='user')
 
             refer_url = settings.FRONTEND_REFER_URL+"{}:".format("urk")+code
             new_refer_member = refer_models.Referral.objects.create(

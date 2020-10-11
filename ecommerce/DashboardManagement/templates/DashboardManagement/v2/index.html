@@ -69,6 +69,13 @@
           <!-- ./col -->
     </div>
     <div class="row">
+      <div class="col-md-12">
+        {% if not hasRefer %}
+          {% include "DashboardManagement/v2/Views/ReferView/joinReferal.html" %}
+        {% endif %}
+      </div>
+    </div>
+    <div class="row">
       <div class="col-md-4">
         {% if offers %}
           <div class="box box-success">

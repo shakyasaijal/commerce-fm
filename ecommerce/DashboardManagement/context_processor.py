@@ -1,6 +1,7 @@
 from django.conf import settings
 
 from DashboardManagement.common import helper
+from Referral import models as refer_models
 
 
 def context_processor(request):
@@ -11,6 +12,7 @@ def context_processor(request):
             context.update({'user_permissions': user_permissions})
 
             isVendorAdmin = False
+            hasReferral = False
             if settings.MULTI_VENDOR:
                 if not request.user.is_superuser:
                     if helper.is_vendor_admin(request.user):

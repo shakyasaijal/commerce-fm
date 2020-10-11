@@ -27,6 +27,7 @@ from Products import forms as product_forms
 from DashboardManagement.common import validation as validations
 from Analytics import views as analytics_views
 from Offer import models as offer_models
+from Referral import models as refer_models
 
 
 template_version = "DashboardManagement/v1"
@@ -80,6 +81,18 @@ class IndexView(LoginRequiredMixin, View):
 
         total_products = analytics_views.total_products(request.user)
         context.update({"total_products": total_products})
+
+        if settings.MULTI_VENDOR and settings.HAS_VENDOR_REFERRAL_APP:
+            hasRefer = False
+            try:
+                vendor = app_helper.current_user_vendor(request.user)
+                vendor_refer = refer_models.VendorReferral.objects.get(vendor=vendor)
+                hasRefer = True
+            except (Exception, refer_models.VendorReferral.DoesNotExist) as e:
+                pass
+            if vendor:
+                context.update({"vendorId": vendor.id})
+            context.update({"hasRefer":hasRefer})
 
         if settings.HAS_OFFER_APP:
             if settings.MULTI_VENDOR and not request.user.is_superuser:

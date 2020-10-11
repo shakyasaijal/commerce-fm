@@ -1,0 +1,10 @@
+<div class="alert alert-danger alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <h4><i class="icon fa fa-info"></i> Alert!
+        <form method="POST" action="{% url 'vendor-refer-join' %}">{% csrf_token %}
+            <input type="hidden" name="vendorId" value="{{vendorId}}"/>
+            <button type="submit" class="pull-right btn btn-success btn-sm" onClick='return confirm("Do you want to activate refer feature now?")'>Click here to Register</button>
+        </form>
+    </h4>
+    You have not registered for referral feature. 
+</div>

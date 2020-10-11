@@ -17,3 +17,19 @@ if settings.HAS_REFERRAL_APP:
     admin.site.register(models.Referral, ReferAdmin)
     admin.site.register(models.Reward, RewardAdmin)
     admin.site.register(models.Block, BlockAdmin)
+
+
+if settings.HAS_VENDOR_REFERRAL_APP:
+    class VendorReferAdmin(admin.ModelAdmin):
+        list_display = ['vendor_name', 'refer_code']
+        search_fields = ['vendor_name', 'refer_code']
+
+    class VendorRewardAdmin(admin.ModelAdmin):
+        list_display = ['vendor_name']
+
+    class VendorBlockAdmin(admin.ModelAdmin):
+        list_display = ['data_hash', 'previous_has', 'genesis_block']
+
+    admin.site.register(models.VendorReferral, VendorReferAdmin)
+    admin.site.register(models.VendorReward, VendorRewardAdmin)
+    admin.site.register(models.VendorBlock, VendorBlockAdmin)
