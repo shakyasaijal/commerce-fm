@@ -27,7 +27,8 @@ class JoinReferral(mixins.CreateModelMixin, viewsets.GenericViewSet):
         except (Exception, refer_models.Referral.DoesNotExist):
             # Referal Activation
             code = utils._generate_code()
-            refer_url = settings.FRONTEND_REFER_URL+code
+
+            refer_url = settings.FRONTEND_REFER_URL+"{}:".format("urk")+code
             new_refer_member = refer_models.Referral.objects.create(
                 user=request.user, refer_code=code, refer_url=refer_url)
 
@@ -63,7 +64,9 @@ class ProcessReferral(mixins.CreateModelMixin, viewsets.GenericViewSet):
     permission_classes = [AllowAny]
 
     def create(self, request):
-        pk = request.data['refer_code']
+        refer_code = request.data['refer_code']
+        split_refer_code = refer_code.split(':')
+        code = split_refer_code[1]
         agent_data = utils.user_agent_data(request)
         agent_data.update({"ip": utils.get_ip(request)})
         key = utils.generate_refered_user_key(agent_data)
@@ -75,7 +78,7 @@ class ProcessReferral(mixins.CreateModelMixin, viewsets.GenericViewSet):
             pass
 
         try:
-            refer = refer_models.Referral.objects.get(refer_code=pk)
+            refer = refer_models.Referral.objects.get(refer_code=code)
             reward = refer_models.Reward.objects.get(referral=refer)
             reward.visited = reward.visited + 1
             reward.save()
