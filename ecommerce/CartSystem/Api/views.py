@@ -39,7 +39,7 @@ class WishlistToCart(mixins.CreateModelMixin, viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated, ]
 
     def create(self, request):
-        if not request.data["quantity"] or request.data["wishlistId"]:
+        if not request.data["quantity"] or not request.data["wishlistId"]:
             return Response({"status": False, "data": {"msg": "Data is missing. Please try again."}}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
@@ -56,3 +56,30 @@ class WishlistToCart(mixins.CreateModelMixin, viewsets.GenericViewSet):
             return Response({"status": True, "data": {"msg": "Successfully added to cart."}}, status=status.HTTP_200_OK)
         except (Exception, cart_models.WishList.DoesNotExist):
             return Response({"status": False, "data": {"msg": "Data not found."}}, status=status.HTTP_404_NOT_FOUND)
+
+
+class AddToCart(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    queryset = cart_models.AddToCart.objects.none()
+    serializer_class = cart_serializers.AddToCartSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def create(self, request):
+        try:
+            try:
+                quantity = request.data['quantity']
+                productId = request.data['productId']
+            except Exception:
+                return Response({"status": False, "data": {"msg": "Data is missing. Please try again."}}, status=status.HTTP_400_BAD_REQUEST)
+                
+            try:
+                product = product_models.Product.objects.get(
+                    id=productId)
+            except (product_models.Product.DoesNotExist, Exception) as e:
+                return Response({"status": False, "data": {"message": "Product not found."}}, status=status.HTTP_404_NOT_FOUND)
+            if not cart_helper.check_cart(request, product):
+                cart = cart_models.AddToCart.objects.create(user=request.user, product=product, quantity=quantity)
+                return Response({"status": True, "data": {"message": "Product added to cart."}}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({"status": True, "data": {"message": "Product available in cart."}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        except Exception:
+            return Response({"status": False, "data": {"message": "Something went wrong. Please try again."}}, status=status.HTTP_409_CONFLICT)

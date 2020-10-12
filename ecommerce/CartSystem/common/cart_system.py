@@ -1,3 +1,4 @@
+from django.db.models import Q
 from CartSystem import models as cart_models
 
 
@@ -50,3 +51,12 @@ def get_user_cart(request):
                 else:
                     item.delete()
     return data, total
+
+
+def check_cart(request, product):
+    try:
+        cart = cart_models.AddToCart.objects.get(
+            Q(product=product) & Q(user=request.user))
+        return True
+    except (Exception, cart_models.AddToCart.DoesNotExist):
+        return False
