@@ -6,7 +6,7 @@ all_navigation_routes = [
     {
         'title': 'dashboard',
         'url': reverse_lazy('vendor-home'),
-        'superuser': True,
+        'superuser': False,
         'icon': 'fa fa-dashboard',
         'service': '',
         'group': False,
@@ -15,7 +15,7 @@ all_navigation_routes = [
     {
         'title': 'groups and permissions',
         'url': reverse_lazy('vendor-groups'),
-        'superuser': True,
+        'superuser': False,
         'icon': 'fa fa-users',
         'service': '',
         'group': False,
@@ -25,7 +25,7 @@ all_navigation_routes = [
         'title': 'users',
         'url': reverse_lazy('vendor-users'),
         'service': '',
-        'superuser': True,
+        'superuser': False,
         'icon': 'fa fa-user',
         'group': False,
         'permission': 'api.view_user'

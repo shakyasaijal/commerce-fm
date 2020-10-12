@@ -4,6 +4,7 @@ from django.contrib.auth.models import Permission
 from django.conf import settings
 
 from Vendor import models as vendor_models
+from Referral import models as refer_models
 
 
 def excluding_permissions():
@@ -120,3 +121,19 @@ def access_management(permission, request):
             isOK = False
 
     return isOK
+
+
+def childBlocks(block):
+    hash_key = block.data_hash
+    count = 0
+
+    try:
+        while refer_models.VendorBlock.objects.get(previous_hash=hash_key):
+            block = refer_models.VendorBlock.objects.get(
+                previous_hash=hash_key)
+            hash_key = block.data_hash
+            count += 1
+    except (Exception, refer_models.VendorBlock.DoesNotExist) as e:
+        print(e)
+
+    return count

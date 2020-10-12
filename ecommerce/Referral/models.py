@@ -52,7 +52,7 @@ if settings.HAS_REFERRAL_APP:
         data = models.CharField(max_length=255, null=False, blank=False)
         data_hash = models.CharField(
             max_length=255, null=False, blank=False, unique=True)
-        previous_has = models.TextField(
+        previous_hash = models.TextField(
             null=False, blank=False, default="00xx00")
         genesis_block = models.BooleanField(
             null=False, blank=False, choices=modelHelper.genesis_block, default=False)
@@ -111,7 +111,7 @@ if settings.HAS_VENDOR_REFERRAL_APP:
         data = models.CharField(max_length=255, null=False, blank=False)
         data_hash = models.CharField(
             max_length=255, null=False, blank=False, unique=True)
-        previous_has = models.TextField(
+        previous_hash = models.TextField(
             null=False, blank=False, default="00xx00")
         genesis_block = models.BooleanField(
             null=False, blank=False, choices=modelHelper.genesis_block, default=False)

@@ -87,7 +87,14 @@ class IndexView(LoginRequiredMixin, View):
             try:
                 vendor = app_helper.current_user_vendor(request.user)
                 vendor_refer = refer_models.VendorReferral.objects.get(vendor=vendor)
+                context.update({"referCode": vendor_refer.refer_code, "referUrl":vendor_refer.refer_url})
+                refer_reward = refer_models.VendorReward.objects.get(referral=vendor_refer)
+                context.update({"referReward": refer_reward})
                 hasRefer = True
+                
+                block = refer_models.VendorBlock.objects.get(vendor=vendor)
+                child_block = app_helper.childBlocks(block)
+                context.update({"child_block": child_block})
             except (Exception, refer_models.VendorReferral.DoesNotExist) as e:
                 pass
             if vendor:
@@ -102,6 +109,7 @@ class IndexView(LoginRequiredMixin, View):
                 offers = offer_models.Offer.objects.all()
                 context.update({"first_offers": offer_models.Offer.objects.order_by('starts_from').first()})
             context.update({"offers": offers})
+
         return render(request, template_version+"/index.html", context=context)
 
 

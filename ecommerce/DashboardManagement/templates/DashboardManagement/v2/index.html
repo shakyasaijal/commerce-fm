@@ -1,9 +1,8 @@
 {% extends "DashboardManagement/v2/Partials/base.html" %}
+{% load static %}
 
 {% block content %}
-
 <section class="content-header">
-
 </section>
 <div class="content">
     {% if messages %}
@@ -11,11 +10,9 @@
     {% endif %}
     <div class="row">
         <div class="col-lg-3 col-xs-6">
-          <!-- small box -->
           <div class="small-box bg-aqua">
             <div class="inner">
               <h3>{{orders_count}}</h3>
-
               <p>New Orders</p>
             </div>
             <div class="icon">
@@ -24,9 +21,7 @@
             <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
-        <!-- ./col -->
         <div class="col-lg-3 col-xs-6">
-          <!-- small box -->
           <div class="small-box bg-yellow">
             <div class="inner">
               <h3>{{new_customers}}</h3>
@@ -38,9 +33,7 @@
             <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
-        <!-- ./col -->
         <div class="col-lg-3 col-xs-6">
-          <!-- small box -->
           <div class="small-box bg-green">
             <div class="inner">
               <h3>{{users}}</h3>
@@ -52,9 +45,7 @@
             <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
-        <!-- ./col -->
         <div class="col-lg-3 col-xs-6">
-            <!-- small box -->
             <div class="small-box bg-red">
               <div class="inner">
                 <h3>{{total_products}}</h3>
@@ -66,15 +57,87 @@
               <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
-          <!-- ./col -->
     </div>
     <div class="row">
       <div class="col-md-12">
-        {% if not hasRefer %}
+        {% if not hasRefer and not request.user.is_superuser %}
           {% include "DashboardManagement/v2/Views/ReferView/joinReferal.html" %}
         {% endif %}
       </div>
     </div>
+    {% if referCode and referReward and not request.user.is_superuser %}
+      <div class="row">
+        <div class="col-md-12">
+          <div class="box box-success">
+            <div class="box-header with-border">
+              <h3 class="box-title">Referal Analysis</h3>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+              </div>
+            </div>
+            <div class="box-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <p class="text-center">
+                    <strong>Refer Hits: 1 Jan, 2014 - 30 Jul, 2014</strong>
+                  </p>
+                  <div class="chart">
+                    <canvas id="salesChart" style="height: 180px;"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="box-footer">
+              <div class="row">
+                <div class="col-sm-3 col-xs-6">
+                  <div class="description-block border-right">
+                    <h5 class="description-header">{{referReward.visited}}</h5>
+                    <span class="description-text">TOTAL VISITS</span>
+                  </div>
+                </div>
+                <div class="col-sm-3 col-xs-6">
+                  <div class="description-block border-right">
+                    <h5 class="description-header">{{referReward.signed_up}}</h5>
+                    <span class="description-text">TOTAL SIGN UP</span>
+                  </div>
+                </div>
+                <div class="col-sm-3 col-xs-6">
+                  <div class="description-block border-right">
+                    <h5 class="description-header">{{referReward.buyed}}</h5>
+                    <span class="description-text">TOTAL CUSTOMER</span>
+                  </div>
+                </div>
+                <div class="col-sm-3 col-xs-6">
+                  <div class="description-block">
+                    <h5 class="description-header">{{child_block}}</h5>
+                    <span class="description-text">Descendant Made</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="box-footer">
+              <div class="row">
+                <div class="col-md-12">
+                  <table class="table table-sm table-responsive table-hoverable">
+                    <tr>
+                      <th>Refer Code</th>
+                      <td>vrk:{{referCode}}</td>
+                    </tr>
+                    <tr>
+                      <th>Refer Link</th>
+                      <td><input style="width: 100%;padding: 5px;border: 1px solid #b1acac;" type="text" value="{{referUrl}}" id="referUrl" /></td>
+                      <td><button class="btn btn-sm btn-success" onclick="copyToClipBoard()">COPY</button></td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
     <div class="row">
       <div class="col-md-4">
         {% if offers %}
@@ -95,7 +158,6 @@
                 <img src="{{first_offers.small_banner_image.url}}" alt="{{first_offers.title}}" />
               </div>
             </div>
-            <!-- /.chat -->
             <div class="box-footer">
               <div class="input-group">
                 <a href="{% url 'vendor-offers' %}">View All</a>
@@ -106,5 +168,69 @@
       </div>
     </div>
 </div>
-
 {% endblock content %}
+
+{% block js %}
+<script src="{% static 'DashboardManagement/v2/bower_components/chart.js/Chart.js' %}"></script>
+<script src="{% static 'DashboardManagement/v2/dist/js/clipboard.js' %}"></script>
+<script>
+
+  function copyToClipBoard(){
+      let copyText = document.getElementById("referUrl");
+      copyText.select();
+      copyText.setSelectionRange(0, 99999); /*For mobile devices*/
+      document.execCommand("copy");
+  }
+
+  $(function () {
+    'use strict';
+    var salesChartCanvas = $('#salesChart').get(0).getContext('2d');
+    var salesChart       = new Chart(salesChartCanvas);
+    var salesChartData = {
+      labels  : ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+      datasets: [
+        {
+          label               : 'Electronics',
+          fillColor           : 'rgb(210, 214, 222)',
+          strokeColor         : 'rgb(210, 214, 222)',
+          pointColor          : 'rgb(210, 214, 222)',
+          pointStrokeColor    : '#c1c7d1',
+          pointHighlightFill  : '#fff',
+          pointHighlightStroke: 'rgb(220,220,220)',
+          data                : [65, 59, 80, 81, 56, 55, 40]
+        },
+        {
+          label               : 'Digital Goods',
+          fillColor           : 'rgba(60,141,188,0.9)',
+          strokeColor         : 'rgba(60,141,188,0.8)',
+          pointColor          : '#3b8bba',
+          pointStrokeColor    : 'rgba(60,141,188,1)',
+          pointHighlightFill  : '#fff',
+          pointHighlightStroke: 'rgba(60,141,188,1)',
+          data                : [28, 48, 40, 19, 86, 27, 90]
+        }
+      ]
+    };
+    var salesChartOptions = {
+      showScale               : true,
+      scaleShowGridLines      : false,
+      scaleGridLineColor      : 'rgba(0,0,0,.05)',
+      scaleGridLineWidth      : 1,
+      scaleShowHorizontalLines: true,
+      scaleShowVerticalLines  : true,
+      bezierCurve             : true,
+      bezierCurveTension      : 0.3,
+      pointDot                : false,
+      pointDotRadius          : 4,
+      pointDotStrokeWidth     : 1,
+      pointHitDetectionRadius : 20,
+      datasetStroke           : true,
+      datasetStrokeWidth      : 2,
+      datasetFill             : true,
+      maintainAspectRatio     : true,
+      responsive              : true
+    };
+    salesChart.Line(salesChartData, salesChartOptions);
+  });
+</script>
+{% endblock js %}

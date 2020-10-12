@@ -12,7 +12,7 @@ if settings.HAS_REFERRAL_APP:
         list_display = ['user_full_name']
 
     class BlockAdmin(admin.ModelAdmin):
-        list_display = ['data_hash', 'previous_has', 'genesis_block']
+        list_display = ['data_hash', 'previous_hash', 'genesis_block']
 
     admin.site.register(models.Referral, ReferAdmin)
     admin.site.register(models.Reward, RewardAdmin)
@@ -28,7 +28,7 @@ if settings.HAS_VENDOR_REFERRAL_APP:
         list_display = ['vendor_name']
 
     class VendorBlockAdmin(admin.ModelAdmin):
-        list_display = ['data_hash', 'previous_has', 'genesis_block']
+        list_display = ['data_hash', 'previous_hash', 'genesis_block']
 
     admin.site.register(models.VendorReferral, VendorReferAdmin)
     admin.site.register(models.VendorReward, VendorRewardAdmin)
