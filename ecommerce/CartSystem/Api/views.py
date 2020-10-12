@@ -23,16 +23,6 @@ class Wishlist(mixins.ListModelMixin, viewsets.GenericViewSet):
         return Response({"status": True, "data": wishlist}, status=status.HTTP_200_OK)
 
 
-class CartItems(mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = cart_models.AddToCart.objects.none()
-    serializer_class = cart_serializers.AddToCartSerializer
-    permission_classes = [AllowAny, ]
-
-    def list(self, request):
-        cart = cart_helper.get_user_cart(request)
-        return Response({"status": True, "data": {"cartItem": cart[0], "grandTotal": cart[1]}}, status=status.HTTP_200_OK)
-
-
 class WishlistToCart(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = cart_models.WishList.objects.none()
     serializer_class = cart_serializers.WishlistProduct
@@ -58,7 +48,7 @@ class WishlistToCart(mixins.CreateModelMixin, viewsets.GenericViewSet):
             return Response({"status": False, "data": {"msg": "Data not found."}}, status=status.HTTP_404_NOT_FOUND)
 
 
-class AddToCart(mixins.CreateModelMixin, viewsets.GenericViewSet):
+class AddToCart(viewsets.ModelViewSet):
     queryset = cart_models.AddToCart.objects.none()
     serializer_class = cart_serializers.AddToCartSerializer
     permission_classes = [IsAuthenticated, ]
@@ -70,16 +60,49 @@ class AddToCart(mixins.CreateModelMixin, viewsets.GenericViewSet):
                 productId = request.data['productId']
             except Exception:
                 return Response({"status": False, "data": {"msg": "Data is missing. Please try again."}}, status=status.HTTP_400_BAD_REQUEST)
-                
+
             try:
                 product = product_models.Product.objects.get(
                     id=productId)
             except (product_models.Product.DoesNotExist, Exception) as e:
                 return Response({"status": False, "data": {"message": "Product not found."}}, status=status.HTTP_404_NOT_FOUND)
             if not cart_helper.check_cart(request, product):
-                cart = cart_models.AddToCart.objects.create(user=request.user, product=product, quantity=quantity)
+                cart = cart_models.AddToCart.objects.create(
+                    user=request.user, product=product, quantity=quantity)
                 return Response({"status": True, "data": {"message": "Product added to cart."}}, status=status.HTTP_201_CREATED)
             else:
                 return Response({"status": True, "data": {"message": "Product available in cart."}}, status=status.HTTP_406_NOT_ACCEPTABLE)
         except Exception:
             return Response({"status": False, "data": {"message": "Something went wrong. Please try again."}}, status=status.HTTP_409_CONFLICT)
+
+    def list(self, request):
+        cart = cart_helper.get_user_cart(request)
+        return Response({"status": True, "data": {"cartItem": cart[0], "grandTotal": cart[1]}}, status=status.HTTP_200_OK)
+
+    def update(self, request, pk):
+        try:
+            cart = cart_models.AddToCart.objects.get(pk=pk)
+            cart.quantity = request.data['quantity']
+            cart.save()
+            updated_cart = cart_helper.get_user_cart(request)
+            data = {
+                "totalPrice": cart.product.price * cart.quantity,
+                "grandTotal": updated_cart[1],
+                "msg": "Cart Updated."
+            }
+            return Response({"status": True, "data": data}, status=status.HTTP_200_OK)
+        except (cart_models.AddToCart.DoesNotExist, Exception) as e:
+            print(e)
+            return Response({"status": False, "data": {"message": "Cart not found. Please try again."}}, status=status.HTTP_404_NOT_FOUND)
+
+    def destroy(self, request, pk):
+        try:
+            cart_models.AddToCart.objects.get(pk=pk).delete()
+            updated_cart = cart_helper.get_user_cart(request)
+            data = {
+                "grandTotal": updated_cart[1],
+                "msg": "Item deleted from the cart."
+            }
+            return Response({"status": False, "data": data}, status=status.HTTP_200_OK)
+        except (Exception, cart_models.AddToCart.DoesNotExist):
+            return Response({"status": False, "data": {"message": "Cart not found."}}, status=status.HTTP_404_NOT_FOUND)
