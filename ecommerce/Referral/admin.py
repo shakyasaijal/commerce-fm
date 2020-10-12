@@ -33,3 +33,4 @@ if settings.HAS_VENDOR_REFERRAL_APP:
     admin.site.register(models.VendorReferral, VendorReferAdmin)
     admin.site.register(models.VendorReward, VendorRewardAdmin)
     admin.site.register(models.VendorBlock, VendorBlockAdmin)
+    admin.site.register(models.VendorKey)

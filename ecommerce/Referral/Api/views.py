@@ -64,27 +64,57 @@ class ProcessReferral(mixins.CreateModelMixin, viewsets.GenericViewSet):
     permission_classes = [AllowAny]
 
     def create(self, request):
-        refer_code = request.data['refer_code']
-        split_refer_code = refer_code.split(':')
-        code = split_refer_code[1]
+        try:
+            refer_code = request.data['refer_code']
+            split_refer_code = refer_code.split(':')
+            process_of = split_refer_code[0]
+            code = split_refer_code[1]
+        except (Exception, IndexError):
+            return Response({"status": False, "data": {"msg": "Something went wrong. Please try again."}}, status=status.HTTP_404_NOT_FOUND)
+
+
+        # Common
         agent_data = utils.user_agent_data(request)
         agent_data.update({"ip": utils.get_ip(request)})
-        key = utils.generate_refered_user_key(agent_data)
 
-        try:
-            refer_instance = refer_models.UserKey.objects.get(key=key)
-            return Response({"status": False, "data": {"msg": "You have already been referred by {}".format(refer_instance.referredFrom.user.get_full_name())}}, status=status.HTTP_406_NOT_ACCEPTABLE)
-        except (Exception, refer_models.UserKey.DoesNotExist):
-            pass
-
-        try:
-            refer = refer_models.Referral.objects.get(refer_code=code)
-            reward = refer_models.Reward.objects.get(referral=refer)
-            reward.visited = reward.visited + 1
-            reward.save()
-            refer_models.UserKey.objects.get_or_create(
-                key=key, referredFrom=refer)
-            return Response({"status": True, "data": {"__uik": key, "referredBy": refer.user.get_full_name()}}, status=status.HTTP_201_CREATED)
-        except (Exception, refer_models.Referral.DoesNotExist, refer_models.Reward.DoesNotExist) as e:
-            print(e)
+        if process_of == "urk":
+            try:
+                key = utils.generate_refered_user_key(agent_data, "user")
+                refer_instance = refer_models.UserKey.objects.get(key=key)
+                return Response({"status": False, "data": {"msg": "You have already been referred by {}".format(refer_instance.referredFrom.user.get_full_name())}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+            except (Exception, refer_models.UserKey.DoesNotExist):
+                pass
+            try:
+                refer = refer_models.Referral.objects.get(refer_code=code)
+                reward = refer_models.Reward.objects.get(referral=refer)
+                reward.visited = reward.visited + 1
+                reward.save()
+                refer_models.UserKey.objects.get_or_create(
+                    key=key, referredFrom=refer)
+                return Response({"status": True, "data": {"__uik": key, "referredBy": refer.user.get_full_name()}}, status=status.HTTP_201_CREATED)
+            except (Exception, refer_models.Referral.DoesNotExist, refer_models.Reward.DoesNotExist) as e:
+                print(e)
+                return Response({"status": False, "data": {"msg": "Refer code invalid."}}, status=status.HTTP_404_NOT_FOUND)
+        elif process_of == "vrk":
+            try:
+                key = utils.generate_refered_user_key(agent_data, "vendor")
+                vendorRefer_instance = refer_models.VendorKey.objects.get(
+                    key=key)
+                return Response({"status": False, "data": {"msg": "You have already been referred by {}".format(vendorRefer_instance.referredFrom.vendor.organizationName)}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+            except (Exception, refer_models.VendorKey.DoesNotExist) as e:
+                print(e)
+            try:
+                vendor_refer = refer_models.VendorReferral.objects.get(
+                    refer_code=code)
+                vendor_reward = refer_models.VendorReward.objects.get(
+                    referral=vendor_refer)
+                vendor_reward.visited = vendor_reward.visited+1
+                vendor_reward.save()
+                refer_models.VendorKey.objects.get_or_create(
+                    key=key, referredFrom=vendor_refer)
+                return Response({"status": True, "data": {"__uik": key, "referredBy": vendor_refer.vendor.organizationName}}, status=status.HTTP_201_CREATED)
+            except (Exception, refer_models.VendorReferral.DoesNotExist, refer_models.VendorReward.DoesNotExist) as e:
+                print(e)
+                return Response({"status": False, "data": {"msg": "Refer code invalid."}}, status=status.HTTP_404_NOT_FOUND)
+        else:
             return Response({"status": False, "data": {"msg": "Refer code invalid."}}, status=status.HTTP_404_NOT_FOUND)

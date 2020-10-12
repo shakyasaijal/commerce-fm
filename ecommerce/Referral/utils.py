@@ -41,8 +41,12 @@ def hash_data(data):
     return hashlib.sha256(data.encode()).hexdigest()
 
 
-def generate_refered_user_key(data):
+def generate_refered_user_key(data, key_of="user"):
     uik = hash_data(str(data))
+    if key_of == "user":
+        uik = "urk:"+uik
+    else:
+        uik = "vrk:"+uik
     return uik
 
 
