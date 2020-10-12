@@ -22,6 +22,7 @@ from DashboardManagement.common import emails as send_email
 from OrderAndDelivery import models as order_models
 from Products import models as product_models
 from Analytics import views as analytics_views
+from Vendor import utils as vendor_utils
 
 
 template_version = "DashboardManagement/v1"
@@ -371,7 +372,7 @@ class VendorDetails(LoginRequiredMixin, View):
             context.update({"remaining_orders": remaining_orders.count()})
             remaining_orders_of_all = order_models.Order.objects.filter( ~Q(status=3)).count()
             context.update({"remaining_orders_of_all": remaining_orders_of_all})
-            r_percentage_covered = round((remaining_orders.count()/remaining_orders_of_all)*100, 2)
+            r_percentage_covered = round((remaining_orders.count()/remaining_orders_of_all)*100, 2) if remaining_orders_of_all > 0 else 0
             context.update({"r_percentage_covered": r_percentage_covered})
 
             '''
@@ -383,7 +384,7 @@ class VendorDetails(LoginRequiredMixin, View):
             context.update({"delivered_orders": delivered_orders.count()})
             delivered_orders_of_all = order_models.Order.delivered_objects.filter().count()
             context.update({"delivered_orders_of_all": delivered_orders_of_all})
-            d_percentage_covered = round((delivered_orders.count()/delivered_orders_of_all)*100, 2)
+            d_percentage_covered = round((delivered_orders.count()/delivered_orders_of_all)*100, 2) if delivered_orders_of_all > 0 else 0
             context.update({"d_percentage_covered": d_percentage_covered})
 
             # Vendor User
@@ -396,7 +397,7 @@ class VendorDetails(LoginRequiredMixin, View):
             context.update({"vendor_users": vendor_users})
             all_vendor_user = vendor_models.Vendor.objects.aggregate(total=Count('vendorUsers'))['total']
             context.update({"all_vendor_user": all_vendor_user})
-            vu_percentage_covered = round((vendor_users/all_vendor_user)*100, 2)
+            vu_percentage_covered = round((vendor_users/all_vendor_user)*100, 2) if all_vendor_user > 0 else 0
             context.update({"vu_percentage_covered": vu_percentage_covered})
 
 
@@ -411,7 +412,7 @@ class VendorDetails(LoginRequiredMixin, View):
             context.update({"products": products})
             all_products = product_models.Product.objects.all().count()
             context.update({"all_products": all_products})
-            p_percentage_covered = round((products/all_products)*100, 2)
+            p_percentage_covered = round((products/all_products)*100, 2) if all_products > 0 else 0
             context.update({"p_percentage_covered": p_percentage_covered})
 
             recent_added_products = product_models.Product.objects.filter(vendor=vendor).order_by('-created_at')[:5]
@@ -457,13 +458,17 @@ class VendorDetails(LoginRequiredMixin, View):
             context.update({"groups": groups})
             all_groups = Group.objects.count()
             context.update({"all_groups": all_groups})
-            g_percentage_covered = round((groups/all_groups)*100, 2)
+            g_percentage_covered = round((groups/all_groups)*100, 2) if all_groups > 0 else 0
             context.update({"g_percentage_covered": g_percentage_covered})
+
+            # Refer Analysis
+            vendorReferaAnalysis = vendor_utils.vendor_refer_analysis(vendor=vendor)
+            context.update(vendorReferaAnalysis)
 
             # print(request.headers['Referer'])
             return render(request, template_version+"/Views/VendorView/details.html", context=context)
         except (Exception, vendor_models.VendorRequest.DoesNotExist) as e:
-            print(e)
+            print("Admin Vendor Details: ", e)
             messages.error(request, "Vendor does not exists.")
             return HttpResponseRedirect(reverse('vendor-vendors'))
 

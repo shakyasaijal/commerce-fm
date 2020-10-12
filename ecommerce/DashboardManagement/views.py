@@ -28,6 +28,7 @@ from DashboardManagement.common import validation as validations
 from Analytics import views as analytics_views
 from Offer import models as offer_models
 from Referral import models as refer_models
+from Vendor import utils as vendor_utils
 
 
 template_version = "DashboardManagement/v1"
@@ -87,15 +88,11 @@ class IndexView(LoginRequiredMixin, View):
             try:
                 vendor = app_helper.current_user_vendor(request.user)
                 vendor_refer = refer_models.VendorReferral.objects.get(vendor=vendor)
-                context.update({"referCode": vendor_refer.refer_code, "referUrl":vendor_refer.refer_url})
-                refer_reward = refer_models.VendorReward.objects.get(referral=vendor_refer)
-                context.update({"referReward": refer_reward})
                 hasRefer = True
-                
-                block = refer_models.VendorBlock.objects.get(vendor=vendor)
-                child_block = app_helper.childBlocks(block)
-                context.update({"child_block": child_block})
+                vendorReferData = vendor_utils.vendor_refer_analysis(vendor)
+                context.update(vendorReferData)
             except (Exception, refer_models.VendorReferral.DoesNotExist) as e:
+                print(e, ">")
                 pass
             if vendor:
                 context.update({"vendorId": vendor.id})

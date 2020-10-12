@@ -66,77 +66,7 @@
       </div>
     </div>
     {% if referCode and referReward and not request.user.is_superuser %}
-      <div class="row">
-        <div class="col-md-12">
-          <div class="box box-success">
-            <div class="box-header with-border">
-              <h3 class="box-title">Referal Analysis</h3>
-              <div class="box-tools pull-right">
-                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                </button>
-                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-              </div>
-            </div>
-            <div class="box-body">
-              <div class="row">
-                <div class="col-md-12">
-                  <p class="text-center">
-                    <strong>Refer Hits: 1 Jan, 2014 - 30 Jul, 2014</strong>
-                  </p>
-                  <div class="chart">
-                    <canvas id="salesChart" style="height: 180px;"></canvas>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="box-footer">
-              <div class="row">
-                <div class="col-sm-3 col-xs-6">
-                  <div class="description-block border-right">
-                    <h5 class="description-header">{{referReward.visited}}</h5>
-                    <span class="description-text">TOTAL VISITS</span>
-                  </div>
-                </div>
-                <div class="col-sm-3 col-xs-6">
-                  <div class="description-block border-right">
-                    <h5 class="description-header">{{referReward.signed_up}}</h5>
-                    <span class="description-text">TOTAL SIGN UP</span>
-                  </div>
-                </div>
-                <div class="col-sm-3 col-xs-6">
-                  <div class="description-block border-right">
-                    <h5 class="description-header">{{referReward.buyed}}</h5>
-                    <span class="description-text">TOTAL CUSTOMER</span>
-                  </div>
-                </div>
-                <div class="col-sm-3 col-xs-6">
-                  <div class="description-block">
-                    <h5 class="description-header">{{child_block}}</h5>
-                    <span class="description-text">Descendant Made</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="box-footer">
-              <div class="row">
-                <div class="col-md-12">
-                  <table class="table table-sm table-responsive table-hoverable">
-                    <tr>
-                      <th>Refer Code</th>
-                      <td>vrk:{{referCode}}</td>
-                    </tr>
-                    <tr>
-                      <th>Refer Link</th>
-                      <td><input style="width: 100%;padding: 5px;border: 1px solid #b1acac;" type="text" value="{{referUrl}}" id="referUrl" /></td>
-                      <td><button class="btn btn-sm btn-success" onclick="copyToClipBoard()">COPY</button></td>
-                    </tr>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {% include 'DashboardManagement/v2/Views/ReferView/referAnalysis.html' %}
     {% endif %}
     <div class="row">
       <div class="col-md-4">
@@ -172,7 +102,6 @@
 
 {% block js %}
 <script src="{% static 'DashboardManagement/v2/bower_components/chart.js/Chart.js' %}"></script>
-<script src="{% static 'DashboardManagement/v2/dist/js/clipboard.js' %}"></script>
 <script>
 
   function copyToClipBoard(){
