@@ -128,9 +128,9 @@ def childBlocks(block):
     count = 0
 
     try:
-        while refer_models.VendorBlock.objects.get(previous_hash=hash_key):
-            block = refer_models.VendorBlock.objects.get(
-                previous_hash=hash_key)
+        while refer_models.VendorBlock.objects.filter(previous_hash=hash_key):
+            block = refer_models.VendorBlock.objects.filter(
+                previous_hash=hash_key)[0]
             hash_key = block.data_hash
             count += 1
     except (Exception, refer_models.VendorBlock.DoesNotExist) as e:

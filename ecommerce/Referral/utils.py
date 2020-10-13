@@ -79,3 +79,19 @@ def user_agent_data(request):
         "deviceBrand": parse_agent.device.brand or ""
     }
     return data
+
+
+def childBlocks(block):
+    hash_key = block.data_hash
+    count = 0
+
+    try:
+        while refer_models.Block.objects.filter(previous_hash=hash_key):
+            block = refer_models.Block.objects.filter(
+                previous_hash=hash_key)[0]
+            hash_key = block.data_hash
+            count += 1
+    except (Exception, refer_models.Block.DoesNotExist) as e:
+        print(e)
+
+    return count

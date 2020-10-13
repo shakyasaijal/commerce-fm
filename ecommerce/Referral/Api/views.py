@@ -72,7 +72,6 @@ class ProcessReferral(mixins.CreateModelMixin, viewsets.GenericViewSet):
         except (Exception, IndexError):
             return Response({"status": False, "data": {"msg": "Something went wrong. Please try again."}}, status=status.HTTP_404_NOT_FOUND)
 
-
         # Common
         agent_data = utils.user_agent_data(request)
         agent_data.update({"ip": utils.get_ip(request)})
@@ -118,3 +117,30 @@ class ProcessReferral(mixins.CreateModelMixin, viewsets.GenericViewSet):
                 return Response({"status": False, "data": {"msg": "Refer code invalid."}}, status=status.HTTP_404_NOT_FOUND)
         else:
             return Response({"status": False, "data": {"msg": "Refer code invalid."}}, status=status.HTTP_404_NOT_FOUND)
+
+
+class Analytics(viewsets.ModelViewSet):
+    queryset = refer_models.Referral.objects.none()
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        try:
+            user_referal = refer_models.Referral.objects.get(user=request.user)
+            data = {
+                "referCode": user_referal.refer_code,
+                "referUrl": user_referal.refer_url
+            }
+            user_reward = refer_models.Reward.objects.get(
+                referral=user_referal)
+            data.update({
+                "points": user_reward.points,
+                "visited": user_reward.visited,
+                "signedUp": user_reward.signed_up,
+                "buyed": user_reward.buyed
+            })
+            user_block = refer_models.Block.objects.get(user=request.user)
+            descendant = utils.childBlocks(user_block)
+            data.update({"descendantMade": descendant})
+            return Response({"data": data}, status=status.HTTP_200_OK)
+        except (Exception, refer_models.Referral.DoesNotExist, refer_models.Reward.DoesNotExist):
+            return Response({"status": False, "data": {"msg": "You have not activated refer account."}}, status=status.HTTP_404_NOT_FOUND)
