@@ -182,6 +182,33 @@ class ProductImage(models.Model):
     image_tag.short_description = 'Image'
 
 
+class Comment(user_models.AbstractTimeStamp):
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(
+        user_models.User, on_delete=models.CASCADE, related_name='user')
+    body = models.TextField(null=False, blank=False)
+    approved_comment = models.BooleanField(default=False)
+    parent = models.OneToOneField(
+        'self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
+
+    class Meta:
+        permissions = [
+            ("view_reply", "Can view comments reply."),
+            ("delete_reply", "Can delete comments reply"),
+            ("change_reply", "Can change comments reply."),
+            ("create_reply", "Can give reply to comments"),
+            ("approve_reply", "Can approve comments"),
+            ("disapprove_reply", "Can disapprove comments"),
+        ]
+
+    def approve(self):
+        self.approved_comment = not self.approved_comment
+
+    def __str__(self):
+        return 'Comment by {}'.format(self.user.get_full_name())
+
+
 @receiver(models.signals.post_delete, sender=Category)
 @receiver(models.signals.post_delete, sender=Product)
 @receiver(models.signals.post_delete, sender=ProductImage)

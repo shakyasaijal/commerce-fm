@@ -101,3 +101,57 @@ class CategoryInfo(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         except (Exception) as e:
             print(e)
             return Response({"status": False, "data": {"msg": "Category not found."}}, status=status.HTTP_404_NOT_FOUND)
+
+
+class PopularCategory(viewsets.ModelViewSet):
+    queryset = product_models.Category.objects.none()
+    permission_classes = [AllowAny]
+
+    def list(self, request):
+        # Max Sold
+        # Mostly Searched
+        # Wishlisted
+        # In Cart
+        # Mostly viewed
+        return Response({"data": "On Progress"}, status=status.HTTP_200_OK)
+
+
+class CommentProduct(mixins.CreateModelMixin,
+                     viewsets.GenericViewSet):
+    serializer_class = product_serializers.CommentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request):
+        serializer = product_serializers.CommentSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                product = product_models.Product.objects.get(
+                    id=request.data['productId'])
+            except (Exception, product_models.Product.DoesNotExist):
+                return Response({"data": {"message": "Product does not exists."}}, status=status.HTTP_404_NOT_FOUND)
+
+            if request.data['commentId']:
+                try:
+                    parent_comment = product_models.Comment.objects.get(
+                        id=request.data['commentId'])
+                    if not parent_comment.parent:
+                        comment = product_models.Comment.objects.create(
+                            body=request.data['comment'], user=request.user, product=product, parent=parent_comment)
+                    else:
+                        return Response({"data": {"message": "Cannot reply. Already replied to this comment/ Comment does not exists"}}, status=status.HTTP_404_NOT_FOUND)
+                except (Exception, product_models.Comment.DoesNotExist):
+                    return Response({"data": {"message": "Cannot reply. Already replied to this comment/ Comment does not exists."}}, status=status.HTTP_404_NOT_FOUND)
+            else:
+                comment = product_models.Comment.objects.create(
+                    body=request.data['comment'], user=request.user, product=product)
+            parentComment = None
+            if comment.parent:
+                parentComment = comment.parent.id
+            data = {
+                'commentId': comment.id,
+                'comment': comment.body,
+                'parentCommentId': parentComment
+            }
+            return Response({"status": True, "data": data}, status=status.HTTP_200_OK)
+
+        return Response({"data": {"message": serializer.errors}}, status=status.HTTP_406_NOT_ACCEPTABLE)
