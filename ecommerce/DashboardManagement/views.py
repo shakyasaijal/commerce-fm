@@ -87,7 +87,8 @@ class IndexView(LoginRequiredMixin, View):
             hasRefer = False
             try:
                 vendor = app_helper.current_user_vendor(request.user)
-                vendor_refer = refer_models.VendorReferral.objects.get(vendor=vendor)
+                vendor_refer = refer_models.VendorReferral.objects.get(
+                    vendor=vendor)
                 hasRefer = True
                 vendorReferData = vendor_utils.vendor_refer_analysis(vendor)
                 context.update(vendorReferData)
@@ -96,16 +97,25 @@ class IndexView(LoginRequiredMixin, View):
                 pass
             if vendor:
                 context.update({"vendorId": vendor.id})
-            context.update({"hasRefer":hasRefer})
+            context.update({"hasRefer": hasRefer})
 
         if settings.HAS_OFFER_APP:
             if settings.MULTI_VENDOR and not request.user.is_superuser:
-                offers = offer_models.Offer.objects.filter(vendor=app_helper.current_user_vendor(request.user)).count()
-                context.update({"first_offers": offer_models.Offer.objects.filter(vendor=app_helper.current_user_vendor(request.user)).order_by('starts_from').first()})
+                offers = offer_models.Offer.objects.filter(
+                    vendor=app_helper.current_user_vendor(request.user)).count()
+                context.update({"first_offers": offer_models.Offer.objects.filter(
+                    vendor=app_helper.current_user_vendor(request.user)).order_by('starts_from').first()})
             else:
                 offers = offer_models.Offer.objects.all()
-                context.update({"first_offers": offer_models.Offer.objects.order_by('starts_from').first()})
+                context.update(
+                    {"first_offers": offer_models.Offer.objects.order_by('starts_from').first()})
             context.update({"offers": offers})
+
+        if settings.MULTI_VENDOR:
+            vendor = app_helper.current_user_vendor(request.user)
+            notices = vendor_models.NoticeToVendors.objects.filter(
+                vendors=vendor, display=True).order_by('-importance')
+            context.update({"notices": notices})
 
         return render(request, template_version+"/index.html", context=context)
 
@@ -133,7 +143,7 @@ class LoginView(View):
                                 login_user = True
                 else:
                     if user.is_superuser:
-                        login_user = True   
+                        login_user = True
                 if login_user:
                     login(request, user)
                     messages.success(request, 'You are now logged in.')

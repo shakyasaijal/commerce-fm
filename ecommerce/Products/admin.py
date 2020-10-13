@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.conf import settings
+
 from . import models
 
 # Register your models here.
@@ -40,3 +42,7 @@ admin.site.register(models.Brand)
 admin.site.register(models.Category, CategoryAdmin)
 admin.site.register(models.Product, ProductAdmin)
 admin.site.register(models.Comment)
+
+
+if settings.MULTI_VENDOR:
+    admin.site.register(models.NewCategoryRequest)

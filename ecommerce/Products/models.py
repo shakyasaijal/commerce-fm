@@ -8,6 +8,7 @@ from ckeditor.fields import RichTextField
 
 from helper import modelHelper
 from User import models as user_models
+from Vendor import models as vendor_models
 
 
 def category_image_name_change(instance, filename):
@@ -207,6 +208,20 @@ class Comment(user_models.AbstractTimeStamp):
 
     def __str__(self):
         return 'Comment by {}'.format(self.user.get_full_name())
+
+
+if settings.MULTI_VENDOR:
+    class NewCategoryRequest(user_models.AbstractTimeStamp):
+        user = models.ForeignKey(
+            user_models.User, on_delete=models.CASCADE, null=False, blank=False)
+        vendor = models.ForeignKey(
+            vendor_models.Vendor, on_delete=models.CASCADE, null=False, blank=False)
+        categoryName = models.CharField(
+            max_length=255, null=False, blank=False)
+        describe = models.TextField(null=True, blank=True)
+
+        def __str__(self):
+            return self.vendor.organizationName
 
 
 @receiver(models.signals.post_delete, sender=Category)

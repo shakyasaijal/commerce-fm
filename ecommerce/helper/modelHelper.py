@@ -36,3 +36,14 @@ genesis_block = (
     (True, "Is a Genesis Block."),
     (False, "Is not a Genesis Block."),
 )
+
+notice_status = (
+    (True, "Send Notice Now"),
+    (False, "Don't Send Notice Now"),
+)
+
+importance_status = (
+    (1, "Critical"),
+    (2, "Very Important"),
+    (3, "Important")
+)
