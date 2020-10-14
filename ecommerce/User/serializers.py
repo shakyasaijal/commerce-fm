@@ -43,3 +43,12 @@ class PasswordSerializer(serializers.Serializer):
     oldPassword = serializers.CharField(required=True)
     newPassword = serializers.CharField(required=True)
     confirmPassword = serializers.CharField(required=True)
+
+
+class CompleteProfile(serializers.Serializer):
+    phone = serializers.CharField(required=False, allow_blank=True)
+    address = serializers.CharField(required=False, allow_blank=True)
+    district = serializers.CharField(required=False, allow_blank=True)
+    referedBy = serializers.CharField(required=False, allow_blank=True)
+    interests = serializers.ListField(
+        child=serializers.CharField(allow_blank=True))

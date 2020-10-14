@@ -47,6 +47,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     google_id = models.CharField(max_length=255, null=True, blank=True)
     facebook_id = models.CharField(max_length=255, null=True, blank=True)
 
+    if settings.HAS_REFERRAL_APP or settings.HAS_VENDOR_REFERRAL_APP:
+        referedByUser = models.ForeignKey(
+            'self', on_delete=models.PROTECT, null=True, blank=True, related_name='refered_by_user')
+
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', ]
 
@@ -101,7 +105,8 @@ class UserManager(BaseUserManager):
 
 
 class CityFromIpAddress(models.Model):
-    city = models.CharField(max_length=255, null=False, blank=False, unique=True)
+    city = models.CharField(max_length=255, null=False,
+                            blank=False, unique=True)
 
     def __str__(self):
         return self.city
@@ -112,12 +117,14 @@ class CityFromIpAddress(models.Model):
 
 
 class IpAddress(models.Model):
-    ip = models.GenericIPAddressField(protocol="both", unpack_ipv4=False, null=False, blank=False, unique=True)
-    city = models.ForeignKey(CityFromIpAddress, on_delete=models.SET_NULL, null=True, blank=True)
+    ip = models.GenericIPAddressField(
+        protocol="both", unpack_ipv4=False, null=False, blank=False, unique=True)
+    city = models.ForeignKey(
+        CityFromIpAddress, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.ip
-    
+
     class Meta:
         verbose_name = "Ip Address"
         verbose_name_plural = "Ip Addresses"
@@ -127,11 +134,14 @@ if settings.HAS_ADDITIONAL_USER_DATA:
     class UserProfile(models.Model):
         user = models.OneToOneField(
             User, verbose_name="User", on_delete=models.CASCADE, related_name="user_profile")
-        district = models.ForeignKey("CartSystem.Location", null=True, blank=True, on_delete=models.CASCADE)
+        district = models.ForeignKey(
+            "CartSystem.Location", null=True, blank=True, on_delete=models.CASCADE)
         phone = models.CharField(max_length=255, null=False, blank=False)
         address = models.CharField(max_length=255, null=False, blank=False)
-        interested_category = models.ManyToManyField("Products.Category", blank=True,  related_name="users_interests")
-        ip = models.ManyToManyField(IpAddress, blank=True, related_name="user_ip")
+        interested_category = models.ManyToManyField(
+            "Products.Category", blank=True,  related_name="users_interests")
+        ip = models.ManyToManyField(
+            IpAddress, blank=True, related_name="user_ip")
 
         def __str__(self):
             return self.phone

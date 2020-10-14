@@ -148,3 +148,12 @@ def password_changed_email_without_delay(subject, data):
         print(e)
         return False
     return True
+
+
+def complete_profile(request):
+    err = None
+
+    if not request.data['phone'].strip() or not request.data['address'].strip() or not request.data['district'].strip():
+        err = "All fields are required."
+        return err
+    return err

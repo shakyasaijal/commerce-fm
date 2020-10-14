@@ -14,7 +14,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from User import models as user_models
 from User import serializers as user_serializers
 from DashboardManagement.common import emails as send_email
+from CartSystem import models as cart_models
 from User import utils as user_utils
+from Products import models as product_models
 from Referral import utils as refer_utils
 
 
@@ -250,9 +252,11 @@ class ChangePassword(mixins.CreateModelMixin,
                 }
                 email_data.update(agent_data)
                 if settings.CELERY_FOR_EMAIL:
-                    user_utils.password_changed_email_with_delay("[IMP] Password Changed", email_data)
+                    user_utils.password_changed_email_with_delay(
+                        "[IMP] Password Changed", email_data)
                 else:
-                    user_utils.password_changed_email_without_delay("[IMP] Password Changed", email_data)
+                    user_utils.password_changed_email_without_delay(
+                        "[IMP] Password Changed", email_data)
             except Exception as e:
                 print(e)
                 pass
@@ -264,5 +268,52 @@ class ChangePassword(mixins.CreateModelMixin,
                 "refreshToken": str(token)
             }
             return Response({"status": True, "data": data}, status=status.HTTP_200_OK)
+
+        return Response({"status": False, "data": {"message": serializer.errors}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+class CompleteProfile(mixins.CreateModelMixin,
+                      viewsets.GenericViewSet):
+    serializer_class = user_serializers.CompleteProfile
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request):
+        serializer = user_serializers.CompleteProfile(data=request.data)
+        if serializer.is_valid():
+            err = user_utils.complete_profile(request)
+            if err:
+                return Response({"status": False, "data": {"message": err}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+            try:
+                location = cart_models.Location.objects.get(
+                    district=serializer.data.get("district"))
+            except (Exception, cart_models.Location.DoesNotExist):
+                return Response({"status": False, "data": {"message": "Invalid District Name."}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+            # try:
+            #     marketing = api_models.Marketing.objects.get(
+            #         name=request.data['referedBy'])
+            # except api_models.Marketing.DoesNotExist:
+            #     marketing = api_models.Marketing.objects.create(
+            #         name=request.data['referedBy'])
+
+            categories = []
+            for id in request.data['interests']:
+                try:
+                    category = product_models.Category.objects.get(id=id)
+                    categories.append(category)
+                except (Exception, product_models.Category.DoesNotExist):
+                    pass
+            new_user_profile = user_models.UserProfile.objects.create(
+                user=request.user, district=location, phone=request.data['phone'], address=serializer.data.get("address"))
+            new_user_profile.interested_category.add(*categories)
+            try:
+                ip = refer_utils.get_ip(request)
+                ip_object = user_models.IpAddress.objects.get_or_create(ip=ip)
+                new_user_profile.ip.add(ip_object[0])
+            except (Exception, user_models.IpAddress.DoesNotExist) as e:
+                print(e)
+                pass
+            new_user_profile.save()
+            return Response({"status": True, "data": {"message": "Thank You. Your profile has been completed. Enjoy your shopping."}}, status=status.HTTP_200_OK)
 
         return Response({"status": False, "data": {"message": serializer.errors}}, status=status.HTTP_406_NOT_ACCEPTABLE)
