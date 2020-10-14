@@ -20,7 +20,7 @@ class JoinReferral(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def create(self, request):
         try:
             referUser = refer_models.Referral.objects.get(user=request.user)
-            data = {
+            responseData = {
                 "referCode": referUser.refer_code,
                 "referUrl": referUser.refer_url
             }
@@ -51,12 +51,12 @@ class JoinReferral(mixins.CreateModelMixin, viewsets.GenericViewSet):
             refer_models.Block.objects.create(
                 data=str(data), data_hash=data_hash, genesis_block=genesis, user=request.user)
 
-            response = {
+            responseData = {
                 "referCode": code,
                 "referUrl": refer_url,
                 "data": data
             }
-        return Response({"status": True, "data": {"code": response}}, status=status.HTTP_200_OK)
+        return Response({"status": True, "data": {"code": responseData}}, status=status.HTTP_200_OK)
 
 
 class ProcessReferral(mixins.CreateModelMixin, viewsets.GenericViewSet):

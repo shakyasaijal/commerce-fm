@@ -8,11 +8,14 @@ from django.contrib.auth import authenticate, logout
 import jwt
 import requests
 import json
+import time
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from User import models as user_models
 from User import serializers as user_serializers
 from DashboardManagement.common import emails as send_email
+from User import utils as user_utils
+from Referral import utils as refer_utils
 
 
 class RegisterUser(mixins.CreateModelMixin,
@@ -45,12 +48,18 @@ class RegisterUser(mixins.CreateModelMixin,
             try:
                 user = user_models.User.objects.get(
                     email=request.data["email"])
+
+                # Participate in block of chain
+                block_chain = user_utils.participate_on_chain_of_referral(
+                    user, request)
+
                 token = RefreshToken.for_user(user)
                 data = {
                     "email": user.email,
                     "isVerified": user.is_verified,
                     "accessToken": str(token.access_token),
-                    "refreshToken": str(token)
+                    "refreshToken": str(token),
+                    "blockChain": block_chain[1].user.get_full_name() if block_chain[0] else None
                 }
                 return Response({"status": True, "data": data}, status=status.HTTP_200_OK)
             except (user_models.User.DoesNotExist):
@@ -212,3 +221,48 @@ class FacebookLogin(mixins.CreateModelMixin,
             except Exception as e:
                 print(e)
                 return Response({"status": False, "data": {"message": 'Could not login with facebook.Please Try again'}}, status=status.HTTP_409_CONFLICT)
+
+
+class ChangePassword(mixins.CreateModelMixin,
+                     viewsets.GenericViewSet):
+    serializer_class = user_serializers.PasswordSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request):
+        serializer = user_serializers.PasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            error = user_utils.change_password(request)
+            if error:
+                return Response({"status": False, "data": {"message": error}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+            if not request.user.check_password(serializer.data.get("oldPassword")):
+                return Response({"status": False, "data": {"message": "Wrong password."}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+            request.user.set_password(serializer.data.get("newPassword"))
+            request.user.save()
+
+            # Send Email
+            try:
+                agent_data = refer_utils.user_agent_data(request)
+                email_data = {
+                    "full_name": request.user.get_full_name(),
+                    "email": request.user.email
+                }
+                email_data.update(agent_data)
+                if settings.CELERY_FOR_EMAIL:
+                    user_utils.password_changed_email_with_delay("[IMP] Password Changed", email_data)
+                else:
+                    user_utils.password_changed_email_without_delay("[IMP] Password Changed", email_data)
+            except Exception as e:
+                print(e)
+                pass
+
+            token = RefreshToken.for_user(request.user)
+            data = {
+                "isVerified": request.user.is_verified,
+                "accessToken": str(token.access_token),
+                "refreshToken": str(token)
+            }
+            return Response({"status": True, "data": data}, status=status.HTTP_200_OK)
+
+        return Response({"status": False, "data": {"message": serializer.errors}}, status=status.HTTP_406_NOT_ACCEPTABLE)

@@ -37,3 +37,9 @@ class GoogleLoginSerializer(serializers.Serializer):
 
 class FacebookLoginSerializer(serializers.Serializer):
     accessToken = serializers.CharField(required=True)
+
+
+class PasswordSerializer(serializers.Serializer):
+    oldPassword = serializers.CharField(required=True)
+    newPassword = serializers.CharField(required=True)
+    confirmPassword = serializers.CharField(required=True)
