@@ -18,6 +18,7 @@ from CartSystem import models as cart_models
 from User import utils as user_utils
 from Products import models as product_models
 from Referral import utils as refer_utils
+from User import celery as user_celery
 
 
 class RegisterUser(mixins.CreateModelMixin,
@@ -52,8 +53,9 @@ class RegisterUser(mixins.CreateModelMixin,
                     email=request.data["email"])
 
                 # Participate in block of chain
-                block_chain = user_utils.participate_on_chain_of_referral(
-                    user, request)
+                if settings.HAS_REFERRAL_APP or settings.HAS_VENDOR_REFERRAL_APP:
+                    block_chain = user_utils.participate_on_chain_of_referral(
+                        user, request)
 
                 token = RefreshToken.for_user(user)
                 data = {
@@ -252,7 +254,7 @@ class ChangePassword(mixins.CreateModelMixin,
                 }
                 email_data.update(agent_data)
                 if settings.CELERY_FOR_EMAIL:
-                    user_utils.password_changed_email_with_delay(
+                    user_utils.password_changed_email_with_delay.delay(
                         "[IMP] Password Changed", email_data)
                 else:
                     user_utils.password_changed_email_without_delay(
@@ -312,6 +314,14 @@ class CompleteProfile(mixins.CreateModelMixin,
                 new_user_profile.ip.add(ip_object[0])
             except (Exception, user_models.IpAddress.DoesNotExist) as e:
                 print(e)
+                pass
+            try:
+                market = user_models.Marketing.objects.get(
+                    id=request.data['market'])
+                market.count = market.count + 1
+                market.save()
+                new_user_profile.marketing = market
+            except (Exception, user_models.Marketing.DoesNotExist):
                 pass
             new_user_profile.save()
             return Response({"status": True, "data": {"message": "Thank You. Your profile has been completed. Enjoy your shopping."}}, status=status.HTTP_200_OK)

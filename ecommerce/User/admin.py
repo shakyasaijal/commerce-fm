@@ -31,3 +31,4 @@ class UserAdmin(admin.ModelAdmin):
 admin.site.register(models.User, UserAdmin)
 admin.site.register(models.IpAddress)
 admin.site.register(models.CityFromIpAddress)
+admin.site.register(models.Marketing)

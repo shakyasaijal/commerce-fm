@@ -157,3 +157,4 @@ def complete_profile(request):
         err = "All fields are required."
         return err
     return err
+

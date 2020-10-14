@@ -130,6 +130,14 @@ class IpAddress(models.Model):
         verbose_name_plural = "Ip Addresses"
 
 
+class Marketing(models.Model):
+    market = models.CharField(max_length=255, null=False, blank=False, unique=True)
+    count = models.BigIntegerField(null=False, blank=False, default=0)
+
+    def __str__(self):
+        return '{} -> {}'.format(self.market, self.count)
+
+
 if settings.HAS_ADDITIONAL_USER_DATA:
     class UserProfile(models.Model):
         user = models.OneToOneField(
@@ -142,6 +150,9 @@ if settings.HAS_ADDITIONAL_USER_DATA:
             "Products.Category", blank=True,  related_name="users_interests")
         ip = models.ManyToManyField(
             IpAddress, blank=True, related_name="user_ip")
+
+        marketing = models.ForeignKey(
+            Marketing, on_delete=models.CASCADE, null=True, blank=True)
 
         def __str__(self):
             return self.phone
