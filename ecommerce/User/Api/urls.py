@@ -16,6 +16,7 @@ router.register("facebook-login", api_views.FacebookLogin,
 router.register("change-password", api_views.ChangePassword,
                 "user-change-password"),
 
-router.register("marketing", api_views.Marketing, "user-marketing")
+router.register("marketing", api_views.Marketing, "user-marketing"),
+router.register("interests", api_views.Interest, "user-interest")
 
 urlpatterns = router.urls

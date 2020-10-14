@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.conf import settings
 
 from User import models as user_models
+from Products import models as product_models
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -58,3 +59,9 @@ class MarketingSerializer(serializers.ModelSerializer):
     class Meta:
         model = user_models.Marketing
         fields = ('market', )
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = "__all__"
+        model = product_models.Category

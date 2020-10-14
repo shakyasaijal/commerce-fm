@@ -9,6 +9,7 @@ import jwt
 import requests
 import json
 import time
+from django.db.models import Max
 import re
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -341,3 +342,26 @@ class Marketing(mixins.ListModelMixin, viewsets.GenericViewSet):
         for d in queryset:
             market.append(d.market)
         return Response({"data": market}, status=status.HTTP_200_OK)
+
+
+class Interest(mixins.ListModelMixin,
+               viewsets.GenericViewSet):
+    queryset = product_models.Category.objects.all()
+    serializer_class = user_serializers.CategorySerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def list(self, request):
+        categories = user_models.UserProfile.objects.values('interested_category').annotate(
+            max_category=Max('interested_category__english_name'))[:15]
+        data = []
+        if(len(categories) > 8):
+            for category in categories:
+                if category['interested_category']:
+                    data.append(category['max_category'])
+        else:
+            categories = product_models.Category.objects.all().order_by('?')[
+                :15]
+            for category in categories:
+                data.append(
+                    {"id": category.id, "categoryName": category.english_name, })
+        return Response({'data': data}, status=status.HTTP_200_OK)
