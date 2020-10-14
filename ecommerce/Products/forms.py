@@ -111,3 +111,10 @@ class ProductImage(forms.ModelForm):
     class Meta:
         model = products_models.ProductImage
         fields = ('image',)
+
+
+class NewCategoryRequest(forms.ModelForm):
+    class Meta:
+        model = products_models.NewCategoryRequest
+        fields = ('categoryName', 'describe',)
+        

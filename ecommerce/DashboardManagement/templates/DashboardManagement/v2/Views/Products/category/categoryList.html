@@ -1,5 +1,6 @@
 {% extends 'DashboardManagement/v2/Partials/base.html' %}
 {% load static %}
+{% load addcss %}
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'DashboardManagement/v2/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
@@ -22,6 +23,44 @@
               </span>
               <span class="text"> Add New Category</span>
           </a>
+        {% endif %}
+        
+        {% if multi_vendor and not request.user.is_superuser or 'add_newcategoryrequest' in user_permissions %}
+          <button type="button" class="btn btn-primary pull-right btn-sm" data-toggle="modal" data-target="#modal-new-category-request" style="margin-right: 10px;">
+            <i class="fa fa-plus"></i> &nbsp;Request New Category
+          </button>
+          <div class="modal fade" id="modal-new-category-request">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title">Request to add new category.</h4>
+                </div>
+                <div class="modal-body">
+                  {% if newCategoryRequest.errors %}
+                    {% for index, data in newCategoryRequest.errors.items %}
+                      {% if index == 'categoryName' %}
+                        <span class="form-error">Category Name is required.</span>
+                      {% endif %}
+                    {% endfor %}
+                  {% endif %}
+                  <div><small><b>Note:</b> If the CATEGORY you want is not available, then you can request Super Admin to add a new category for you.</small></div>
+                  <form method="POST" action="{% url 'category-request' %}">
+                  {% csrf_token %}
+
+                  {% for data in newCategoryRequest %}
+                    <div class="form-group">
+                      <label>{{data.label}}</label>
+                      {{data|addcss:'form-control'}}
+                    </div>
+                  {% endfor %}
+                  <button type="submit" class="btn btn-primary">Request Now</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
         {% endif %}
     </div>
     <div class="box-body">

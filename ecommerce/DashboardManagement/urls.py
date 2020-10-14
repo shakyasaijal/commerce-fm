@@ -40,6 +40,8 @@ urlpatterns = [
          name="category-delete"),
     path('category/add', views.Category.as_view(), name="category-add"),
     path('category/edit/<id>', views.CategoryEdit.as_view(), name="category-edit"),
+    path('category/request', views.RequestNewCategory.as_view(), name="category-request"),
+    path('category/request/delete', views.RequestNewCategoryDelete.as_view(), name="category-request-delete"),
 
     # Orders
     path('orders/', include('OrderAndDelivery.urls')),

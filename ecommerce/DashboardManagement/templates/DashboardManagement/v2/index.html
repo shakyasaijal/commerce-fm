@@ -69,8 +69,8 @@
       {% include 'DashboardManagement/v2/Views/ReferView/referAnalysis.html' %}
     {% endif %}
     <div class="row">
-      <div class="col-md-4">
-        {% if offers %}
+      {% if offers %}
+      <div class="col-md-6">
           <div class="box box-success">
             <div class="box-header">
               <i class="fa fa-comments-o"></i>
@@ -94,8 +94,73 @@
               </div>
             </div>
           </div>
-        {% endif %}
       </div>
+      {% endif %}
+      {% if new_category_request %}
+      <div class="col-md-6">
+        <div class="box box-info">
+          <div class="box-header with-border">
+            <h3 class="box-title">New Category Request</h3>
+
+            <div class="box-tools pull-right">
+              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+              </button>
+              <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+            </div>
+          </div>
+          <!-- /.box-header -->
+          <div class="box-body">
+            <div class="table-responsive table-xs" style="max-height: 250px;">
+              <table class="table no-margin">
+                <thead>
+                <tr>
+                  <th>Vendor</th>
+                  <th>User</th>
+                  <th>Category Name</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for data in new_category_request %}
+                  <tr>
+                    <td><a href="#!" data-toggle="modal" data-target="#modal-request-category{{forloop.counter}}">{{data.vendor.organizationName}}</a></td>
+                    <td>{% if data.user.first_name %}{{data.user.first_name}}{% else %} ---- {% endif %}</td>
+                    <td><span class="label label-success">{{data.categoryName|title}}</span></td>
+                  </tr>
+                  <div class="modal fade" id="modal-request-category{{forloop.counter}}">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span></button>
+                          <h4 class="modal-title">New Request</h4>
+                        </div>
+                        <div class="modal-body">
+                          <p><b>By:</b> {{data.vendor.organizationName}} {% if data.user.first_name %}({{data.user.first_name}}){% endif %}</p>
+                          <p><b>Category Name:</b> {{data.categoryName|title}}</p>
+                          <p>{% if data.describe %}<b>Description:</b> {{data.describe}}{% endif %}</p>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                          <form method="POST" action="{% url 'category-request-delete' %}">
+                            {% csrf_token %}
+                            <input type="hidden" value="{{data.id}}" name="newId"/>
+                            <button type="submit" class="btn btn-danger">DELETE</button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="box-footer clearfix">
+            <a href="{% url 'category-add' %}" class="btn btn-sm btn-info btn-flat pull-left">Add New Category</a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
     </div>
 </div>
 {% endblock content %}

@@ -13,7 +13,7 @@ from django.contrib.auth.models import Permission
 from django.forms import modelformset_factory, inlineformset_factory
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
-
+from django.db.models import Count
 
 from DashboardManagement.common import routes as navbar
 from Vendor import models as vendor_models
@@ -116,6 +116,11 @@ class IndexView(LoginRequiredMixin, View):
             notices = vendor_models.NoticeToVendors.objects.filter(
                 vendors=vendor, display=True).order_by('-importance')
             context.update({"notices": notices})
+
+            if request.user.is_superuser or request.user.has_perm('Products.view_newcategoryrequest'):
+                new_category_request = product_models.NewCategoryRequest.objects.order_by(
+                    'vendor')
+                context.update({"new_category_request": new_category_request})
 
         return render(request, template_version+"/index.html", context=context)
 
@@ -664,7 +669,18 @@ class CategoryList(LoginRequiredMixin, View):
 
         routes = navbar.get_formatted_routes(navbar.get_routes(
             request.user), active_page='products')
-        return render(request, template_version+"/Views/Products/category/categoryList.html", context={"form": form, 'categories': categories, 'routes': routes, "title": "Category", "sub_navbar": "category"})
+
+        newCategoryRequest = product_forms.NewCategoryRequest()
+        context = {}
+        context.update({
+            "form": form,
+            'categories': categories,
+            'routes': routes,
+            "title": "Category",
+            "sub_navbar": "category",
+            "newCategoryRequest": newCategoryRequest
+        })
+        return render(request, template_version+"/Views/Products/category/categoryList.html", context=context)
 
 
 @method_decorator(vendor_only, name='dispatch')
@@ -751,6 +767,64 @@ class CategoryEdit(LoginRequiredMixin, View):
             routes = navbar.get_formatted_routes(navbar.get_routes(
                 request.user), active_page='products')
             return render(request, template_version+"/Views/Products/category/categoryEdit.html", context={"form": form, 'category': category, 'routes': routes, "title": "Category", "sub_navbar": "category"})
+
+
+@method_decorator(vendor_only, name='dispatch')
+class RequestNewCategory(LoginRequiredMixin, View):
+    def post(self, request):
+        if not settings.MULTI_VENDOR or not request.user.has_perm('Products.add_newcategoryrequest') and not app_helper.is_vendor_admin(request.user):
+            messages.error(
+                request, "You do not have permission to request new category.")
+            return HttpResponseRedirect(reverse('vendor-home'))
+
+        if settings.MULTI_VENDOR and request.user.is_superuser:
+            messages.error(
+                request, "Only vendor admin are allowed to request new category.")
+            return HttpResponseRedirect(reverse('vendor-home'))
+
+        newCategoryRequest = product_forms.NewCategoryRequest(request.POST)
+        if newCategoryRequest.is_valid():
+            new_request = newCategoryRequest.save(commit=False)
+            new_request.user = request.user
+            new_request.vendor = app_helper.current_user_vendor(request.user)
+            new_request.save()
+            messages.success(request, "New category has been requested.")
+            return HttpResponseRedirect(reverse('category'))
+        else:
+            categories = product_models.Category.objects.all()
+            form = product_forms.CategoryForm()
+            routes = navbar.get_formatted_routes(navbar.get_routes(
+                request.user), active_page='products')
+            context = {}
+            context.update({
+                "form": form,
+                'categories': categories,
+                'routes': routes,
+                "title": "Category",
+                "sub_navbar": "category",
+                "newCategoryRequest": newCategoryRequest
+            })
+            return render(request, template_version+"/Views/Products/category/categoryList.html", context=context)
+
+
+@method_decorator(vendor_only, name='dispatch')
+class RequestNewCategoryDelete(LoginRequiredMixin, View):
+    def post(self, request):
+        if not request.user.is_superuser or not request.user.has_perm('delete_newcategoryrequest'):
+            messages.error(
+                request, "You do not have permission to delete new category request.")
+            return HttpResponseRedirect(reverse('vendor-home'))
+
+        try:
+            product_models.NewCategoryRequest.objects.get(
+                id=request.POST['newId']).delete()
+            messages.success(
+                request, "Request successfully deleted.")
+            return HttpResponseRedirect(reverse('vendor-home'))
+        except (Exception, product_models.NewCategoryRequest.DoesNotExist):
+            messages.error(
+                request, "Data not found.")
+            return HttpResponseRedirect(reverse('vendor-home'))
 
 
 @method_decorator(vendor_only, name='dispatch')
