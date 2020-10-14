@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 from django.conf import settings
 from datetime import datetime, timedelta
+import re
 
 import jwt
 
@@ -131,11 +132,24 @@ class IpAddress(models.Model):
 
 
 class Marketing(models.Model):
+    choices = (
+        (True, "By Admin"),
+        (False, "By User"),
+    )
+
     market = models.CharField(max_length=255, null=False, blank=False, unique=True)
     count = models.BigIntegerField(null=False, blank=False, default=0)
+    added_by = models.BooleanField(null=False, blank=False, default=False, choices=choices)
 
     def __str__(self):
         return '{} -> {}'.format(self.market, self.count)
+
+    class Meta:
+        verbose_name = "Marketing"
+        verbose_name_plural = "Marketings"
+
+    def clean(self):
+        self.market = re.sub(' +', ' ', '{}'.format(self.market.lower()))
 
 
 if settings.HAS_ADDITIONAL_USER_DATA:

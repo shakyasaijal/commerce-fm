@@ -9,6 +9,7 @@ import jwt
 import requests
 import json
 import time
+import re
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from User import models as user_models
@@ -237,10 +238,10 @@ class ChangePassword(mixins.CreateModelMixin,
         if serializer.is_valid():
             error = user_utils.change_password(request)
             if error:
-                return Response({"status": False, "data": {"message": error}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+                return Response({"data": {"message": error}}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
             if not request.user.check_password(serializer.data.get("oldPassword")):
-                return Response({"status": False, "data": {"message": "Wrong password."}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+                return Response({"data": {"message": "Wrong password."}}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
             request.user.set_password(serializer.data.get("newPassword"))
             request.user.save()
@@ -269,9 +270,9 @@ class ChangePassword(mixins.CreateModelMixin,
                 "accessToken": str(token.access_token),
                 "refreshToken": str(token)
             }
-            return Response({"status": True, "data": data}, status=status.HTTP_200_OK)
+            return Response({"data": data}, status=status.HTTP_200_OK)
 
-        return Response({"status": False, "data": {"message": serializer.errors}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response({"data": {"message": serializer.errors}}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
 class CompleteProfile(mixins.CreateModelMixin,
@@ -284,19 +285,18 @@ class CompleteProfile(mixins.CreateModelMixin,
         if serializer.is_valid():
             err = user_utils.complete_profile(request)
             if err:
-                return Response({"status": False, "data": {"message": err}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+                return Response({"data": {"message": err}}, status=status.HTTP_406_NOT_ACCEPTABLE)
             try:
                 location = cart_models.Location.objects.get(
                     district=serializer.data.get("district"))
             except (Exception, cart_models.Location.DoesNotExist):
-                return Response({"status": False, "data": {"message": "Invalid District Name."}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+                return Response({"data": {"message": "Invalid District Name."}}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
-            # try:
-            #     marketing = api_models.Marketing.objects.get(
-            #         name=request.data['referedBy'])
-            # except api_models.Marketing.DoesNotExist:
-            #     marketing = api_models.Marketing.objects.create(
-            #         name=request.data['referedBy'])
+            try:
+                user_models.UserProfile.objects.get(user=request.user)
+                return Response({"data": {"message": "You do have complete profile."}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+            except (Exception, user_models.UserProfile.DoesNotExist):
+                pass
 
             categories = []
             for id in request.data['interests']:
@@ -316,14 +316,28 @@ class CompleteProfile(mixins.CreateModelMixin,
                 print(e)
                 pass
             try:
-                market = user_models.Marketing.objects.get(
-                    id=request.data['market'])
-                market.count = market.count + 1
-                market.save()
-                new_user_profile.marketing = market
+                market = user_models.Marketing.objects.get_or_create(
+                    market=re.sub(' +', ' ', '{}'.format(request.data['market'].lower())))
+                market[0].count = market[0].count + 1
+                market[0].save()
+                new_user_profile.marketing = market[0]
             except (Exception, user_models.Marketing.DoesNotExist):
                 pass
             new_user_profile.save()
-            return Response({"status": True, "data": {"message": "Thank You. Your profile has been completed. Enjoy your shopping."}}, status=status.HTTP_200_OK)
+            return Response({"data": {"message": "Thank You. Your profile has been completed. Enjoy your shopping."}}, status=status.HTTP_200_OK)
 
-        return Response({"status": False, "data": {"message": serializer.errors}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response({"data": {"message": serializer.errors}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+class Marketing(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = user_models.Marketing.objects.filter(
+        added_by=True).order_by('-count')
+    serializer_class = user_serializers.MarketingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        market = []
+        for d in queryset:
+            market.append(d.market)
+        return Response({"data": market}, status=status.HTTP_200_OK)

@@ -52,3 +52,9 @@ class CompleteProfile(serializers.Serializer):
     referedBy = serializers.CharField(required=False, allow_blank=True)
     interests = serializers.ListField(
         child=serializers.CharField(allow_blank=True))
+
+
+class MarketingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = user_models.Marketing
+        fields = ('market', )
