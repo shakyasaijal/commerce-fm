@@ -43,6 +43,8 @@ class Order(user_models.AbstractTimeStamp):
     # Is Required for self and other
     district = models.ForeignKey('CartSystem.Location', null=False, blank=False, on_delete=models.CASCADE)
 
+    direct_assign = models.ForeignKey('DeliverySystem.DeliveryPerson', on_delete=models.CASCADE, null=True, blank=True)
+
     objects = models.Manager()
     delivered_objects = DeliveredManager()
 
