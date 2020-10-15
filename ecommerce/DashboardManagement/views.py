@@ -117,11 +117,20 @@ class IndexView(LoginRequiredMixin, View):
                 vendors=vendor, display=True).order_by('-importance')
             context.update({"notices": notices})
 
+            # New catetory requested by vendors
             if request.user.is_superuser or request.user.has_perm('Products.view_newcategoryrequest'):
                 new_category_request = product_models.NewCategoryRequest.objects.order_by(
                     'vendor')
                 context.update({"new_category_request": new_category_request})
-
+        
+        # Marketing Analysis
+        marketing = user_models.Marketing.objects.all().order_by('-count')[:10]
+        market = []
+        market_count =[]
+        for data in marketing:
+            market.append(data.market)
+            market_count.append(data.count)
+        context.update({"market": market, "market_count": market_count})
         return render(request, template_version+"/index.html", context=context)
 
 

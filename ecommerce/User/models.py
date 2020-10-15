@@ -145,6 +145,7 @@ class Marketing(models.Model):
         return '{} -> {}'.format(self.market, self.count)
 
     class Meta:
+        ordering = ['-count']
         verbose_name = "Marketing"
         verbose_name_plural = "Marketings"
 

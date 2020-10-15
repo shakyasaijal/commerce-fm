@@ -78,25 +78,25 @@ class AddToCart(viewsets.ModelViewSet):
                 quantity = request.data['quantity']
                 productId = request.data['productId']
             except Exception:
-                return Response({"status": False, "data": {"msg": "Data is missing. Please try again."}}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"data": {"msg": "Data is missing. Please try again."}}, status=status.HTTP_400_BAD_REQUEST)
 
             try:
                 product = product_models.Product.objects.get(
                     id=productId)
             except (product_models.Product.DoesNotExist, Exception) as e:
-                return Response({"status": False, "data": {"message": "Product not found."}}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"data": {"message": "Product not found."}}, status=status.HTTP_404_NOT_FOUND)
             if not cart_helper.check_cart(request, product):
                 cart = cart_models.AddToCart.objects.create(
                     user=request.user, product=product, quantity=quantity)
-                return Response({"status": True, "data": {"message": "Product added to cart."}}, status=status.HTTP_201_CREATED)
+                return Response({"data": {"message": "Product added to cart."}}, status=status.HTTP_201_CREATED)
             else:
-                return Response({"status": True, "data": {"message": "Product available in cart."}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+                return Response({"data": {"message": "Product available in cart."}}, status=status.HTTP_406_NOT_ACCEPTABLE)
         except Exception:
-            return Response({"status": False, "data": {"message": "Something went wrong. Please try again."}}, status=status.HTTP_409_CONFLICT)
+            return Response({"data": {"message": "Something went wrong. Please try again."}}, status=status.HTTP_409_CONFLICT)
 
     def list(self, request):
         cart = cart_helper.get_user_cart(request)
-        return Response({"status": True, "data": {"cartItem": cart[0], "grandTotal": cart[1]}}, status=status.HTTP_200_OK)
+        return Response({"data": {"cartItem": cart[0], "grandTotal": cart[1]}}, status=status.HTTP_200_OK)
 
     def update(self, request, pk):
         try:
@@ -109,10 +109,10 @@ class AddToCart(viewsets.ModelViewSet):
                 "grandTotal": updated_cart[1],
                 "msg": "Cart Updated."
             }
-            return Response({"status": True, "data": data}, status=status.HTTP_200_OK)
+            return Response({"data": data}, status=status.HTTP_200_OK)
         except (cart_models.AddToCart.DoesNotExist, Exception) as e:
             print(e)
-            return Response({"status": False, "data": {"message": "Cart not found. Please try again."}}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"data": {"message": "Cart not found. Please try again."}}, status=status.HTTP_404_NOT_FOUND)
 
     def destroy(self, request, pk):
         try:
@@ -122,6 +122,6 @@ class AddToCart(viewsets.ModelViewSet):
                 "grandTotal": updated_cart[1],
                 "msg": "Item deleted from the cart."
             }
-            return Response({"status": False, "data": data}, status=status.HTTP_200_OK)
+            return Response({"data": data}, status=status.HTTP_200_OK)
         except (Exception, cart_models.AddToCart.DoesNotExist):
-            return Response({"status": False, "data": {"message": "Cart not found."}}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"data": {"message": "Cart not found."}}, status=status.HTTP_404_NOT_FOUND)

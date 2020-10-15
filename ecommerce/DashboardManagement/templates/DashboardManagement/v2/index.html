@@ -162,13 +162,37 @@
       </div>
       {% endif %}
     </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="box box-primary">
+          <div class="box-header with-border">
+            <h3 class="box-title">Effective Marketing</h3>
+
+            <div class="box-tools pull-right">
+              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+              </button>
+              <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+            </div>
+          </div>
+          <div class="box-body">
+            <div class="chart">
+              {% if market and market_count %}
+                <canvas id="barChart" style="height:230px"></canvas>
+              {% else %}
+                No Response Till Now
+              {% endif %}
+            </div>
+          </div>
+          <!-- /.box-body -->
+        </div>
+      </div>
+    </div>
 </div>
 {% endblock content %}
 
 {% block js %}
 <script src="{% static 'DashboardManagement/v2/bower_components/chart.js/Chart.js' %}"></script>
 <script>
-
   function copyToClipBoard(){
       let copyText = document.getElementById("referUrl");
       copyText.select();
@@ -205,7 +229,7 @@
         }
       ]
     };
-    var salesChartOptions = {
+    var myChartOptions = {
       showScale               : true,
       scaleShowGridLines      : false,
       scaleGridLineColor      : 'rgba(0,0,0,.05)',
@@ -224,7 +248,36 @@
       maintainAspectRatio     : true,
       responsive              : true
     };
-    salesChart.Line(salesChartData, salesChartOptions);
+    salesChart.Line(salesChartData, myChartOptions);
+
+    // Marketing Bar Chart
+    let market = {{market|safe}};
+    let marketCount = {{market_count|safe}};
+    var areaChartData = {
+      labels: market,
+      datasets: [
+        {
+          fillColor           : 'rgba(60,141,188,0.9)',
+          strokeColor         : 'rgba(60,141,188,0.8)',
+          pointColor          : '#3b8bba',
+          pointStrokeColor    : 'rgba(60,141,188,1)',
+          pointHighlightFill  : '#fff',
+          pointHighlightStroke: 'rgba(60,141,188,1)',
+          data                : marketCount
+        }
+      ]
+    }
+    var barChartCanvas = $('#barChart').get(0).getContext('2d')
+    var barChart = new Chart(barChartCanvas)
+    var barChartCanvas                   = $('#barChart').get(0).getContext('2d')
+    var barChart                         = new Chart(barChartCanvas)
+    var barChartData                     = areaChartData
+    barChartData.datasets[0].fillColor   = '#00a65a'
+    barChartData.datasets[0].strokeColor = '#00a65a'
+    barChartData.datasets[0].pointColor  = '#00a65a'
+
+    myChartOptions.datasetFill = false
+    barChart.Bar(barChartData, myChartOptions)
   });
 </script>
 {% endblock js %}
