@@ -65,3 +65,8 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
         model = product_models.Category
+
+
+class UpdateInterests(serializers.Serializer):
+    interests = serializers.ListField(
+        child=serializers.CharField(allow_blank=True))

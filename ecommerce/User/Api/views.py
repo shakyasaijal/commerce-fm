@@ -365,3 +365,26 @@ class Interest(mixins.ListModelMixin,
                 data.append(
                     {"id": category.id, "categoryName": category.english_name, })
         return Response({'data': data}, status=status.HTTP_200_OK)
+
+
+class UpdateInterest(mixins.CreateModelMixin,
+                     viewsets.GenericViewSet):
+    serializer_class = user_serializers.UpdateInterests
+    permission_classes = [IsAuthenticated, ]
+
+    def create(self, request):
+        categories = []
+        for id in request.data['interests']:
+            try:
+                category = product_models.Category.objects.get(id=id)
+                categories.append(category)
+            except (Exception, product_models.Category.DoesNotExist):
+                pass
+
+        try:
+            user = user_models.UserProfile.objects.get(user=request.user)
+            user.interested_category.clear()
+            user.interested_category.add(*categories)
+        except (Exception, user_models.UserProfile.DoesNotExist):
+            return Response({"data": {"message": "Please complete your profile first."}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response({"data": {"message": "Your interest has been successfully updated."}}, status=status.HTTP_200_OK)

@@ -18,5 +18,6 @@ router.register("change-password", api_views.ChangePassword,
 
 router.register("marketing", api_views.Marketing, "user-marketing"),
 router.register("interests", api_views.Interest, "user-interest")
+router.register("update-interests", api_views.UpdateInterest, "user-update-interest")
 
 urlpatterns = router.urls
