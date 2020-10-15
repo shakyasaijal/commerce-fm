@@ -60,3 +60,24 @@ def check_cart(request, product):
         return True
     except (Exception, cart_models.AddToCart.DoesNotExist):
         return False
+
+
+def check_whislist(request, product):
+    try:
+        cart = cart_models.WishList.objects.get(
+            Q(product=product) & Q(user=request.user))
+        return True
+    except (Exception, cart_models.WishList.DoesNotExist):
+        return False
+
+
+def delete_from_wishlist(request, pk):
+    try:
+        wishlist = cart_models.WishList.objects.get(pk=pk)
+        if request.user == wishlist.user:
+            wishlist.delete()
+            return True
+    except (cart_models.WishList.DoesNotExist, Exception) as e:
+        return False
+
+    return False

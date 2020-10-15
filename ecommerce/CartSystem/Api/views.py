@@ -13,7 +13,7 @@ from CartSystem import serializers as cart_serializers
 from CartSystem import models as cart_models
 
 
-class Wishlist(mixins.ListModelMixin, viewsets.GenericViewSet):
+class Wishlist(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     queryset = cart_models.WishList.objects.all()
     serializer_class = cart_serializers.WishlistSerializer
     permission_classes = [IsAuthenticated, ]
@@ -21,6 +21,25 @@ class Wishlist(mixins.ListModelMixin, viewsets.GenericViewSet):
     def list(self, request):
         wishlist = cart_helper.get_wishlist_by_user(request)
         return Response({"status": True, "data": wishlist}, status=status.HTTP_200_OK)
+
+    def create(self, request):
+        try:
+            product = product_models.Product.objects.get(
+                id=request.data['productId'])
+        except (Exception, product_models.Product.DoesNotExist) as e:
+            return Response({"data": {"message": "Product does not exists."}}, status=status.HTTP_404_NOT_FOUND)
+        if not cart_helper.check_whislist(request, product):
+            wishlist = cart_models.WishList.objects.create(
+                user=request.user, product=product)
+            return Response({"data": {"message": "Product added to wishlist"}}, status=status.HTTP_200_OK)
+        else:
+            return Response({"data": {"message": "Product is already added to wishlist."}}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    def destroy(self, request, pk):
+        if cart_helper.delete_from_wishlist(request, pk):
+            return Response({"data": {"message": "Successfully removed from wishlist"}}, status=status.HTTP_200_OK)
+        else:
+            return Response({"status": False, "data": {"message": "Could not delete product from wishlist."}}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class WishlistToCart(mixins.CreateModelMixin, viewsets.GenericViewSet):

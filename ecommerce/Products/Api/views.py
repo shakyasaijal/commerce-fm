@@ -152,6 +152,6 @@ class CommentProduct(mixins.CreateModelMixin,
                 'comment': comment.body,
                 'parentCommentId': parentComment
             }
-            return Response({"status": True, "data": data}, status=status.HTTP_200_OK)
+            return Response({"data": data}, status=status.HTTP_200_OK)
 
         return Response({"data": {"message": serializer.errors}}, status=status.HTTP_406_NOT_ACCEPTABLE)
