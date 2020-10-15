@@ -43,7 +43,8 @@ OWN_APPS = [
     'OrderAndDelivery',
     'Offer',
     'CompanyInformation',
-    'Referral'
+    'Referral',
+    'DeliverySystem'
 ]
 
 INSTALLED_APPS += THIRD_PARTY_APPS + OWN_APPS

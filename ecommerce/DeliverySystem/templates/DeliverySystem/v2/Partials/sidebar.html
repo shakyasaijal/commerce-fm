@@ -1,0 +1,43 @@
+ <aside class="main-sidebar">
+    <section class="sidebar">
+      <div class="user-panel">
+        <div class="pull-left image">
+            <img src="" alt="">
+        </div>
+        <div class="pull-left info">
+          <p>{{request.user.get_full_name}}</p>
+          <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+        </div>
+      </div>
+      <form action="#" method="get" class="sidebar-form">
+        <div class="input-group">
+          <input type="text" name="q" class="form-control" placeholder="Search...">
+          <span class="input-group-btn">
+              <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
+              </button>
+            </span>
+        </div>
+      </form>
+      <ul class="sidebar-menu" data-widget="tree">
+
+        {% for route in routes %}
+            {% if route.group %}
+                <li class="treeview {% if route.active %} menu-open {% endif %}">
+                    <a href="#"><i class="{{route.icon}}"></i> <span>{{route.title|title}}</span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu" {% if route.active %} style="display: block;" {% endif %}>
+                        {% for data in route.links %}
+                            <li><a {% if data.title == sub_navbar %}class="selected-navbar"{% endif %} href="{{data.url}}">{{data.title|title}}</a></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% else %}
+                <li class="{% if route.active %} active {% endif %}"><a href="{{ route.url }}"><i class="{{route.icon}}"></i> <span>{{route.title|title}}</span></a></li>
+            {% endif %}
+        {% endfor %}
+      </ul>
+    </section>
+  </aside>

@@ -17,6 +17,7 @@ urlpatterns = [
     path("csp-report/", csp_report),
     path('api/token/', jwt_views.TokenObtainPairView.as_view(),
          name='token_obtain_pair'),
+    path('delivery/', include('DeliverySystem.urls'))
 ]
 
 if settings.DEBUG:

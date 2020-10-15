@@ -22,12 +22,27 @@ class DeliveredManager(models.Manager):
 
 
 class Order(user_models.AbstractTimeStamp):
+    deliver_to_choice = (
+        (True, "Self"),
+        (False, "Other"),
+    )
     item = models.ManyToManyField(OrderItem, blank=False, related_name="order_orderItem")
     user = models.ForeignKey(user_models.User, null=False, blank=False, on_delete=models.PROTECT)
     status = models.IntegerField(choices=modelHelper.order_status_choice, null=False, blank=False, default=1)
     grand_total = models.FloatField(null=True, blank=True)
-    if settings.MULTI_VENDOR:
-        vendor = models.ForeignKey("Vendor.vendor", on_delete=models.PROTECT)
+
+    # To identify where to deliver
+    deliver_to = models.BooleanField(null=False, blank=False, default=True, choices=deliver_to_choice)
+
+    # IF deliver_to == False
+    other_full_name = models.CharField(max_length=255, null=True, blank=True)
+    other_phone = models.CharField(max_length=255, null=True, blank=True)
+    other_address = models.TextField(null=True, blank=True)
+    payment_by = models.BooleanField(null=False, blank=False, default=True, choices=deliver_to_choice)
+
+    # Is Required for self and other
+    district = models.ForeignKey('CartSystem.Location', null=False, blank=False, on_delete=models.CASCADE)
+
     objects = models.Manager()
     delivered_objects = DeliveredManager()
 
@@ -37,11 +52,3 @@ class Order(user_models.AbstractTimeStamp):
     def associated_name(self):
         return self.user.get_full_name()
 
-
-class Delivery(user_models.AbstractTimeStamp):
-    order = models.OneToOneField(Order, null=False, blank=False, on_delete=models.PROTECT)
-    note = models.TextField(null=False, blank=False)
-    location = models.ForeignKey(cart_models.Location, null=False, blank=False, on_delete=models.PROTECT)
-
-    def __str__(self):
-        return self.order.user.get_full_name()

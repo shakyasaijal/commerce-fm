@@ -1,0 +1,15 @@
+login
+
+<form method="POST">
+    {% csrf_token %}
+    <input type="email" name="email" required/>
+    <input type="password" name="password" required/>
+    <input type="submit">
+</form>
+
+
+{% if messages %}
+    {% for data in messages %}
+        {{data}}
+    {% endfor %}
+{% endif %}
