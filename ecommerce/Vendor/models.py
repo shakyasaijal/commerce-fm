@@ -18,6 +18,7 @@ if settings.MULTI_VENDOR:
             "User.User", on_delete=models.CASCADE, blank=False, null=False, related_name="vendorAdmin", verbose_name=_('Vendor Admin'))
         vendorUsers = models.ManyToManyField(
             "User.User", blank=True, related_name="vendorUsers")
+        phone = models.CharField(max_length=255, null=False, blank=False, default="None")
 
         def __str__(self):
             return self.organizationName

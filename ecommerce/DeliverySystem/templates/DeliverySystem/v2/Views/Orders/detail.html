@@ -3,13 +3,24 @@
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'DashboardManagement/v2/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+<style>
+    .img-container{
+        height: 150px;
+        width: 150px;
+        position: absolute;
+        right: 50%;
+    }
+    .img-container img{
+        width: 100% ;
+    }
+</style>
 {% endblock css %}
 
 {% block content %}
 
 <section class="content-header">
     <h1>
-        Invoice
+        {{order.user.get_full_name}}
         <small>#007612</small>
       </h1>
       <ol class="breadcrumb">
@@ -27,39 +38,41 @@
         <div class="col-md-12">
             <div class="box box-success">
                 <div class="box-header">
+                    {% if order.direct_assign %}
+                        <b>You are directly assigned to delivery this orders.</b>
+                    {% endif %}
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
                         </button>
                     </div>
                 </div>
                 <div class="box-body">
-                    <h2 class="page-header">
-                        <i class="fa fa-globe"></i> AdminLTE, Inc.
-                        <small class="pull-right">Date: 2/10/2014</small>
-                    </h2>
                     <div class="row invoice-info">
                         <div class="col-sm-4 invoice-col">
                           From
                           <address>
-                            <strong>Admin, Inc.</strong><br>
-                            795 Folsom Ave, Suite 600<br>
-                            San Francisco, CA 94107<br>
-                            Phone: (804) 123-5432<br>
-                            Email: info@almasaeedstudio.com
+                            <strong>{{order.user.get_full_name|title}}</strong><br>
+                            District: {{order.user.user_profile.district}}, {{order.user.user_profile.district.province}}<br/>
+                            Address: {{order.user.user_profile.address}}<br>
+                            Phone: <a href="tel:{{order.user.user_profile.phone}}">{{order.user.user_profile.phone}}</a><br>
+                            Email: {{order.user.email}}
                           </address>
                         </div>
-                        <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
                           To
-                          <address>
-                            <strong>John Doe</strong><br>
-                            795 Folsom Ave, Suite 600<br>
-                            San Francisco, CA 94107<br>
-                            Phone: (555) 539-1037<br>
-                            Email: john.doe@example.com
-                          </address>
+                            {% if order.deliver_to %}
+                                <address>
+                                    <strong>Self</strong>
+                                </address>
+                            {% else %}
+                                <address>
+                                        <strong>{{order.other_full_name|title}}</strong><br>
+                                        District: {{order.district}}<br>
+                                        Address: {{order.other_address}}<br>
+                                        Phone: <a href="tel:{{order.other_phone}}">{{order.other_phone}}</a><br>
+                                </address>
+                            {% endif %}
                         </div>
-                        <!-- /.col -->
                         <div class="col-sm-4 invoice-col">
                           <b>Invoice #007612</b><br>
                           <br>
@@ -71,45 +84,33 @@
                       </div>
                       <div class="row">
                         <div class="col-xs-12 table-responsive">
+                            <h4 class="text-center">Order Information</h4>
                           <table class="table table-striped">
                             <thead>
                             <tr>
-                              <th>Qty</th>
+                              <th>#</th>
                               <th>Product</th>
-                              <th>Serial #</th>
-                              <th>Description</th>
-                              <th>Subtotal</th>
+                              <th>QTY</th>
+                              <th>Price</th>
+                              <th>Sub Total</th>
+                              {% if multi_vendor %}
+                                <th>Vendor</th>
+                              {% endif %}
                             </tr>
                             </thead>
                             <tbody>
-                            <tr>
-                              <td>1</td>
-                              <td>Call of Duty</td>
-                              <td>455-981-221</td>
-                              <td>El snort testosterone trophy driving gloves handsome</td>
-                              <td>$64.50</td>
-                            </tr>
-                            <tr>
-                              <td>1</td>
-                              <td>Need for Speed IV</td>
-                              <td>247-925-726</td>
-                              <td>Wes Anderson umami biodiesel</td>
-                              <td>$50.00</td>
-                            </tr>
-                            <tr>
-                              <td>1</td>
-                              <td>Monsters DVD</td>
-                              <td>735-845-642</td>
-                              <td>Terry Richardson helvetica tousled street art master</td>
-                              <td>$10.70</td>
-                            </tr>
-                            <tr>
-                              <td>1</td>
-                              <td>Grown Ups Blue Ray</td>
-                              <td>422-568-642</td>
-                              <td>Tousled lomo letterpress</td>
-                              <td>$25.99</td>
-                            </tr>
+                                {% for data in order_items %}
+                                    <tr>
+                                        <td>{{forloop.counter}}</td>
+                                        <td>{{data.en_name}}</td>
+                                        <td>{{data.quantity}}</td>
+                                        <td>{{data.price}}</td>
+                                        <td>Rs. {{data.sub_product_total}}</td>
+                                        {% if multi_vendor %}
+                                            <th title="Phone: {{data.vendor.phone}}">{{data.vendor}}</th>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
                             </tbody>
                           </table>
                         </div>
@@ -118,56 +119,119 @@
                       <div class="row">
                         <!-- accepted payments column -->
                         <div class="col-xs-6">
-                          <p class="lead">Payment Methods:</p>
-                          <img src="../../dist/img/credit/visa.png" alt="Visa">
-                          <img src="../../dist/img/credit/mastercard.png" alt="Mastercard">
-                          <img src="../../dist/img/credit/american-express.png" alt="American Express">
-                          <img src="../../dist/img/credit/paypal2.png" alt="Paypal">
-                  
+                          <p class="lead">Order Note</p>
                           <p class="text-muted well well-sm no-shadow" style="margin-top: 10px;">
-                            Etsy doostang zoodles disqus groupon greplin oooj voxy zoodles, weebly ning heekya handango imeem plugg
-                            dopplr jibjab, movity jajah plickers sifteo edmodo ifttt zimbra.
-                          </p>
+                            {% if order.any_info %}
+                                {{order.any_info}}
+                            {% else %}
+                                No Notes Provided
+                            {% endif %}
+                        </p>
                         </div>
                         <!-- /.col -->
                         <div class="col-xs-6">
-                          <p class="lead">Amount Due 2/22/2014</p>
-                  
+                          <p class="lead">Billing Info</p>
+                            
+                          {% if order.payment_status != '1' %}
+                            <div class="img-container">
+                                <img src="{% static 'DashboardManagement/v2/images/paid.png' %}"/>
+                            </div>
+                          {% endif %}
                           <div class="table-responsive">
                             <table class="table">
                               <tr>
                                 <th style="width:50%">Subtotal:</th>
-                                <td>$250.30</td>
+                                <td>Rs. {{total_bill.sub_total}}</td>
                               </tr>
                               <tr>
-                                <th>Tax (9.3%)</th>
-                                <td>$10.34</td>
+                                <th>Delivery Charge:</th>
+                                <td>Rs. {{total_bill.delivery_charge}}</td>
                               </tr>
                               <tr>
-                                <th>Shipping:</th>
-                                <td>$5.80</td>
-                              </tr>
-                              <tr>
-                                <th>Total:</th>
-                                <td>$265.24</td>
+                                <th><h3>Total:</h3></th>
+                                <td><h3>Rs. {{total_bill.total_price}}</h3></td>
                               </tr>
                             </table>
                           </div>
                         </div>
-                        <!-- /.col -->
                       </div>
                       <div class="row no-print">
                         <div class="col-xs-12">
-                          <a href="invoice-print.html" target="_blank" class="btn btn-default"><i class="fa fa-print"></i> Print</a>
-                          <button type="button" class="btn btn-success pull-right"><i class="fa fa-credit-card"></i> Submit Payment
-                          </button>
-                          <button type="button" class="btn btn-primary pull-right" style="margin-right: 5px;">
-                            <i class="fa fa-download"></i> Generate PDF
-                          </button>
+                          <div style="font-size: 15px;">Payment Method: {{order.payment_method}}</div>
                         </div>
                       </div>
                 </div>
-                <div class="box-footer">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="box box-success">
+                <div class="box-header">
+                    <b>Order Status</b>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div class="form-group">
+                        <label>
+                            Status
+                        </label>
+                        <select name="order_status" class="form-control">
+                            <option value="1">Pending</option>
+                            <option value="1">In Process</option>
+                            <option value="1">Delivered</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            <i class="fa fa-wrench"> Update</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="box box-success">
+                <div class="box-header">
+                    <b>Want To Deliver?</b>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <button type="submit" class="btn btn-success btn-lg" onclick="confirm('You sure to take this order?')">Take this Order Now</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="box box-success">
+                <div class="box-header">
+                    <b>Payment Status</b>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div class="form-group">
+                        <label>
+                            Payment
+                        </label>
+                        <select name="payment" class="form-control">
+                            <option value="1" {% if order.payment_status == '1' %}selected{% endif %}>Pending</option>
+                            <option value="2" {% if order.payment_status == '2' %}selected{% endif %}>Online Transfered/ Online Payment</option>
+                            <option value="3" {% if order.payment_status == '3' %}selected{% endif %}>Cash In Hand</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-sm btn-danger">
+                            <i class="fa fa-wrench"> Update Payment</i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -80,8 +80,10 @@ class OrderView(LoginRequiredMixin, View):
             orders = order_models.Order.objects.filter(
                 ~Q(status=3)).order_by('created_at', 'status')
         else:
+            my_delivery_object = delivery_utils.get_my_delivery_object(
+                request.user)
             all_orders = order_models.Order.objects.filter(
-                Q(district__in=delivery_utils.get_my_delivery_district(request.user)) & ~Q(status=3)).order_by('created_at', 'status')
+                Q(district__in=delivery_utils.get_my_delivery_district(request.user)) & ~Q(status=3) | Q(direct_assign=my_delivery_object)).order_by('created_at', 'status')
             my_delivery_object = delivery_utils.get_my_delivery_object(
                 request.user)
             orders = []
@@ -112,15 +114,43 @@ class OrderDetail(LoginRequiredMixin, View):
                 return HttpResponseRedirect(reverse('delivery-order'))
             else:
                 flag = True
-
-        if order.district not in my_delivery_object.based_on_district.all():
-            messages.warning(
-                request, "You are not allowed to view this order.")
-            return HttpResponseRedirect(reverse('delivery-order'))
         else:
-            flag = True
+            if order.district not in my_delivery_object.based_on_district.all():
+                messages.warning(
+                    request, "You are not allowed to view this order.")
+                return HttpResponseRedirect(reverse('delivery-order'))
+            else:
+                flag = True
 
         if flag:
-            return render(request, template_version+"/Views/Orders/detail.html", context={"order": order})
+            order_items = []
+            sub_total = 0
+
+            delivery_charge = 0
+
+            for data in order.item.all():
+                sub_price = data.quantity * data.item.price
+                sub_total += sub_price
+                orderData = {
+                    "en_name": data.item.english_name,
+                    "np_name": data.item.nepali_name,
+                    "quantity": data.quantity,
+                    "price": data.item.price,
+                    "sub_product_total": sub_price
+                }
+                if settings.MULTI_VENDOR:
+                    orderData.update({"vendor": data.item.vendor})
+                order_items.append(orderData)
+            total_price = delivery_charge + sub_total
+            total_bill = {
+                "sub_total": sub_total,
+                "delivery_charge": 0,
+                "total_price": total_price
+            }
+            context = {}
+            context.update({"order": order})
+            context.update({"order_items": order_items})
+            context.update({"total_bill": total_bill})
+            return render(request, template_version+"/Views/Orders/detail.html", context=context)
         else:
             return HttpResponseRedirect(reverse('delivery-order'))

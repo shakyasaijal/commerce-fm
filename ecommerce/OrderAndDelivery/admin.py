@@ -10,3 +10,8 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ['associated_name', 'status', 'grand_total']
 
 admin.site.register(models.Order, OrderAdmin)
+
+class PaymentMethodAdmin(admin.ModelAdmin):
+    list_display = ['method', 'count']
+
+admin.site.register(models.PaymentMethods, PaymentMethodAdmin)
