@@ -1,5 +1,6 @@
 import random
 import string
+from django.db.models import Q, Count
 
 from DeliverySystem import models as delivery_models
 from OrderAndDelivery import models as order_models
@@ -27,3 +28,21 @@ def bill_number_generator(size=6, chars=string.ascii_uppercase + string.digits):
         number = generate()
 
     return number
+
+
+def total_pending_orders(user):
+    delivery_person = get_my_delivery_object(user)
+    order = order_models.Order.objects.filter(Q(district__in=delivery_person.based_on_district.all()) | Q(direct_assign=delivery_person) & ~Q(status=3)).order_by('created_at', 'status')
+    return order
+
+
+def my_deliveries(user):
+    delivery_person = get_my_delivery_object(user)
+    order = order_models.Order.objects.filter(Q(direct_assign=delivery_person) | Q(delivery_by=delivery_person) & ~Q(status=3)).order_by('updated_at')
+    return order
+
+
+def my_daily_delivery(user):
+    delivery_person = get_my_delivery_object(user)
+    order = order_models.Order.objects.filter(Q(delivery_by=delivery_person) & Q(status=3)).extra(select={'day': 'date( delivery_taken_datetime )'}).values('day').annotate(total=Count('id')).values('day','total').order_by('updated_at')
+    return order

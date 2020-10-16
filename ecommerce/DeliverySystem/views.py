@@ -83,20 +83,16 @@ class OrderView(LoginRequiredMixin, View):
         else:
             my_delivery_object = delivery_utils.get_my_delivery_object(
                 request.user)
-            all_orders = order_models.Order.objects.filter(
-                Q(district__in=delivery_utils.get_my_delivery_district(request.user)) & ~Q(status=3) | Q(direct_assign=my_delivery_object)).order_by('created_at', 'status')
+            all_orders = delivery_utils.total_pending_orders(request.user)
             my_delivery_object = delivery_utils.get_my_delivery_object(
                 request.user)
-            orders = []
-            for data in all_orders:
-                if not data.direct_assign or data.direct_assign == my_delivery_object:
-                    orders.append(data)
-        return render(request, template_version+"/Views/Orders/list.html", context={"orders": orders})
+        return render(request, template_version+"/Views/Orders/list.html", context={"orders": all_orders})
 
 
 @method_decorator(deliveryPerson_only, name='dispatch')
 class OrderDetail(LoginRequiredMixin, View):
     def get(self, request, id):
+        print(delivery_utils.my_daily_delivery(request.user))
         try:
             order = order_models.Order.objects.get(id=id)
         except (Exception, order_models.Order.DoesNotExist):
