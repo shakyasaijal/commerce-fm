@@ -91,6 +91,9 @@ class Order(user_models.AbstractTimeStamp):
     objects = models.Manager()
     delivered_objects = DeliveredManager()
 
+    # Order identification
+    bill_number = models.CharField(max_length=255, null=False, blank=False, unique=True)
+
     def __str__(self):
         return self.user.get_full_name()
 
