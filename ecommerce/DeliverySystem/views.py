@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Q
+import datetime
 
 from DeliverySystem import models as delivery_models
 from OrderAndDelivery import models as order_models
@@ -151,6 +152,46 @@ class OrderDetail(LoginRequiredMixin, View):
             context.update({"order": order})
             context.update({"order_items": order_items})
             context.update({"total_bill": total_bill})
+            context.update({"my_delivery_object": my_delivery_object})
             return render(request, template_version+"/Views/Orders/detail.html", context=context)
         else:
             return HttpResponseRedirect(reverse('delivery-order'))
+
+
+@method_decorator(deliveryPerson_only, name='dispatch')
+class TakeDelivery(LoginRequiredMixin, View):
+    def post(self, request):
+
+        # Have order with this id.
+        try:
+            order = order_models.Order.objects.get(id=request.POST['orderId'])
+        except (Exception, order_models.Order.DoesNotExist):
+            messages.error(request, "No order found.")
+            return HttpResponseRedirect(reverse('delivery-order'))
+
+        # Have direct assign.
+        # No need to take delivery if it has been assigned.
+        if order.direct_assign:
+            messages.warning(request, "This order is deliverying by {}".format(
+                order.direct_assign.user.get_full_name()))
+            return HttpResponseRedirect(reverse('delivery-order'))
+        else:
+            # Belongs to my delivery location
+            my_delivery_object = delivery_utils.get_my_delivery_object(
+                request.user)
+            if order.district not in my_delivery_object.based_on_district.all():
+                messages.warning(
+                    request, "You are not assigned for delivery in {}".format(order.district))
+                return HttpResponseRedirect(reverse('delivery-order'))
+            order.delivery_by = my_delivery_object
+            order.delivery_taken_datetime = datetime.datetime.now()
+            order.status = 2
+            try:
+                order.delivery_person_ip = request.new_ip.ip
+            except Exception:
+                pass
+            order.save()
+
+            messages.success(
+                request, "You can deliver this order. Now it's your responsibility.")
+            return redirect(order.get_detail_url())

@@ -23,17 +23,12 @@
         {{order.user.get_full_name}}
         <small>#007612</small>
       </h1>
-      <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li><a href="#">Examples</a></li>
-        <li class="active">Invoice</li>
-      </ol>
 </section>
 <div class="content">
     {% if messages %}   
         {% include "DeliverySystem/v2/Partials/notification.html" %}
     {% endif %}
-    <!-- title row -->
+   
     <div class="row">
         <div class="col-md-12">
             <div class="box box-success">
@@ -41,6 +36,15 @@
                     {% if order.direct_assign %}
                         <b>You are directly assigned to delivery this orders.</b>
                     {% endif %}
+                    {% if order.direct_assign or order.delivery_by %}
+                    <div class="img-container">
+                        <img src="{% static 'DashboardManagement/v2/images/taken.png' %}" class="pull-right" style="width: 20%;" />
+                    </div>
+                    {% else %}
+                    <div class="img-container">
+                        <img src="{% static 'DashboardManagement/v2/images/untaken.png' %}" class="pull-right" style="width: 20%;" />
+                    </div>
+                    {% endif %} 
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
                         </button>
@@ -155,11 +159,6 @@
                           </div>
                         </div>
                       </div>
-                      <div class="row no-print">
-                        <div class="col-xs-12">
-                          <div style="font-size: 15px;">Payment Method: {{order.payment_method}}</div>
-                        </div>
-                      </div>
                 </div>
             </div>
         </div>
@@ -175,37 +174,75 @@
                     </div>
                 </div>
                 <div class="box-body">
-                    <div class="form-group">
-                        <label>
-                            Status
-                        </label>
-                        <select name="order_status" class="form-control">
-                            <option value="1">Pending</option>
-                            <option value="1">In Process</option>
-                            <option value="1">Delivered</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-sm btn-primary">
-                            <i class="fa fa-wrench"> Update</i>
-                        </button>
-                    </div>
+                    {% if order.delivery_by == my_delivery_object or order.direct_assign == my_delivery_object %}
+                        <div class="form-group">
+                            <label>
+                                Status
+                            </label>
+                            <select name="order_status" class="form-control">
+                                <option value="1" {% if order.status == 1 %}selected{% endif %}>Pending</option>
+                                <option value="2" {% if order.status == 2 %}selected{% endif %}>In Process</option>
+                                <option value="3" {% if order.status == 3 %}selected{% endif %}>Delivered</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-sm btn-primary">
+                                <i class="fa fa-wrench"> Update</i>
+                            </button>
+                        </div>
+                    {% else %}
+                        <div class="form-group">
+                            <label>
+                                Status
+                            </label>
+                            <select name="order_status" class="form-control">
+                                <option value="1" {% if order.status == 1 %}selected{% endif %} disabled>Pending</option>
+                                <option value="2" {% if order.status == 2 %}selected{% endif %} disabled>In Process</option>
+                                <option value="3" {% if order.status == 3 %}selected{% endif %} disabled>Delivered</option>
+                            </select>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="box box-success">
-                <div class="box-header">
-                    <b>Want To Deliver?</b>
-                    <div class="box-tools pull-right">
-                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                        </button>
+            {% if not order.direct_assign and not order.delivery_by %}
+                <div class="box box-success">
+                    <div class="box-header">
+                        <b>Want To Deliver?</b>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <form method="POST" action="{% url 'delivery-take-delivery' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="orderId" value="{{order.id}}" />
+                        <button type="submit" class="btn btn-success btn-lg" onclick="confirm('You sure to take this order?')">Take this Order Now</button>
                     </div>
                 </div>
-                <div class="box-body">
-                    <button type="submit" class="btn btn-success btn-lg" onclick="confirm('You sure to take this order?')">Take this Order Now</button>
+            {% else %}
+                <div class="box box-success">
+                    <div class="box-header">
+                        <b>Delivery By</b>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" value="{% if order.delivery_by %}{{ order.delivery_by.user.get_full_name }}{% elif order.direct_assign %}{{order.direct_assign.user.get_full_name}}{% endif %}" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Delivery Picked</label>
+                            <input type="text" value="{{ order.delivery_taken_datetime }}" class="form-control" disabled />
+                        </div>
+                    </div>
                 </div>
-            </div>
+            {% endif %}
         </div>
         <div class="col-md-4">
             <div class="box box-success">
@@ -217,6 +254,8 @@
                     </div>
                 </div>
                 <div class="box-body">
+                    <div style="font-size: 15px;">Payment Method: {{order.payment_method}}</div><br>
+                    {% if order.direct_assign == my_delivery_object or order.delivery_by == my_delivery_object %}
                     <div class="form-group">
                         <label>
                             Payment
@@ -232,6 +271,18 @@
                             <i class="fa fa-wrench"> Update Payment</i>
                         </button>
                     </div>
+                    {% else %}
+                        <div class="form-group">
+                            <label>
+                                Payment
+                            </label>
+                            <select name="payment" class="form-control">
+                                <option value="1" {% if order.payment_status == '1' %}selected{% endif %} disabled>Pending</option>
+                                <option value="2" {% if order.payment_status == '2' %}selected{% endif %} disabled>Online Transfered/ Online Payment</option>
+                                <option value="3" {% if order.payment_status == '3' %}selected{% endif %} disabled>Cash In Hand</option>
+                            </select>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

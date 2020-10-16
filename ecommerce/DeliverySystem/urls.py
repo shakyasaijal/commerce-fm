@@ -8,4 +8,5 @@ urlpatterns = [
     path('login', views.LoginView.as_view(), name="delivery-login"),
     path('orders', views.OrderView.as_view(), name="delivery-order"),
     path('orders/details/<int:id>', views.OrderDetail.as_view(), name="delivery-order-details"),
+    path('take-delivery', views.TakeDelivery.as_view(), name="delivery-take-delivery"),
 ]

@@ -89,3 +89,4 @@ class DeliveredView(LoginRequiredMixin, View):
             "order_page": True
         }
         return render(request, template_version+"/Views/Products/order/delivered.html", context=context)
+

@@ -25,7 +25,9 @@
               <th>Name</th>
               <th>Total Products</th>
               <th>Ordered At</th>
+              <th>Delivery Choosen?</th>
               <th>Status</th>
+              <th>Delivery By</th>
               <th>Actions</th>
             </tr>
         </thead>
@@ -36,13 +38,21 @@
                     <td>{{data.user.get_full_name}}</td>
                     <td>{{data.item.all|length}}</td>
                     <td>{{data.created_at}}</td>
+                    <th>
+                        {% if data.direct_assign or data.delivery_by %}
+                            <button class="btn btn-sm btn-success">Taken</button>
+                        {% else %}
+                           <button class="btn btn-sm btn-danger">Not Taken</button>
+                        {% endif %}
+                    </th>
                     <td>
                         {% if data.status == 1 %}
                             Pending
                         {% else %}
-                            In Progress
+                            In Process
                         {% endif %}
                     </td>
+                    <td>{% if data.delivery_by %}{{data.delivery_by.user.get_full_name}}{% elif data.direct_assign %}{{data.direct_assign.user.get_full_name}}{% else %}None{% endif %}</td>
                     <td>
                         <a href="{% url 'delivery-order-details' data.id %}" class="btn btn-primary btn-sm">
                             <i class="fa fa-eye"></i>

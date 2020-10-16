@@ -5,7 +5,7 @@ admin.site.register(models.OrderItem)
 
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['associated_name', 'status', 'grand_total', 'created_at']
+    list_display = ['associated_name', 'status', 'grand_total', 'created_at', 'delivery_person']
     list_filter = ('status', )
     search_fields = ['associated_name', 'status', 'grand_total']
 

@@ -42,4 +42,5 @@ class IpAddress:
                     except (Exception, user_models.UserProfile.DoesNotExist):
                         pass
         except Exception as e:
+            print(e)
             pass

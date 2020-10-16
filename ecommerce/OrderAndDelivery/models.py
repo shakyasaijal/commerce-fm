@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Q
+from django.urls import reverse
 from django.conf import settings
 
 from User import models as user_models
@@ -81,7 +82,11 @@ class Order(user_models.AbstractTimeStamp):
         max_length=100, null=False, blank=False, default="1", choices=payment_status_choice)
 
     # If direct assign, then delivery_by = direct_assign
-    delivery_by = models.ForeignKey("DeliverySystem.DeliveryPerson", null=True, blank=True, on_delete=models.PROTECT, related_name='order_delivery_person')
+    delivery_by = models.ForeignKey("DeliverySystem.DeliveryPerson", null=True,
+                                    blank=True, on_delete=models.PROTECT, related_name='order_delivery_person')
+    delivery_taken_datetime = models.DateTimeField(null=True, blank=True)
+    delivery_person_ip = models.GenericIPAddressField(
+        protocol="both", unpack_ipv4=False, null=True, blank=True)
 
     objects = models.Manager()
     delivered_objects = DeliveredManager()
@@ -91,3 +96,9 @@ class Order(user_models.AbstractTimeStamp):
 
     def associated_name(self):
         return self.user.get_full_name()
+
+    def get_detail_url(self):
+        return reverse('delivery-order-details', kwargs={'id': self.id})
+
+    def delivery_person(self):
+        return self.delivery_by.user.get_full_name() if self.delivery_by else None
