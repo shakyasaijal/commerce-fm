@@ -100,6 +100,9 @@ class Order(user_models.AbstractTimeStamp):
     cancelled_reason = models.TextField(
         null=True, blank=True, help_text="Required when status=4 or Cancelled")
 
+    if settings.MULTI_VENDOR:
+        vendor = models.ForeignKey("Vendor.Vendor", on_delete=models.PROTECT, null=False, blank=False)
+
     objects = models.Manager()
     delivered_objects = DeliveredManager()
     cancelled_objects = CancelledManager()

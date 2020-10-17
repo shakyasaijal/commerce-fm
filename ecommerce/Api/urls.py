@@ -20,7 +20,7 @@ urlpatterns = [
                                'Product'), namespace='products_detail')),
     path('carts/', include(('CartSystem.Api.urls', 'Carts'),
                            namespace="carts_and_wishlists")),
-    # path('company/', include(('CompanyInformation.Api.urls', 'Company Info'), namespace='company_info')),
+    path('company/', include(('CompanyInformation.Api.urls', 'Company Info'), namespace='company_info')),
     path('user/', include(('User.Api.urls', 'User Related API'), namespace='user_api')),
     path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
 ]

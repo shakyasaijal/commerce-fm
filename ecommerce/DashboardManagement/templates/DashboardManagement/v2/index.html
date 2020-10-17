@@ -202,6 +202,26 @@
 
   $(function () {
     'use strict';
+    var myChartOptions = {
+      showScale               : true,
+      scaleShowGridLines      : false,
+      scaleGridLineColor      : 'rgba(0,0,0,.05)',
+      scaleGridLineWidth      : 1,
+      scaleShowHorizontalLines: true,
+      scaleShowVerticalLines  : true,
+      bezierCurve             : true,
+      bezierCurveTension      : 0.3,
+      pointDot                : false,
+      pointDotRadius          : 4,
+      pointDotStrokeWidth     : 1,
+      pointHitDetectionRadius : 20,
+      datasetStroke           : true,
+      datasetStrokeWidth      : 2,
+      datasetFill             : true,
+      maintainAspectRatio     : true,
+      responsive              : true
+    };
+    {% if referCode and referReward and not request.user.is_superuser %}
     var salesChartCanvas = $('#salesChart').get(0).getContext('2d');
     var salesChart       = new Chart(salesChartCanvas);
     var salesChartData = {
@@ -229,31 +249,13 @@
         }
       ]
     };
-    var myChartOptions = {
-      showScale               : true,
-      scaleShowGridLines      : false,
-      scaleGridLineColor      : 'rgba(0,0,0,.05)',
-      scaleGridLineWidth      : 1,
-      scaleShowHorizontalLines: true,
-      scaleShowVerticalLines  : true,
-      bezierCurve             : true,
-      bezierCurveTension      : 0.3,
-      pointDot                : false,
-      pointDotRadius          : 4,
-      pointDotStrokeWidth     : 1,
-      pointHitDetectionRadius : 20,
-      datasetStroke           : true,
-      datasetStrokeWidth      : 2,
-      datasetFill             : true,
-      maintainAspectRatio     : true,
-      responsive              : true
-    };
     salesChart.Line(salesChartData, myChartOptions);
+    {% endif %}
+    
 
     // Marketing Bar Chart
-    let market = "{{market|safe}}";
-    console.log(market)
-    let marketCount = "{{market_count|safe}}";
+    let market = {{market|safe}};
+    let marketCount = {{market_count|safe}};
     var areaChartData = {
       labels: market,
       datasets: [

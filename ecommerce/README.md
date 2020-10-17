@@ -15,7 +15,6 @@
 $ virtualenv venv
 $ source venv/bin/activate
 $ pip install -r requirements/development.txt
-$ python helper/migrations.py
 $ python manage.py makemigrations
 $ python manage.py migrate
 $ python manage.py runserver

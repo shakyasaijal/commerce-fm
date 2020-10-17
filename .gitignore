@@ -89,8 +89,6 @@ venv/
 config.yaml
 config.yml
 static/images/store
-migrations
-!**/migrations/__init__.py
 .vscode
 daemon-services/
 media
