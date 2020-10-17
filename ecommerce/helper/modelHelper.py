@@ -24,7 +24,8 @@ is_featured = (
 order_status_choice = (
     (1, 'Pending'),
     (2, 'In Progress'),
-    (3, 'Delivered')
+    (3, 'Delivered'),
+    (4, 'Cancelled'),
 )   
 
 soft_delete = (

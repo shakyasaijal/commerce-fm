@@ -1,0 +1,73 @@
+{% extends 'DeliverySystem/v2/Partials/base.html' %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'DashboardManagement/v2/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+{% endblock css %}
+
+{% block content %}
+
+<section class="content-header">
+</section>
+<div class="content">
+  {% if messages %}   
+    {% include "DeliverySystem/v2/Partials/notification.html" %}
+  {% endif %}
+  <div class="box">
+    <div class="box-header">
+      <h3 class="box-title">All Cancelled Orders</h3>
+    </div>
+    <div class="box-body">
+      <table id="example1" class="table table-bordered table-striped table-responsive table-sm">
+        <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Total Products</th>
+              <th>Ordered At</th>
+              <th>Status</th>
+              <th>Delivery By</th>
+              <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in orders %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{data.user.get_full_name}}</td>
+                    <td>{{data.item.all|length}}</td>
+                    <td>{{data.created_at}}</td>
+                            <td>
+                        {% if data.status == 1 %}
+                            Pending
+                        {% else %}
+                            In Process
+                        {% endif %}
+                    </td>
+                    <td>{% if data.delivery_by %}{{data.delivery_by.user.get_full_name}}{% elif data.direct_assign %}{{data.direct_assign.user.get_full_name}}{% else %}None{% endif %}</td>
+                    <td>
+                        <a href="{% url 'delivery-order-details' data.id %}" class="btn btn-primary btn-sm">
+                            <i class="fa fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'DashboardManagement/v2/bower_components/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'DashboardManagement/v2/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'DashboardManagement/v2/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+<script>
+    $(function () {
+      $('#example1').DataTable({
+        "lengthMenu": [[20, 50, 150, -1], [20, 50, 150, "All"]]
+      })
+    })
+  </script>
+{% endblock js %}

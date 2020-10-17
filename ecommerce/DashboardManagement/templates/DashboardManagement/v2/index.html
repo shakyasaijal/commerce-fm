@@ -251,8 +251,9 @@
     salesChart.Line(salesChartData, myChartOptions);
 
     // Marketing Bar Chart
-    let market = {{market|safe}};
-    let marketCount = {{market_count|safe}};
+    let market = "{{market|safe}}";
+    console.log(market)
+    let marketCount = "{{market_count|safe}}";
     var areaChartData = {
       labels: market,
       datasets: [

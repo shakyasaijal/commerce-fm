@@ -23,6 +23,11 @@ class DeliveredManager(models.Manager):
         return super().get_queryset().filter(status=3).order_by('created_at')
 
 
+class CancelledManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(status=4).order_by('created_at')
+
+
 class PaymentMethods(user_models.AbstractTimeStamp):
     method = models.CharField(max_length=255, null=False, blank=False)
     count = models.BigIntegerField(null=False, blank=False, default=0)
@@ -88,11 +93,16 @@ class Order(user_models.AbstractTimeStamp):
     delivery_person_ip = models.GenericIPAddressField(
         protocol="both", unpack_ipv4=False, null=True, blank=True)
 
+    # Order identification
+    bill_number = models.CharField(
+        max_length=255, null=False, blank=False, unique=True)
+
+    cancelled_reason = models.TextField(
+        null=True, blank=True, help_text="Required when status=4 or Cancelled")
+
     objects = models.Manager()
     delivered_objects = DeliveredManager()
-
-    # Order identification
-    bill_number = models.CharField(max_length=255, null=False, blank=False, unique=True)
+    cancelled_objects = CancelledManager()
 
     def __str__(self):
         return self.user.get_full_name()

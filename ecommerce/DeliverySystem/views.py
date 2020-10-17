@@ -71,6 +71,10 @@ class LoginView(View):
 @method_decorator(deliveryPerson_only, name='dispatch')
 class Index(LoginRequiredMixin, View):
     def get(self, request):
+        data = delivery_utils.index_data(request.user)
+        context = {}
+        context.update(data)
+
         return render(request, template_version+"/Views/index.html")
 
 
@@ -92,7 +96,7 @@ class OrderView(LoginRequiredMixin, View):
 @method_decorator(deliveryPerson_only, name='dispatch')
 class OrderDetail(LoginRequiredMixin, View):
     def get(self, request, id):
-        print(delivery_utils.my_daily_delivery(request.user))
+        print(delivery_utils.orders_to_be_taken(request.user))
         try:
             order = order_models.Order.objects.get(id=id)
         except (Exception, order_models.Order.DoesNotExist):
@@ -155,6 +159,27 @@ class OrderDetail(LoginRequiredMixin, View):
 
 
 @method_decorator(deliveryPerson_only, name='dispatch')
+class MyDelivery(LoginRequiredMixin, View):
+    def get(self, request):
+        my_delivery_obj = delivery_utils.get_my_delivery_object(request.user)
+        orders = order_models.Order.objects.filter(Q(direct_assign=my_delivery_obj) | Q(delivery_by=my_delivery_obj) & ~Q(status=3) & ~Q(status=4)).order_by('created_at')
+        context = {}
+        context.update({"orders": orders})
+        context.update({"title": "My Delivery"})
+        return render(request, template_version+"/Views/Orders/myDelivery.html", context=context)
+
+
+@method_decorator(deliveryPerson_only, name='dispatch')
+class PendingDelivery(LoginRequiredMixin, View):
+    def get(self, request):
+        orders = order_models.Order.objects.filter(~Q(status=3) & ~Q(status=4) & Q(direct_assign__isnull=True) & Q(delivery_by__isnull=True)).order_by('created_at')
+        context = {}
+        context.update({"orders": orders})
+        context.update({"title": "All Pending To Take Delivery."})
+        return render(request, template_version+"/Views/Orders/pending.html", context=context)
+
+
+@method_decorator(deliveryPerson_only, name='dispatch')
 class TakeDelivery(LoginRequiredMixin, View):
     def post(self, request):
 
@@ -191,3 +216,13 @@ class TakeDelivery(LoginRequiredMixin, View):
             messages.success(
                 request, "You can deliver this order. Now it's your responsibility.")
             return redirect(order.get_detail_url())
+
+
+@method_decorator(deliveryPerson_only, name='dispatch')
+class CancelDelivery(LoginRequiredMixin, View):
+    def get(self, request):
+        orders = order_models.Order.cancelled_objects.all().order_by('-created_at')
+        context = {}
+        context.update({"orders": orders})
+        context.update({"title": "Cancelled Orders"})
+        return render(request, template_version+"/Views/Orders/cancelled.html", context=context)
