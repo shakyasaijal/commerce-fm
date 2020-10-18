@@ -1,0 +1,19 @@
+FROM python:3.7
+ENV PYTHONUNBUFFERED 1
+
+RUN rm -rf /var/lib/apt/lists/*
+# RUN apt-get clean
+RUN apt-get update
+RUN apt-get -y install binutils 
+# RUN apt -y install libproj-dev
+RUN apt-get -y install gdal-bin
+
+RUN mkdir /backend
+
+ADD ./requirements /backend/requirements
+
+WORKDIR /backend
+
+RUN pip install -r requirements/development.txt
+
+EXPOSE 8001

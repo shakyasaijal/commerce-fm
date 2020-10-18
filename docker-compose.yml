@@ -1,0 +1,57 @@
+version: "3.1"
+
+services:
+    backend:
+        build:
+            context: ./ecommerce/
+            dockerfile: DockerFile.dev
+        
+        command: python manage.py runserver 0.0.0.0:8001
+
+        volumes: 
+            - ./ecommerce:/backend
+        ports:
+            # - "8000:8000"
+            - "8001:8001"
+        expose: 
+            # - 8000
+            - 8001
+        networks: 
+            - ecommerce
+        depends_on: 
+            - db
+            - redis_db
+        restart: always
+
+    db:
+        image: mysql
+        command: ["mysqld", "--default-authentication-plugin=mysql_native_password"]
+        ports:
+          - "3307:3306"
+        volumes: 
+            - mysql_data:/var/lib/mysql
+        environment:
+           MYSQL_DATABASE: 'commerce_fm'
+           MYSQL_USER: 'rohin'
+           MYSQL_PASSWORD: 'password'
+           MYSQL_ROOT_PASSWORD: 'password'
+        networks: 
+            - ecommerce
+
+    
+    redis_db:
+        image: redis
+        # expose: 
+        #     - "6379"
+        networks: 
+            - ecommerce
+
+
+volumes: 
+    mysql_data:
+        driver: local
+    
+
+networks:
+    ecommerce:
+        driver: bridge

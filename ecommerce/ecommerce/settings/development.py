@@ -13,6 +13,7 @@ if credentials['DB_ENGINE'] == 'mysql':
         db_user = credentials['DB_USER']
         db_password = credentials['DB_PASSWORD']
         db_port = credentials['DB_PORT']
+        db_host = credentials['DB_HOST']
     except KeyError:
         raise ImproperlyConfigured(
             "Improperly configured database settings in config.yaml.")
@@ -23,6 +24,7 @@ if credentials['DB_ENGINE'] == 'mysql':
             'NAME': db_name,
             'USER': db_user,
             'PASSWORD': db_password,
+            'HOST': db_host,
             'PORT': db_port
         }
     }
