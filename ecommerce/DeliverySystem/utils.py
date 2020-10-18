@@ -99,7 +99,7 @@ def index_data(user):
         context.update({"cancelled_orders": cancelled_data})
     else:
         total_pending_admin_data = total_pending_admin()
-        order_to_take_admin_data = order_to_take_admin()
+        order_to_take_admin_data = orders_to_take_admin()
         cancelled_data = cancelled_order_admin()
         
         context.update({"total_pending_admin": total_pending_admin_data})
