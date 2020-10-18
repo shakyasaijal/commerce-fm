@@ -88,22 +88,22 @@ def cancelled_order_admin():
 def index_data(user):
     context = {}
     if not user.is_superuser:
-        my_deliveries = my_deliveries(user)
-        total_pending_orders = total_pending_orders(user)
-        orders_to_be_taken = orders_to_be_taken(user)
-        cancelled = cancelled_orders(user)
+        my_deliveries_data = my_deliveries(user)
+        total_pending_orders_data = total_pending_orders(user)
+        orders_to_be_taken_data = orders_to_be_taken(user)
+        cancelled_data = cancelled_orders(user)
 
-        context.update({"my_deliveries": my_deliveries})
-        context.update({"total_pending_orders": total_pending_orders})
-        context.update({"orders_to_be_taken": orders_to_be_taken})
-        context.update({"cancelled_orders": cancelled})
+        context.update({"my_deliveries": my_deliveries_data})
+        context.update({"total_pending_orders": total_pending_orders_data})
+        context.update({"orders_to_be_taken": orders_to_be_taken_data})
+        context.update({"cancelled_orders": cancelled_data})
     else:
-        total_pending_admin = total_pending_admin()
-        order_to_take_admin = order_to_take_admin()
-        cancelled = cancelled_order_admin()
+        total_pending_admin_data = total_pending_admin()
+        order_to_take_admin_data = order_to_take_admin()
+        cancelled_data = cancelled_order_admin()
         
-        context.update({"total_pending_admin": total_pending_admin})
-        context.update({"order_to_take_admin": order_to_take_admin})
-        context.update({"cancelled_orders": cancelled})
+        context.update({"total_pending_admin": total_pending_admin_data})
+        context.update({"order_to_take_admin": order_to_take_admin_data})
+        context.update({"cancelled_orders": cancelled_data})
 
     return context

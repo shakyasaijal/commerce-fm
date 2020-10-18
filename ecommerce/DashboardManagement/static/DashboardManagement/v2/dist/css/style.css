@@ -1,0 +1,56 @@
+.mt20{
+    margin-top: 20px;
+}
+.table-img-container{
+    height: 50px;
+    width: 50px;
+}
+.table-img-container img{
+    height: 100%;
+    width: 100%;
+    border-radius: 50%;
+}
+.selected-navbar{
+    color: #fff !important;
+}
+.form-error{
+    color: red;
+}
+form ul{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.small-img-container{
+    height: 60px;
+    width: 60px;
+    margin: 0 auto;
+}
+.small-img-container img{
+    height: 100% !important;
+    width: 100% !important;
+}
+.line-through{
+    text-decoration: line-through;
+}
+.f15{
+    font-size: 15px;
+}
+.f13{
+    font-size: 13px;
+}
+.banner-img{
+    height: 125px;
+}
+.banner-img img{
+    height: 100%;
+}
+.banner-index-img{
+    width: 300px;
+}
+.banner-index-img img{
+    width: 100%;
+}
+.cursor{
+    cursor: pointer;
+}

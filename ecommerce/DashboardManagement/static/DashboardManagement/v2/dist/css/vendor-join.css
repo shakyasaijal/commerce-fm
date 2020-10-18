@@ -1,0 +1,108 @@
+body, html{
+    overflow: hidden;
+}
+.wrapper{
+    height: 100vh;
+}
+.background{
+    position: absolute;
+    right: -20px;
+    bottom: -20px;
+    height: 550px;
+    width: 550px;
+    overflow: hidden;
+}
+.background img{
+    height: 100%;
+    width: 100%;
+}
+.welcome-content{
+    position: relative;
+    z-index: 5;
+    top: 30%;
+    transform: translate(0, -30%);
+}
+.access-content{
+    position: relative;
+    z-index: 5;
+    top: 50%;
+    transform: translate(0, -50%);
+}
+.title{
+    font-size: 25px;
+    color: green;
+    line-height: 0;
+    text-align: center;
+    font-weight: bold;
+}
+.fill-up{
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+.welcome-to{
+    font-size: 30px;
+    line-height: 1rem;
+    text-transform: uppercase;
+}
+.company-name{
+    font-size: 40px;
+    text-transform: uppercase;
+    word-break: break-all;
+}
+.data-content{
+    position: relative;
+    z-index: 5;
+    top: 40%;
+    transform: translate(0, -40%);
+}
+p.info{
+    font-size: 16px;
+    word-break: break-word;
+}
+.error{
+    color: red;
+}
+.form-image{
+    margin: 0 auto;
+    height: 350px;
+    width: 350px;
+}
+.form-image img{
+    height: 100%;
+    width: 100%;
+}
+@media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
+    .background{
+        overflow: hidden;
+        right: 0;
+        bottom: 0;
+        height: 450px;
+        width: 450px;
+    }
+    .welcome-content{
+        top: 10%;
+        transform: translate(0, -10%);
+    }
+    .welcome-to{
+        font-size: 20px;
+    }
+    .company-name{
+        font-size: 30px;
+    }
+    .data-content{
+        position: relative;
+        top: 20%;
+        transform: translate(0, -20%);
+    }
+    .proceed{
+        margin-top: 10px;
+    }
+    .mt30{
+        margin-top: 30px;
+    }
+    .form-image{
+        height: 300px;
+        width: 300px;
+        margin-top: 30px;
+    }
+}
