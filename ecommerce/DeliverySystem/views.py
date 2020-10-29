@@ -82,7 +82,7 @@ class Index(LoginRequiredMixin, View):
 class OrderView(LoginRequiredMixin, View):
     def get(self, request):
         if request.user.is_superuser:
-            orders = order_models.Order.objects.filter(
+            all_orders = order_models.Order.objects.filter(
                 ~Q(status=3)).order_by('created_at', 'status')
         else:
             my_delivery_object = delivery_utils.get_my_delivery_object(

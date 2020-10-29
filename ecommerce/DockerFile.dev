@@ -16,4 +16,4 @@ WORKDIR /backend
 
 RUN pip install -r requirements/development.txt
 
-EXPOSE 8001
+EXPOSE 8002

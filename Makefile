@@ -1,4 +1,4 @@
-.PHONY: all migrate up down runcommand build 
+.PHONY: all migrate up down runcommand build
 
 APPNAME="Commerce-fm"
 APPSLUG=commerce_fm
@@ -31,5 +31,3 @@ migrate:
 # target: runcommand - Run a django command.
 runcommand:
 	docker-compose run --rm backend python3 manage.py $(command)
-
-

@@ -62,6 +62,7 @@ def vendor_only(function):
     return _wrapped_view
 
 
+
 @method_decorator(vendor_only, name='dispatch')
 class IndexView(LoginRequiredMixin, View):
     def get(self, request):

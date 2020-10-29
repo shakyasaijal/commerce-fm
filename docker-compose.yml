@@ -6,16 +6,16 @@ services:
             context: ./ecommerce/
             dockerfile: DockerFile.dev
         
-        command: python manage.py runserver 0.0.0.0:8001
+        command: python manage.py runserver 0.0.0.0:8002
 
         volumes: 
             - ./ecommerce:/backend
         ports:
             # - "8000:8000"
-            - "8001:8001"
+            - "8002:8002"
         expose: 
             # - 8000
-            - 8001
+            - 8002
         networks: 
             - ecommerce
         depends_on: 
@@ -31,10 +31,10 @@ services:
         volumes: 
             - mysql_data:/var/lib/mysql
         environment:
-           MYSQL_DATABASE: 'commerce_fm'
-           MYSQL_USER: 'rohin'
-           MYSQL_PASSWORD: 'password'
-           MYSQL_ROOT_PASSWORD: 'password'
+           MYSQL_DATABASE: 'commerce-fm'
+           MYSQL_USER: 'saijal'
+           MYSQL_PASSWORD: 'root'
+           MYSQL_ROOT_PASSWORD: 'root'
         networks: 
             - ecommerce
 
@@ -46,6 +46,18 @@ services:
         networks: 
             - ecommerce
 
+    celery:
+        build: 
+            context: ./ecommerce/
+            dockerfile: DockerFile.dev
+        volumes:
+            - ./ecommerce:/backend
+        command: celery -A ecommerce worker -l info
+        links:
+            - redis_db
+        networks: 
+            - ecommerce
+        restart: on-failure
 
 volumes: 
     mysql_data:
