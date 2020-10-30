@@ -10,7 +10,9 @@ all_navigation_routes = [
         'icon': 'fa fa-dashboard',
         'service': '',
         'group': False,
-        'permission': ''
+        'permission': '',
+        'vendorOnly': False,
+        'links': [],
     },
     {
         'title': 'groups and permissions',
@@ -19,7 +21,9 @@ all_navigation_routes = [
         'icon': 'fa fa-users',
         'service': '',
         'group': False,
-        'permission': 'auth.view_group'
+        'permission': 'auth.view_group',
+        'vendorOnly': True,
+        'links': [],
     },
     {
         'title': 'users',
@@ -28,7 +32,9 @@ all_navigation_routes = [
         'superuser': False,
         'icon': 'fa fa-user',
         'group': False,
-        'permission': 'api.view_user'
+        'permission': 'api.view_user',
+        'vendorOnly': False,
+        'links': [],
     },
     {
         'group': True,
@@ -37,6 +43,7 @@ all_navigation_routes = [
         'icon': 'fa fa-sitemap',
         'service': '',
         'permission': '',
+        'vendorOnly': False,
         'links': [
             {
                 'title': 'category',
@@ -57,6 +64,7 @@ all_navigation_routes = [
         'icon': 'fa fa-cart-plus',
         'service': '',
         'permission': '',
+        'vendorOnly': False,
         'links': [
             {
                 'title': 'pending/new orders',
@@ -81,6 +89,7 @@ if settings.MULTI_VENDOR:
             'icon': 'fa fa-object-group',
             'permission': 'Vendor.view_vendor',
             'service': 'multi-vendor',
+            'vendorOnly': False,
             'links': [
                 {
                     'title': 'vendors',
@@ -106,6 +115,7 @@ if settings.HAS_OFFER_APP:
             'service': '',
             'group': True,
             'permission': '',
+            'vendorOnly': False,
             'links': [
                 {
                     'title': 'all offers',
@@ -129,6 +139,8 @@ all_navigation_routes += [
         'icon': 'fa fa-info',
         'service': '',
         'group': False,
-        'permission': 'CompanyInformation.view_companyinformation'
+        'permission': 'CompanyInformation.view_companyinformation',
+        'vendorOnly': False,
+        'links': [],
     },
 ]

@@ -16,7 +16,7 @@
   <div class="box">
     <div class="box-header">
       <h3 class="box-title">Categories</h3>
-        {% if 'add_category' in user_permissions or request.user.is_superuser %}
+        {% if request.user.is_superuser %}
           <a href="{% url 'category-add' %}" class="btn btn-primary btn-sm btn-icon-split pull-right">
               <span class="icon text-white-50">
                   <i class="fa fa-plus"></i>
@@ -70,7 +70,7 @@
               <th>Engish/ Nepali Name</th>
               <th>Image</th>
               <th>Is Featured?</th>
-              {% if 'view_category' in user_permissions or 'change_category' in user_permissions or 'delete_category' in user_permissions or request.user.is_superuser %}
+              {% if request.user.is_superuser %}
                   <th>Actions</th>
               {% endif %}
             </tr>
@@ -85,18 +85,13 @@
                     </div>
                   </td>
                   <td>{% if category.isFeatured %}Yes{% else %}No{%endif%}</td>
-                  {% if 'view_category' in user_permissions or 'delete_category' in user_permissions or 'change_category' in user_permissions or request.user.is_superuser %}
+                  {% if request.user.is_superuser %}
                       <td class="flex-row">
-                        
-                          {% if 'change_category' in user_permissions or 'view_category' in user_permissions or request.user.is_superuser %}
-                              <a class="btn btn-sm btn-primary" href="{% url 'category-edit' category.id %}"><i class="fa fa-pencil"></i></a>
-                          {% endif %}
-                          {% if 'delete_category' in user_permissions or request.user.is_superuser %}
-                              <form method="POST" action="{% url 'category-delete' category.id %}" class="pull-right">
-                              {% csrf_token %}
-                                  <button class="btn btn-danger btn-sm" onClick='return confirm("Are you sure you want to delete {{category.name}} ?")' type="submit"><i class="fa fa-trash"></i></button>
-                              </form>
-                          {% endif %}
+                        <a class="btn btn-sm btn-primary" href="{% url 'category-edit' category.id %}"><i class="fa fa-pencil"></i></a>
+                        <form method="POST" action="{% url 'category-delete' category.id %}" class="pull-right">
+                        {% csrf_token %}
+                            <button class="btn btn-danger btn-sm" onClick='return confirm("Are you sure you want to delete {{category.name}} ?")' type="submit"><i class="fa fa-trash"></i></button>
+                        </form>
                       </td>
                   {% endif %}
               </tr>

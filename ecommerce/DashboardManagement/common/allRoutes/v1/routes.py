@@ -8,7 +8,9 @@ all_navigation_routes = [
         'icon': 'fas fa-fw fa-tachometer-alt',
         'service': '',
         'group': False,
-        'permission': ''
+        'permission': '',
+        'vendorOnly': False,
+        'links': [],
     },
     {
         'title': 'groups and permissions',
@@ -17,7 +19,9 @@ all_navigation_routes = [
         'icon': 'fas fa-fw fa-users',
         'service': '',
         'group': False,
-        'permission': 'auth.view_group'
+        'permission': 'auth.view_group',
+        'vendorOnly': True,
+        'links': [],
     },
     {
         'title': 'users',
@@ -26,7 +30,9 @@ all_navigation_routes = [
         'icon': 'fas fa-fw fa-user',
         'service': '',
         'group': False,
-        'permission': 'api.view_user'
+        'permission': 'api.view_user',
+        'vendorOnly': False,
+        'links': [],
     },
     {
         'group': True,
@@ -35,6 +41,7 @@ all_navigation_routes = [
         'icon': 'fas fa-fw fa-cog',
         'service': '',
         'permission': '',
+        'vendorOnly': False,
         'links': [
             {
                 'title': 'category',
@@ -55,6 +62,7 @@ all_navigation_routes = [
         'superuser': False,
         'icon': 'fas fa-fw fa-cog',
         'permission': '',
+        'vendorOnly': False,
         'links': [
             {
                 'title': 'pending/new orders',

@@ -21,7 +21,7 @@
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
                 {% include 'DashboardManagement/v1/Partials/navbar.html' %}
-                <div {% if not no %} class="container-fluid">
+                <div {% if not no %} class="container-fluid" {% endif %}>
                     {% block content %}
                     {% endblock content %}
                 </div>

@@ -32,8 +32,8 @@ services:
             - mysql_data:/var/lib/mysql
         environment:
            MYSQL_DATABASE: 'commerce-fm'
-           MYSQL_USER: 'saijal'
-           MYSQL_PASSWORD: 'root'
+           MYSQL_USER: 'rohin'
+           MYSQL_PASSWORD: 'password'
            MYSQL_ROOT_PASSWORD: 'root'
         networks: 
             - ecommerce

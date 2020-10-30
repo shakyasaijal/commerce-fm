@@ -16,7 +16,7 @@ if template_version == "v1":
 elif template_version == "v2":
     from .allRoutes.v2 import routes
 
-admin_navigation_routes = [route for route in routes.all_navigation_routes]
+admin_navigation_routes = [route for route in routes.all_navigation_routes if route['vendorOnly']==False]
 vendor_navigation_routes = [route for route in routes.all_navigation_routes if route['superuser']==False]
 
 def get_routes(user):
@@ -37,29 +37,28 @@ def get_routes(user):
 def routes_by_permissions(user):
     users_all_pemissions = Permission.objects.filter(
         group__user=user).order_by('-content_type')
-    routes = []
+    routes_ = []
     try:
-        for route in all_navigation_routes:
-            if route['service'] == 'multi-vendor' and settings.MULTI_VENDOR or routes['service'] == '':
-                try:
-                    possible_links = []
-                    for data in route["links"]:
-                        if data["permission"]:
-                            if user.has_perm(data["permission"]):
-                                possible_links.append(data)
-                    if possible_links:
-                        route['links'] = possible_links
-                        routes.append(route)
-                except Exception as e:
-                    if route["permission"]:
-                        if user.has_perm(route["permission"]):
-                            routes.append(route)
-                    else:
-                        routes.append(route)
-        return routes
+        for route in routes.all_navigation_routes:
+            try:
+                possible_links = []
+                for data in route["links"]:
+                    if data["permission"]:
+                        if user.has_perm(data["permission"]):
+                            possible_links.append(data)
+                if possible_links:
+                    route['links'] = possible_links
+                    routes_.append(route)
+            except Exception as e:
+                if route["permission"]:
+                    if user.has_perm(route["permission"]):
+                        routes_.append(route)
+                else:
+                    routes_.append(route)
+        return routes_
     except Exception as e:
         print(e)
-        return routes
+        return routes_
 
 
 def get_formatted_routes(routes, active_page):
