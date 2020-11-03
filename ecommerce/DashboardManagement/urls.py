@@ -57,4 +57,11 @@ urlpatterns = [
 
     # Refer
     path('refer/', include('Referral.urls')),
+
+    path('comments', views.ProductComment.as_view(), name="comments"),
+    path('comments/<id>',
+        views.CommentDetails.as_view(), name="comment-detail"),
+    path('comments/delete/<id>', views.CommentDelete.as_view(), name="comment-delete"),
+    path('comments/approve/<id>', views.CommentApprove.as_view(), name="comment-approve"),
+    path('comments/edit/<int:id>', views.CommentEdit.as_view(), name="comment-edit"),
 ]

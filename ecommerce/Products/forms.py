@@ -117,4 +117,15 @@ class NewCategoryRequest(forms.ModelForm):
     class Meta:
         model = products_models.NewCategoryRequest
         fields = ('categoryName', 'describe',)
-        
+
+
+class CommentForm(forms.ModelForm):
+    body = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Enter Reply Here ...'
+        })
+    )
+
+    class Meta:
+        model = products_models.Comment
+        fields = ('body',)

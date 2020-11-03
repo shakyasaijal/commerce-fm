@@ -5,6 +5,7 @@ from django.conf import settings
 
 from Vendor import models as vendor_models
 from Referral import models as refer_models
+from Products import models as product_models
 
 
 def excluding_permissions():
@@ -137,3 +138,13 @@ def childBlocks(block):
         print(e)
 
     return count
+
+
+def get_product_images(product):
+    images = []
+    product_images = product_models.ProductImage.objects\
+        .filter(product=product)
+    for image in product_images:
+        images.append(image.image.url)
+
+    return images

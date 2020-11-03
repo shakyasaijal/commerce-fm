@@ -10,10 +10,11 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import Permission
-from django.forms import modelformset_factory, inlineformset_factory
+from django.forms import modelformset_factory
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth import update_session_auth_hash
-from django.db.models import Count
+from django.core.paginator import Paginator
+from django.db.models import Q
+
 
 from DashboardManagement.common import routes as navbar
 from Vendor import models as vendor_models
@@ -1084,3 +1085,197 @@ class ProductEdit(LoginRequiredMixin, View):
 
         messages.warning(request, 'Failed to update Product.')
         return HttpResponseRedirect(reverse('vendor-product-edit', args=[str(id)]))
+
+
+@method_decorator(vendor_only, name='dispatch')
+class ProductComment(LoginRequiredMixin, View):
+    def get(self, request):
+        if (not request.user.has_perm('products.view_comment') and
+                not app_helper.is_vendor_admin(request.user)):
+            return HttpResponseRedirect(reverse('vendor-home'))
+        try:
+            products = product_models.Product.objects\
+                .filter(vendor=app_helper.current_user_vendor(request.user))
+            data = []
+            for product in products:
+                if product.comments.all():
+                    comments = 0
+                    for comment in product.comments\
+                            .all().order_by('-created_at'):
+                        comments += 1
+                    data.append({
+                        'english_name': product.english_name,
+                        'id': product.id,
+                        'comment': comments
+                    })
+            routes = navbar.get_formatted_routes(navbar.get_routes(
+                request.user), active_page='our products')
+            context = {
+                'routes': routes,
+                # 'comments':comments,
+                'products': data,
+                'title': "Comment"
+            }
+            return render(
+                request,
+                template_version+"/Views/Products/comments/comment.html",
+                context=context
+            )
+        except Exception as e:
+            print(e)
+            pass
+
+
+@method_decorator(vendor_only, name='dispatch')
+class CommentDetails(LoginRequiredMixin, View):
+    def get(self, request, id):
+        if (not request.user.has_perm('products.view_comment') and
+                not app_helper.is_vendor_admin(request.user)):
+            return HttpResponseRedirect(reverse('vendor-home'))
+        try:
+            product = product_models.Product.objects.get(id=id)
+            comments_user = product_models.Comment.objects.values(
+                'user').distinct()
+            users = []
+            for user in comments_user:
+                if user['user'] not in users:
+                    users.append(user['user'])
+            comments = []
+            for ids in users:
+                comment = product_models.Comment.objects.filter(
+                    Q(user__id=ids) & Q(product=product) & Q(parent=None))
+                if comment:
+                    comments.append({
+                        'user_id': ids,
+                        'comments': comment
+                    })
+            paginator = Paginator(comments, 10)
+            page_number = request.GET.get('page')
+            comments = paginator.get_page(page_number)
+            routes = navbar.get_formatted_routes(navbar.get_routes(
+                request.user), active_page='our products')
+            form = product_forms.CommentForm()
+            images = app_helper.get_product_images(product)
+            context = {
+                'routes': routes,
+                'comments': comments,
+                'product': product,
+                'form': form,
+                'title': 'Comment',
+                'image': images
+            }
+            return render(
+                request,
+                template_version+"/Views/Products/comments/commentDetail.html",
+                context=context
+            )
+
+        except (Exception,  product_models.Product.DoesNotExist) as e:
+            print(e)
+            messages.warning(
+                request,
+                "Comment for Product with this id does not exist"
+            )
+            return HttpResponseRedirect(reverse('comments'))
+
+    def post(self, request, id):
+        if (not request.user.has_perm('products.add_comment') and
+                not app_helper.is_vendor_admin(request.user)):
+            return HttpResponseRedirect(reverse('vendor-home'))
+        try:
+            product = product_models.Product.objects.get(id=id)
+            parent_id = int(request.POST.get('parent_id'))
+            parent_obj = product_models.Comment.objects.get(id=parent_id)
+            data = {
+                'body': request.POST['body'],
+                'user': request.user,
+                'parent': parent_obj,
+                'product': product
+            }
+            product_models.Comment.objects.create(**data)
+            return HttpResponseRedirect(
+                reverse('comment-detail', args=[str(id)]))
+
+        except (Exception, product_models.Product.DoesNotExist):
+            messages.warning(
+                request,
+                "Comment for Product with this id does not exist"
+            )
+            return HttpResponseRedirect(reverse('comments'))
+
+
+class CommentDelete(LoginRequiredMixin, View):
+    def get(self, request, id):
+        return HttpResponseRedirect(reverse('comments'))
+
+    def post(self, request, id):
+        if (not request.user.has_perm('products.delete_comment') and
+                not request.user.has_perm('products.delete_reply') and
+                not app_helper.is_vendor_admin(request.user)):
+            return HttpResponseRedirect(reverse('vendor-home'))
+        try:
+            comment = product_models.Comment.objects.get(id=id)
+            p_id = comment.product.id
+            comment.delete()
+            messages.success(request, 'Comment has been successfully deleted.')
+            return HttpResponseRedirect(
+                reverse('comment-detail', args=[str(p_id)]))
+        except (product_models.Comment.DoesNotExist, Exception) as e:
+            print(e)
+            messages.warning(
+                request, 'There is no such comment with id {}'.format(id))
+        return HttpResponseRedirect(reverse('comments'))
+
+
+class CommentApprove(LoginRequiredMixin, View):
+    def get(self, request, id):
+        if (not request.user.has_perm('products.approve_reply') and
+                not request.user.has_perm('products.disapprove_reply') and
+                not app_helper.is_vendor_admin(request.user)):
+            return HttpResponseRedirect(reverse('vendor-home'))
+        try:
+            comment = product_models.Comment.objects.get(id=id)
+            p_id = comment.product.id
+            comment.approve()
+            comment.save()
+            try:
+                if comment.replies:
+                    comment.replies.approved_comment = comment.approved_comment
+                    comment.replies.save()
+            except Exception:
+                pass
+            msg = ''
+            if comment.approved_comment:
+                msg = 'Comment has been approved'
+            else:
+                msg = 'Comment has been disapproved'
+            messages.success(request, msg)
+            return HttpResponseRedirect(
+                reverse('comment-detail', args=[str(p_id)]))
+        except (product_models.Comment.DoesNotExist, Exception) as e:
+            print(e)
+            messages.warning(
+                request, 'There is no such comment with id {}'.format(id))
+            return HttpResponseRedirect(reverse('comments'))
+
+
+class CommentEdit(LoginRequiredMixin, View):
+    def post(self, request, id):
+        if (not request.user.has_perm('products.change_reply') and
+                not request.user.has_perm('products.edit_comment') and
+                not app_helper.is_vendor_admin(request.user)):
+            return HttpResponseRedirect(reverse('vendor-home'))
+        try:
+            comment = product_models.Comment.objects.get(id=id)
+            p_id = comment.product.id
+            comment.body = request.POST['reply']
+            comment.save()
+            messages.success(request, 'Comment has updated.')
+            return HttpResponseRedirect(
+                    reverse('comment-detail', args=[str(p_id)]))
+        except (product_models.Comment.DoesNotExist, Exception) as e:
+            print(e)
+            messages.warning(
+                request, 'There is no such comment with id {}'.format(id))
+            return HttpResponseRedirect(
+                reverse('comment-detail', args=[str(p_id)]))

@@ -1,4 +1,4 @@
-{% extends 'dashboardManagement/Partials/base.html' %}
+{% extends 'DashboardManagement/v2/Partials/base.html' %}
 {% load static %}
 
 {% block css %}
@@ -7,7 +7,7 @@
 
 {% block content %}
 {% if messages %}
-{% include "dashboardManagement/Partials/notification.html" %}
+{% include "DashboardManagement/v2/Partials/notification.html" %}
 {% endif %}
 <div class="card mb-4 py-3 border-bottom-success">
     <div class="card-body">
@@ -30,7 +30,7 @@
                 <tbody>
                     {% for product in products %}
                         <tr>
-                            <td>{{product.name}}</td>
+                            <td>{{product.english_name}}</td>
                             <td>
                                 {{product.comment}}
                             </td>
