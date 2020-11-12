@@ -138,8 +138,12 @@ class Product(user_models.AbstractTimeStamp):
             'Vendor.Vendor', on_delete=models.CASCADE, null=False, blank=False)
 
     if settings.HAS_OFFER_APP:
-        offers = models.ManyToManyField(
-            "Offer.OfferCategory", related_name="offer_products", blank=True)
+        offers = models.ForeignKey(
+            "Offer.Offer", related_name="offer_products",
+            blank=True, null=True, on_delete=models.SET_NULL)
+        discount = models.FloatField(null=True, blank=True)
+        offer_category = models.ManyToManyField(
+            "Offer.OfferCategory", related_name="offer_category",  blank=True)
 
     def __str__(self):
         return self.english_name

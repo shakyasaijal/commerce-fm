@@ -1,0 +1,103 @@
+{% extends 'DashboardManagement/v2/Partials/base.html' %}
+{% load static %}
+{% load addcss %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'DashboardManagement/v2/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+.select2-container--default .select2-selection--multiple .select2-selection__choice{
+    color: #000;
+}
+span.select2.select2-container.select2-container--default {
+    width: 100% !important;
+}
+</style>
+{% endblock css %}
+
+{% block content %}
+
+<section class="content-header">
+</section>
+<div class="content">
+  {% if messages %}   
+    {% include "DashboardManagement/v2/Partials/notification.html" %}
+  {% endif %}
+  <div class="box">
+    <div class="box-header">
+      <h3 class="box-title">Products</h3>
+      {% if 'add_product' in user_permissions or is_vendor_admin %}
+        <a href="{% url 'product-add' %}" class="btn btn-primary btn-sm btn-icon-split pull-right">
+            <span class="icon text-white-50">
+                <i class="fa fa-plus"></i>
+            </span>
+            <span class="text"> Add New Product</span>
+        </a>
+      {% endif %}
+    </div>
+    <div class="box-body">
+      <table id="example1" class="table table-bordered table-striped table-responsive">
+        <thead>
+            <tr>
+              <th>En/Np</th>
+              <th>Price</th>
+              <th>Select the Discount</th>
+              <th>Select the Offer Category</th>
+              <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for product in products %}
+              <tr>
+                  <td>{{product.english_name}} /{{product.nepali_name}}</td>
+                  <td>
+                      {% if product.old_price %}<span class="line-through">{{product.old_price}}</span> {% endif %}{{product.price}}
+                  </td>
+                  <form action="{% url 'add-product-to-offer' offer.id %}" method="POST">
+                  {% csrf_token %}
+                    {% if 'change_product' in user_permissions or is_vendor_admin%}
+                    <td>
+                        <select class="js-example-basic-single" name="discount">
+                          {% for discount in discounts %}
+                              <option value="{{discount}}">{{discount}}</option>
+                          {% endfor %}
+                        </select>
+                    </td>
+                    <td>  
+                      <select class="js-example-basic-single" name="offer_category" multiple>
+                        {% for category in offer.category.all %}
+                            <option value="{{category.pk}}">{{category}}</option>
+                        {% endfor %}
+                      </select>
+                    </td>
+                    <td>
+                      <input type="hidden" name="product_id" value="{{product.id}}" />
+                      <button type="submit" class="btn btn-primary">Add To Offer</button>
+                    </td>
+                    {% endif %}
+                  </form>
+              </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'DashboardManagement/v2/bower_components/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'DashboardManagement/v2/bower_components/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'DashboardManagement/v2/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+<script>
+    $(function () {
+      $('#example1').DataTable({
+        "lengthMenu": [[20, 50, 150, -1], [20, 50, 150, "All"]]
+      })
+    })
+    $(document).ready(function() {
+        $('.js-example-basic-single').select2();
+    });
+  </script>
+{% endblock js %}

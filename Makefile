@@ -26,6 +26,7 @@ down:
 
 # target: migrate - Migrate django models
 migrate:
+	docker-compose run --rm backend python3 manage.py makemigrations
 	docker-compose run --rm backend python3 manage.py migrate
 
 # target: runcommand - Run a django command.

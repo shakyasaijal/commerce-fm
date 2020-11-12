@@ -28,6 +28,9 @@ class OfferForm(forms.ModelForm):
         required=True, label="Small Banner Image", help_text="Please provide good quality image with size of 800*150.")
     category = forms.ModelMultipleChoiceField(
         required=True, queryset=offer_models.OfferCategory.objects.all(), widget=autocomplete.ModelSelect2Multiple(), help_text="What category can be included?")
+    discounts = forms.CharField(
+        label='Discount', help_text='Add Discounts with Comma Seperated',
+        widget=forms.TextInput(attrs={'autoFocus': True}))
 
     if settings.MULTI_VENDOR:
         vendor = forms.ModelMultipleChoiceField(

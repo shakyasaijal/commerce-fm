@@ -7,6 +7,7 @@ from django.conf import settings
 from helper import modelHelper
 from Products import models as products_models
 from Vendor import models as vendor_models
+from Offer import models as offer_models
 
 if settings.HAS_OFFER_APP:
     from Offer import models as offer_models
@@ -63,6 +64,8 @@ class ProductForm(forms.ModelForm):
 
     if settings.HAS_OFFER_APP:
         offer = forms.ModelMultipleChoiceField(required=False, queryset=offer_models.OfferCategory.objects.all())
+        offer_category = forms.ModelMultipleChoiceField(
+            required=False, queryset=offer_models.OfferCategory.objects.all(), widget=autocomplete.ModelSelect2Multiple())
 
     def __init__(self, vendor, *args, **kwargs):
         super(ProductForm, self).__init__(*args, **kwargs)
@@ -85,6 +88,8 @@ class ProductSingleForm(forms.ModelForm):
         label='Short Bio', help_text="Eg: size, material type, color etc", widget=CKEditorWidget(), required=False)
     category = forms.ModelMultipleChoiceField(
         required=False, queryset=products_models.Category.objects.all(), widget=autocomplete.ModelSelect2Multiple())
+    offer_category = forms.ModelMultipleChoiceField(
+        required=False, queryset=offer_models.OfferCategory.objects.all(), widget=autocomplete.ModelSelect2Multiple())
     status = forms.ChoiceField(required=False, choices=modelHelper.availability_choice,
                                help_text="Status with Available are only visible in the site.")
     is_featured = forms.ChoiceField(required=False, choices=modelHelper.is_featured,
@@ -104,6 +109,7 @@ class ProductSingleForm(forms.ModelForm):
 
     if settings.HAS_OFFER_APP:
         offer = forms.ModelMultipleChoiceField(required=False, queryset=offer_models.OfferCategory.objects.all())
+
 
 class ProductImage(forms.ModelForm):
     image = forms.ImageField(label='Image')

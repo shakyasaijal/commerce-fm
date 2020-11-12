@@ -57,6 +57,7 @@ if settings.HAS_OFFER_APP:
             upload_to=small_banner_image_name_change, blank=False)
         category = models.ManyToManyField(
             OfferCategory, related_name="offers_category")
+        discounts = models.TextField()
 
         if settings.MULTI_VENDOR:
             from Vendor import models as vendor_models

@@ -64,4 +64,5 @@ urlpatterns = [
     path('comments/delete/<id>', views.CommentDelete.as_view(), name="comment-delete"),
     path('comments/approve/<id>', views.CommentApprove.as_view(), name="comment-approve"),
     path('comments/edit/<int:id>', views.CommentEdit.as_view(), name="comment-edit"),
+    path('offers/', include('Offer.urls'))
 ]

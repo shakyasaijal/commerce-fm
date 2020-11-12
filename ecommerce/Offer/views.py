@@ -11,6 +11,7 @@ from DashboardManagement.common import helper as app_helper
 from DashboardManagement.views import vendor_only
 from Offer import models as offer_models
 from . import forms as offer_forms
+from Products import models as product_models
 
 
 template_version = "Offer/v1"
@@ -58,18 +59,18 @@ class AddOfferView(LoginRequiredMixin, View):
         return context
 
     def get(self, request):
-        if not app_helper.access_management('Offer.add_offer', request) or app_helper.is_vendor_admin(request.user):
+        if (not request.user.is_superuser):
             messages.error(
                 request, "You do not have permission to add offers.")
             return HttpResponseRedirect(reverse('vendor-home'))
-        
+
         context = {}
         context.update(self.common(request))
         context.update({"form": offer_forms.OfferForm()})
         return render(request, template_version+"/add.html", context=context)
 
     def post(self, request):
-        if not app_helper.access_management('Offer.add_offer', request) or app_helper.is_vendor_admin(request.user):
+        if (not request.user.is_superuser):
             messages.error(
                 request, "You do not have permission to add offers.")
             return HttpResponseRedirect(reverse('vendor-home'))
@@ -89,7 +90,7 @@ class AddOfferView(LoginRequiredMixin, View):
 
 class DeleteOffers(LoginRequiredMixin, View):
     def post(self, request):
-        if not app_helper.access_management('Offer.add_offer', request) or app_helper.is_vendor_admin(request.user):
+        if (not request.user.is_superuser):
             messages.error(
                 request, "You do not have permission to add offers.")
             return HttpResponseRedirect(reverse('vendor-home'))
@@ -99,7 +100,7 @@ class DeleteOffers(LoginRequiredMixin, View):
             offer.delete()
             messages.success(request, "Special Offer successfully deleted.")
             return HttpResponseRedirect(reverse('vendor-offers'))
-        except (Exception, offer_models.Offer.DoesNotExist) as e:
+        except (Exception, offer_models.Offer.DoesNotExist):
             messages.error(request, "No such offer found.")
             return HttpResponseRedirect(reverse('vendor-offers'))
 
@@ -114,6 +115,10 @@ class EditOffers(LoginRequiredMixin, View):
         return context
 
     def get(self, request, id):
+        if (not request.user.is_superuser):
+            messages.error(
+                request, "You do not have permission to add offers.")
+            return HttpResponseRedirect(reverse('vendor-home'))
         context = {}
 
         try:
@@ -127,6 +132,10 @@ class EditOffers(LoginRequiredMixin, View):
             return HttpResponseRedirect(reverse('vendor-offers'))
 
     def post(self, request, id):
+        if (not request.user.is_superuser):
+            messages.error(
+                request, "You do not have permission to add offers.")
+            return HttpResponseRedirect(reverse('vendor-home'))
         context = {}
 
         try:
@@ -142,3 +151,62 @@ class EditOffers(LoginRequiredMixin, View):
         except (Exception, offer_models.Offer.DoesNotExist):
             messages.error(request, "No such offer found.")
             return HttpResponseRedirect(reverse('vendor-offers'))
+
+
+class ListProductToAddInOffer(LoginRequiredMixin, View):
+    def get(self, request, id):
+        if (not app_helper.access_management('Product.add_product', request)
+                and not app_helper.is_vendor_admin(request.user)):
+            messages.error(
+                request,
+                "You do not have permission to add products to offers."
+            )
+            return HttpResponseRedirect(reverse('vendor-home'))
+        context = {
+            'title': 'Add Product To Offer'
+        }
+        offer = offer_models.Offer.objects.get(id=id)
+        if settings.MULTI_VENDOR and not request.user.is_superuser:
+            products = product_models.Product.objects.filter(
+                vendor=app_helper.current_user_vendor(request.user),
+                offers=None)\
+                .order_by("-id")
+        else:
+            products = product_models.Product.objects.all().order_by("-id")
+        routes = navbar.get_formatted_routes(navbar.get_routes(
+            request.user), active_page='products')
+        discounts = offer.discounts.split(',')
+        context['routes'] = routes
+        context['offer'] = offer
+        context['products'] = products
+        context['discounts'] = discounts
+        return render(
+            request,
+            template_version+"/productList.html",
+            context=context
+        )
+
+    def post(self, request, id):
+        if not app_helper.access_management('Products.change_product', request):
+            messages.error(
+                request, "You do not have permission to change products.")
+            return HttpResponseRedirect(reverse('vendor-home'))
+
+        try:
+            offer = offer_models.Offer.objects.get(id=id)
+            product = product_models.Product.objects.get(id=request.POST['product_id'])
+        except (product_models.Product.DoesNotExist,
+                offer_models.Offer.DoesNotExits):
+            messages.warning(
+                request, 'There seems to be something wrong')
+            return HttpResponseRedirect(reverse('products'))
+        print(request.POST.getlist('offer_category'), "sssssssssssssssssssss")
+        for i in request.POST.getlist('offer_category'):
+            product.offer_category.add(
+                offer_models.OfferCategory.objects.get(id=int(i)))
+        product.discount = request.POST['discount']
+        product.offers = offer
+        product.save()
+        messages.success(request, "Product added in Offer successfully.")
+        return HttpResponseRedirect(
+            reverse('add-product-to-offer', kwargs={'id': id}))

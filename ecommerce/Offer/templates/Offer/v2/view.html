@@ -17,7 +17,7 @@
             <div class="box">
                 <div class="box-header">
                     <h1 class="box-title">Special Offers</h1>
-                    {% if 'add_offer' in user_permissions or request.user.is_superuser %}
+                    {% if request.user.is_superuser %}
                         <a href="{% url 'vendor-offers-add' %}" class="btn btn-primary btn-sm btn-icon-split pull-right">
                             <span class="icon text-white-50">
                                 <i class="fa fa-plus"></i>
@@ -35,7 +35,7 @@
                           <th>Starting From</th>
                           <th>Ends At</th>
                           <th>Category</th>
-                          {% if 'delete_offer' in user_permissions or request.user.is_superuser %}
+                          {% if request.user.is_superuser %}
                             <th>Actions</th>
                           {% endif %}
                         </tr>
@@ -44,7 +44,13 @@
                         {% for data in offers %}
                             <tr>
                                 <td>{{forloop.counter}}</td>
-                                <td><a href="{% url 'vendor-offers-edit' data.id %}">{{data.title}}</a></td>
+                                <td>
+                                  {% if request.user.is_superuser%}
+                                    <a href="{% url 'vendor-offers-edit' data.id %}">{{data.title}}</a>
+                                  {% else %}
+                                    <a href="{% url 'add-product-to-offer' data.id %}">{{data.title}}</a>
+                                  {% endif %}
+                                </td>
                                 <td>{{data.starts_from}}</td>
                                 <td>{{data.ends_at}}</td>
                                 <td>{{data.category.all|length}}</td>

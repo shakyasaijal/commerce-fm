@@ -7,5 +7,6 @@ urlpatterns = [
     path('add', views.AddOfferView.as_view(), name="vendor-offers-add"),
     path('delete', views.DeleteOffers.as_view(), name="vendor-offers-delete"),
     path('edit/<int:id>', views.EditOffers.as_view(), name="vendor-offers-edit"),
-
+    path('add-product/<int:id>', views.ListProductToAddInOffer.as_view(),
+            name='add-product-to-offer'),
 ]
